@@ -1,5 +1,6 @@
 #pragma once
 #include "Events/Event.h"
+#include "Renderer/RenderingContext.h"
 
 #include <Windows.h>
 #include <string>
@@ -21,8 +22,6 @@ namespace DXR
 	public:
 		using EventCallBackFn = std::function<void(Event&)>;
 
-		static Scope<WindowsWnd> Create(const WindowProps& props);
-
 		WindowsWnd(const WindowProps& props);
 		virtual ~WindowsWnd();
 		void OnUpdate();
@@ -34,8 +33,9 @@ namespace DXR
 		void DispatchMsg();
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown();
-		static HWND m_WndHandle;
-		static HDC m_WndDc;
+		WNDCLASSEX* m_WndClass;
+		HWND* m_WndHandle;
+		Scope<RenderingContext> m_Context;
 		struct WindowData
 		{
 			std::string Title;
@@ -45,4 +45,6 @@ namespace DXR
 		};
 		WindowData m_Data;
 	};
+
+	Scope<WindowsWnd> Create(const WindowProps& props);
 }

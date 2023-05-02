@@ -43,6 +43,11 @@ project "Core"
 
 	filter "system:windows"
 		systemversion "latest"
+		
+		links
+		{
+			"d3d11.lib"
+		}
 
 	filter "configurations:Debug"
 		defines "DXR_DEBUG"

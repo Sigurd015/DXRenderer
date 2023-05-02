@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Application.h"
+#include "Renderer/Renderer.h"
 
 namespace DXR
 {
@@ -13,15 +14,15 @@ namespace DXR
 		if (!m_Specification.WorkingDirectory.empty())
 			std::filesystem::current_path(m_Specification.WorkingDirectory);
 
-		m_Window = WindowsWnd::Create(WindowProps(m_Specification.Name));
+		m_Window = Create(WindowProps(m_Specification.Name));
 		m_Window->SetEventCallback(DXR_BIND_EVENT_FN(Application::OnEvent));
 
-		//Renderer::Init();
+		Renderer::Init();
 	}
 
 	Application::~Application()
 	{
-		//Renderer::Shutdown();
+		Renderer::Shutdown();
 	}
 
 	void Application::PushLayer(Layer* layer)
@@ -54,15 +55,15 @@ namespace DXR
 	{
 		while (m_Running)
 		{
-			/*float time = Time::GetTime();
-			Timestep timestep = time - m_LastFrameTime;
-			m_LastFrameTime = time;*/
+			auto time = std::chrono::steady_clock::now();
+			Timestep timestep = std::chrono::duration<float>(time - m_LastFrameTime).count();
+			m_LastFrameTime = time;
 
 			if (!m_Minimized)
 			{
 				for (Layer* layer : m_LayerStack)
 				{
-					/*layer->OnUpdate(timestep);*/
+					layer->OnUpdate(timestep);
 				}
 			}
 
@@ -95,8 +96,7 @@ namespace DXR
 		}
 
 		m_Minimized = false;
-		//Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
-
+		Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
 		return false;
 	}
 }

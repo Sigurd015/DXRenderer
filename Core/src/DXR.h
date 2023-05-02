@@ -3,7 +3,6 @@
 #include "Base.h"
 #include "Application.h"
 #include "Timestep.h"
-#include "EntryPoint.h"
 
 // ---Layer---------------------
 #include "Layer/Layer.h"
@@ -13,18 +12,18 @@
 #include "Input/KeyCodes.h"
 #include "Input/MouseCodes.h"
 
-//// ---Renderer---------------------
-//#include "Engine/Renderer/Renderer.h"
-//#include "Engine/Renderer/Renderer2D.h"
-//#include "Engine/Renderer/RenderCommand.h"
-//#include "Engine/Renderer/Texture.h"
-//#include "Engine/Renderer/SubTexture2D.h"
-//#include "Engine/Renderer/Shader.h"
-//#include "Engine/Renderer/Buffer.h"
-//#include "Engine/Renderer/VertexArray.h"
-//#include "Engine/Renderer/Camera.h"
+// ---Renderer---------------------
+#include "Renderer/Renderer.h"
+//#include "Renderer/Renderer2D.h"
+#include "Renderer/RenderCommand.h"
+//#include "Renderer/Texture.h"
+//#include "Renderer/SubTexture2D.h"
+//#include "Renderer/Shader.h"
+//#include "Renderer/Buffer.h"
+//#include "Renderer/VertexArray.h"
+//#include "Renderer/Camera.h"
 
 //// ---Scene---------------------
-//#include "Engine/Scene/Scene.h"
-//#include "Engine/Scene/Components.h"
-//#include "Engine/Scene/ScriptableEntity.h"
+//#include "Scene/Scene.h"
+//#include "Scene/Components.h"
+//#include "Scene/ScriptableEntity.h"

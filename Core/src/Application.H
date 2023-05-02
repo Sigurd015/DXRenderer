@@ -4,6 +4,7 @@
 #include "Layer/Layer.h"
 #include "Platform/Windows/WindowsWnd.h"
 #include "Layer/LayerStack.h"
+#include <chrono>
 
 int main(int argc, char** argv);
 
@@ -49,7 +50,7 @@ namespace DXR
 		bool m_Minimized = false;
 		LayerStack m_LayerStack;
 		static Application* s_Instance;
-		float m_LastFrameTime = 0.0f;
+		std::chrono::steady_clock::time_point m_LastFrameTime = std::chrono::steady_clock::now();
 		friend int ::main(int argc, char** argv);
 	};
 
