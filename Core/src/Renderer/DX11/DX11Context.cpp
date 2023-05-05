@@ -3,26 +3,15 @@
 
 namespace DXR
 {
-	ID3D11DeviceContext* DX11Context::m_DeviceContext = nullptr;
-	ID3D11RenderTargetView* DX11Context::m_RenderTargetView = nullptr;
+	DX11Context* DX11Context::s_Instance = nullptr;
 
 	DX11Context::DX11Context(HWND* windowHandle) :m_WindowHandle(windowHandle)
 	{}
 
-	DX11Context::~DX11Context()
-	{
-		if (m_RenderTargetView != nullptr)
-			m_RenderTargetView->Release();
-		if (m_DeviceContext != nullptr)
-			m_DeviceContext->Release();
-		if (m_SwapChain != nullptr)
-			m_SwapChain->Release();
-		if (m_Device != nullptr)
-			m_Device->Release();
-	}
-
 	void DX11Context::Init()
 	{
+		s_Instance = this;
+
 		DXGI_SWAP_CHAIN_DESC dscd = {};
 		dscd.BufferDesc.Width = 0;
 		dscd.BufferDesc.Height = 0;
@@ -40,23 +29,25 @@ namespace DXR
 		dscd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 		dscd.Flags = 0;
 
-		D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &dscd,
-			&m_SwapChain, &m_Device, nullptr, &m_DeviceContext);
+		DXR_ASSERT(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &dscd,
+			&m_SwapChain, &m_Device, nullptr, &m_DeviceContext));
 
-		ID3D11Resource* backBuffer;
-		m_SwapChain->GetBuffer(0, __uuidof(ID3D11Resource), reinterpret_cast<void**>(&backBuffer));
-		m_Device->CreateRenderTargetView(backBuffer, nullptr, &m_RenderTargetView);
-		backBuffer->Release();
+		RECT rect = {};
+		GetClientRect(*m_WindowHandle, &rect);
+		ClientToScreen(*m_WindowHandle, (LPPOINT)&rect.left);
+		ClientToScreen(*m_WindowHandle, (LPPOINT)&rect.right);
+		D3D11_VIEWPORT viewPort{};
+		viewPort.Width = rect.right - rect.left;
+		viewPort.Height = rect.bottom - rect.top;
+		viewPort.MinDepth = 0;
+		viewPort.MaxDepth = 1;
+		viewPort.TopLeftX = 0;
+		viewPort.TopLeftY = 0;
+		m_DeviceContext->RSSetViewports(1, &viewPort);
 	}
 
 	void DX11Context::SwapBuffer()
 	{
-		m_SwapChain->Present(1u, 0u);
-	}
-
-	void DX11Context::SetClearColor(float r, float g, float b, float a)
-	{
-		const float color[] = { r,g,b,a };
-		m_DeviceContext->ClearRenderTargetView(m_RenderTargetView, color);
+		m_SwapChain->Present(1, 0);
 	}
 }

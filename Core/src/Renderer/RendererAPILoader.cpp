@@ -1,9 +1,17 @@
 #include "pch.h"
+#include "Renderer/VertexArray.h"
+#include "Renderer/Buffer.h"
+#include "Renderer/UniformBuffer.h"
+#include "Renderer/Shader.h"
 #include "Renderer/RenderingContext.h"
 #include "Renderer/RendererAPI.h"
 #include "Renderer/RenderCommand.h"
 #include "Renderer/DX11/DX11Context.h"
 #include "Renderer/DX11/DX11API.h"
+#include "Renderer/DX11/DX11VertexArray.h"
+#include "Renderer/DX11/DX11Buffer.h"
+#include "Renderer/DX11/DX11Shader.h"
+#include "Renderer/DX11/DX11UniformBuffer.h"
 
 namespace DXR
 {
@@ -26,66 +34,74 @@ namespace DXR
 	{
 		switch (RendererAPI::GetAPI())
 		{
-		case RendererAPI::API::None:   return nullptr;
-		case RendererAPI::API::DX11:  return CreateScope<DX11Context>(static_cast<HWND*>(window));
+		case RendererAPI::API::None:
+			return nullptr;
+		case RendererAPI::API::DX11:
+			return CreateScope<DX11Context>(static_cast<HWND*>(window));
 		}
 
 		return nullptr;
 	}
 
-	//Ref<Shader> Shader::Create(const std::string& filepath)
-	//{
-	//	switch (RendererAPI::GetAPI())
-	//	{
-	//	case RendererAPI::API::None:    HNB_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-	//	case RendererAPI::API::OpenGL:  return CreateRef<OpenGLShader>(filepath);
-	//	}
-	//	HNB_CORE_ASSERT(false, "Unknown RendererAPI!");
-	//	return nullptr;
-	//}
+	Ref<Shader> Shader::Create(const std::string& filepath)
+	{
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::None:
+			return nullptr;
+		case RendererAPI::API::DX11:
+			return CreateRef<DX11Shader>(filepath);
+			return nullptr;
+		}
+		return nullptr;
+	}
 
-	//Ref<VertexArray> VertexArray::Create()
-	//{
-	//	switch (RendererAPI::GetAPI())
-	//	{
-	//	case RendererAPI::API::None:    HNB_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-	//	case RendererAPI::API::OpenGL:  return CreateRef<OpenGLVertexArray>();
-	//	}
-	//	HNB_CORE_ASSERT(false, "Unknown RendererAPI!");
-	//	return nullptr;
-	//}
+	Ref<VertexArray> VertexArray::Create()
+	{
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::None:
+			return nullptr;
+		case RendererAPI::API::DX11:
+			return CreateRef<DX11VertexArray>();
+		}
+		return nullptr;
+	}
 
-	//Ref<VertexBuffer> VertexBuffer::Create(uint32_t size)
-	//{
-	//	switch (RendererAPI::GetAPI())
-	//	{
-	//	case RendererAPI::API::None:    HNB_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-	//	case RendererAPI::API::OpenGL:  return CreateRef<OpenGLVertexBuffer>(size);
-	//	}
-	//	HNB_CORE_ASSERT(false, "Unknown RendererAPI!");
-	//	return nullptr;
-	//}
-	//Ref<VertexBuffer> VertexBuffer::Create(float* vertices, uint32_t size)
-	//{
-	//	switch (RendererAPI::GetAPI())
-	//	{
-	//	case RendererAPI::API::None:    HNB_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-	//	case RendererAPI::API::OpenGL:  return CreateRef<OpenGLVertexBuffer>(vertices, size);
-	//	}
-	//	HNB_CORE_ASSERT(false, "Unknown RendererAPI!");
-	//	return nullptr;
-	//}
+	Ref<VertexBuffer> VertexBuffer::Create(uint32_t size)
+	{
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::None:
+			return nullptr;
+		case RendererAPI::API::DX11:
+			return CreateRef<DX11VertexBuffer>(size);
+		}
+		return nullptr;
+	}
+	Ref<VertexBuffer> VertexBuffer::Create(float* vertices, uint32_t size)
+	{
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::None:
+			return nullptr;
+		case RendererAPI::API::DX11:
+			return CreateRef<DX11VertexBuffer>(vertices, size);
+		}
+		return nullptr;
+	}
 
-	//Ref<IndexBuffer> IndexBuffer::Create(uint32_t* indices, uint32_t count)
-	//{
-	//	switch (RendererAPI::GetAPI())
-	//	{
-	//	case RendererAPI::API::None:    HNB_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-	//	case RendererAPI::API::OpenGL:  return CreateRef<OpenGLIndexBuffer>(indices, count);
-	//	}
-	//	HNB_CORE_ASSERT(false, "Unknown RendererAPI!");
-	//	return nullptr;
-	//}
+	Ref<IndexBuffer> IndexBuffer::Create(uint32_t* indices, uint32_t count)
+	{
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::None:
+			return nullptr;
+		case RendererAPI::API::DX11:
+			return CreateRef<DX11IndexBuffer>(indices, count);
+		}
+		return nullptr;
+	}
 
 	//Ref<Texture2D> Texture2D::Create(const std::string& path)
 	//{
@@ -121,15 +137,16 @@ namespace DXR
 	//	return nullptr;
 	//}
 
-	//Ref<UniformBuffer> UniformBuffer::Create(uint32_t size, uint32_t binding)
-	//{
-	//	switch (RendererAPI::GetAPI())
-	//	{
-	//	case RendererAPI::API::None:    HNB_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-	//	case RendererAPI::API::OpenGL:  return CreateRef<OpenGLUniformBuffer>(size, binding);
-	//	}
+	Ref<UniformBuffer> UniformBuffer::Create(uint32_t size, uint32_t binding)
+	{
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::None:    
+			return nullptr;
+		case RendererAPI::API::DX11:  
+			return CreateRef<DX11UniformBuffer>(size, binding);
+		}
 
-	//	HNB_CORE_ASSERT(false, "Unknown RendererAPI!");
-	//	return nullptr;
-	//}
+		return nullptr;
+	}
 }

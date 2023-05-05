@@ -3,6 +3,7 @@
 
 #include <d3d11.h>
 #include <Windows.h>
+#include <wrl.h>
 
 namespace DXR
 {
@@ -10,15 +11,16 @@ namespace DXR
 	{
 	public:
 		DX11Context(HWND* windowHandle);
-		~DX11Context();
 		void Init() override;
 		void SwapBuffer() override;
-		static void SetClearColor(float r, float g, float b, float a);
+		static Microsoft::WRL::ComPtr<ID3D11Device> GetDevice() { return s_Instance->m_Device; }
+		static Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetDeviceContext() { return s_Instance->m_DeviceContext; }
+		static Microsoft::WRL::ComPtr<IDXGISwapChain> GetSwapChain() { return s_Instance->m_SwapChain; }
 	private:
 		HWND* m_WindowHandle;
-		IDXGISwapChain* m_SwapChain;
-		ID3D11Device* m_Device;
-		static ID3D11DeviceContext* m_DeviceContext;
-		static ID3D11RenderTargetView* m_RenderTargetView;
+		static DX11Context* s_Instance;
+		Microsoft::WRL::ComPtr<IDXGISwapChain> m_SwapChain;
+		Microsoft::WRL::ComPtr<ID3D11Device> m_Device;
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_DeviceContext;
 	};
 }

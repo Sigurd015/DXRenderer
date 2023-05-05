@@ -14,9 +14,9 @@ namespace DXR
 		return CreateScope<WindowsWnd>(props);
 	}
 
-	WindowsWnd::WindowsWnd(const WindowProps& props)
+	WindowsWnd::WindowsWnd(const WindowProps& props) :m_Data(props)
 	{
-		Init(props);
+		Init();
 	}
 
 	WindowsWnd::~WindowsWnd()
@@ -24,49 +24,31 @@ namespace DXR
 		Shutdown();
 	}
 
-	void WindowsWnd::Init(const WindowProps& props)
+	void WindowsWnd::Init()
 	{
-		m_Data.Title = props.Title;
-		m_Data.Width = props.Width;
-		m_Data.Height = props.Height;
-
 		WNDCLASSEX wndClass = { sizeof(wndClass), CS_OWNDC,
 			WndProc, 0, 0, GetModuleHandle(nullptr), nullptr,
-			LoadCursor(nullptr, IDC_ARROW),
-			(HBRUSH)GetStockObject(BLACK_BRUSH),
-			nullptr, L"DXR", nullptr };
-
+			nullptr, nullptr, nullptr, L"DXR", nullptr };
 
 		if (!RegisterClassEx(&wndClass))
-			std::cout << "[RegisterClass]Init Failed" << std::endl;
-
-		HWND wndHandle = CreateWindowEx(0, wndClass.lpszClassName, CA2T(m_Data.Title.c_str()),
-			WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_SIZEBOX | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
-			0, 0, m_Data.Width, m_Data.Height, nullptr, nullptr, wndClass.hInstance, nullptr);
-
-		if (wndHandle == nullptr)
-			std::cout << "[CerateWindow]Init Failed" << std::endl;
-
-		SetWindowLongPtr(wndHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&m_Data));
+			DXR_INFO("[RegisterWndClass]Failed");
 
 		RECT rect = { 0, 0, m_Data.Width, m_Data.Height };
-		AdjustWindowRect(&rect, GetWindowLong(wndHandle, GWL_STYLE), false);
-		int wx = rect.right - rect.left;
-		int wy = rect.bottom - rect.top;
-		int sx = (GetSystemMetrics(SM_CXSCREEN) - wx) / 2;
-		int sy = (GetSystemMetrics(SM_CYSCREEN) - wy) / 2;
-		if (sy < 0) sy = 0;
+		AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
 
-		SetWindowPos(wndHandle, HWND_TOP, sx, sy, wx, wy,
-			(SWP_NOCOPYBITS | SWP_NOZORDER | SWP_SHOWWINDOW));
-		SetForegroundWindow(wndHandle);
+		HWND wndHandle = CreateWindow(wndClass.lpszClassName, CA2T(m_Data.Title.c_str()),
+			WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+			rect.right - rect.left, rect.bottom - rect.top, nullptr, nullptr, wndClass.hInstance, this);
 
-		ShowWindow(wndHandle, SW_NORMAL);
+		if (wndHandle == nullptr)
+			DXR_INFO("[CerateWindow]Failed");
+
+		ShowWindow(wndHandle, SW_SHOW);
 
 		m_WndClass = &wndClass;
 		m_WndHandle = &wndHandle;
 
-		m_Context= RenderingContext::Create(m_WndHandle);
+		m_Context = RenderingContext::Create(m_WndHandle);
 		m_Context->Init();
 	}
 
@@ -80,6 +62,13 @@ namespace DXR
 	{
 		switch (msg)
 		{
+		case WM_CREATE:
+		{
+			const CREATESTRUCTW* const temp = reinterpret_cast<CREATESTRUCTW*>(lParam);
+			WindowsWnd* const windowsWnd = static_cast<WindowsWnd*>(temp->lpCreateParams);
+			SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&windowsWnd->m_Data));
+			break;
+		}
 		case WM_SIZE:
 		{
 			static bool first = true;  //TODO:The first WM_SIZE call before SetWindowLongPtr can crash the app
@@ -89,54 +78,74 @@ namespace DXR
 				return 0;
 			}
 
-			WindowData& data = *reinterpret_cast<WindowData*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-			UINT width = LOWORD(lParam);
-			UINT height = HIWORD(lParam);
-			WindowResizeEvent event(width, height);
+			const bool minimized = wParam == SIZE_MINIMIZED;
+			const bool maximized = wParam == SIZE_MAXIMIZED;
+			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			if(minimized)
+			{
+				WindowResizeEvent event(0, 0);
+				data.EventCallback(event);
+				break;
+			}
+			if (maximized)
+			{
+				RECT rect = {};
+				rect.right = ::GetSystemMetrics(SM_CXSCREEN);
+				rect.bottom = ::GetSystemMetrics(SM_CYSCREEN);
+				WindowResizeEvent event(rect.right, rect.bottom);
+				data.EventCallback(event);
+				break;
+			}
+
+			RECT rect = {};
+			GetClientRect(hWnd, &rect);
+			ClientToScreen(hWnd, (LPPOINT)&rect.left);
+			ClientToScreen(hWnd, (LPPOINT)&rect.right);
+			WindowResizeEvent event(rect.right - rect.left, rect.bottom - rect.top);
 			data.EventCallback(event);
-			return 0;
+			break;
 		}
 		case WM_CLOSE:
 		{
-			WindowData& data = *reinterpret_cast<WindowData*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 			WindowCloseEvent event;
 			data.EventCallback(event);
-			return 0;
+			break;
 		}
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 		{
-			WindowData& data = *reinterpret_cast<WindowData*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-			KeyPressedEvent event(static_cast<KeyCode>(wParam), lParam & 0x40000000 ? true : false);
+			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			KeyPressedEvent event(wParam, lParam & 0x40000000 ? true : false);
 			data.EventCallback(event);
-			return 0;
+			break;
 		}
 		case WM_SYSKEYUP:
 		case WM_KEYUP:
 		{
-			WindowData& data = *reinterpret_cast<WindowData*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-			KeyReleasedEvent event(static_cast<KeyCode>(wParam));
+			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			KeyReleasedEvent event(wParam);
 			data.EventCallback(event);
-			return 0;
+			break;
 		}
 		case WM_CHAR:
 		{
-			WindowData& data = *reinterpret_cast<WindowData*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-			KeyTypedEvent event(static_cast<KeyCode>(wParam));
+			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			KeyTypedEvent event(wParam);
 			data.EventCallback(event);
-			return 0;
+			break;
 		}
 		case WM_MOUSEMOVE:
 		{
-			WindowData& data = *reinterpret_cast<WindowData*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 			auto point = MAKEPOINTS(lParam);
 			MouseMovedEvent event((float)point.x, (float)point.y);
 			data.EventCallback(event);
-			return 0;
+			break;
 		}
 		case WM_MOUSEWHEEL:
 		{
-			WindowData& data = *reinterpret_cast<WindowData*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 			float xOffset = 0, yOffset = 0;
 			if (GET_WHEEL_DELTA_WPARAM(wParam) > 0)
 				yOffset = 1;
@@ -144,49 +153,49 @@ namespace DXR
 				yOffset = -1;
 			MouseScrolledEvent event(xOffset, yOffset);
 			data.EventCallback(event);
-			return 0;
+			break;
 		}
 		case WM_RBUTTONDOWN:
 		{
-			WindowData& data = *reinterpret_cast<WindowData*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-			MouseButtonPressedEvent event(MouseCode::ButtonRight);
+			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			MouseButtonPressedEvent event(Mouse::ButtonRight);
 			data.EventCallback(event);
-			return 0;
+			break;
 		}
 		case WM_MBUTTONDOWN:
 		{
-			WindowData& data = *reinterpret_cast<WindowData*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-			MouseButtonPressedEvent event(MouseCode::ButtonMiddle);
+			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			MouseButtonPressedEvent event(Mouse::ButtonMiddle);
 			data.EventCallback(event);
-			return 0;
+			break;
 		}
 		case WM_LBUTTONDOWN:
 		{
-			WindowData& data = *reinterpret_cast<WindowData*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-			MouseButtonPressedEvent event(MouseCode::ButtonLeft);
+			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			MouseButtonPressedEvent event(Mouse::ButtonLeft);
 			data.EventCallback(event);
-			return 0;
+			break;
 		}
 		case WM_RBUTTONUP:
 		{
-			WindowData& data = *reinterpret_cast<WindowData*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-			MouseButtonReleasedEvent event(MouseCode::ButtonRight);
+			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			MouseButtonReleasedEvent event(Mouse::ButtonRight);
 			data.EventCallback(event);
-			return 0;
+			break;
 		}
 		case WM_MBUTTONUP:
 		{
-			WindowData& data = *reinterpret_cast<WindowData*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-			MouseButtonReleasedEvent event(MouseCode::ButtonMiddle);
+			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			MouseButtonReleasedEvent event(Mouse::ButtonMiddle);
 			data.EventCallback(event);
-			return 0;
+			break;
 		}
 		case WM_LBUTTONUP:
 		{
-			WindowData& data = *reinterpret_cast<WindowData*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-			MouseButtonReleasedEvent event(MouseCode::ButtonLeft);
+			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			MouseButtonReleasedEvent event(Mouse::ButtonLeft);
 			data.EventCallback(event);
-			return 0;
+			break;
 		}
 		default:
 			return DefWindowProc(hWnd, msg, wParam, lParam);
@@ -196,12 +205,11 @@ namespace DXR
 	void WindowsWnd::DispatchMsg()
 	{
 		MSG msg;
-		if (!PeekMessage(&msg, nullptr, 0, 0, PM_NOREMOVE))
-			return;
-		if (!GetMessage(&msg, nullptr, 0, 0))
-			return;
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
 	}
 
 	void WindowsWnd::Shutdown()
