@@ -80,7 +80,7 @@ namespace DXR
 
 	void DX11Shader::Compile(const std::unordered_map<ShaderType, std::string>& shaderSources)
 	{
-	
+
 		for (auto& kv : shaderSources)
 		{
 			ShaderType type = kv.first;
@@ -91,24 +91,8 @@ namespace DXR
 			{
 				DXR_ASSERT(D3DCompile(source.c_str(), source.length(), nullptr, nullptr, nullptr,
 					"main", "vs_4_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &m_VertexShaderBlob, nullptr));
-				DXR_ASSERT(DX11Context::GetDevice()->CreateVertexShader(
-					m_VertexShaderBlob->GetBufferPointer(), m_VertexShaderBlob->GetBufferSize(),
-					nullptr, &m_VertexShader));
-
-				//---------------TODO:TEMP-------------
-				//Microsoft::WRL::ComPtr<ID3D11InputLayout> pInputLayout;
-				//const D3D11_INPUT_ELEMENT_DESC ied[] =
-				//{
-				//	{ "Position",0,DXGI_FORMAT_R32G32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0 },
-				//	{ "Color",0,DXGI_FORMAT_R32G32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0 },
-				//};
-				//DXR_ASSERT(DX11Context::GetDevice()->CreateInputLayout(
-				//	ied, (UINT)std::size(ied), m_VertexShaderBlob->GetBufferPointer(),
-				//	m_VertexShaderBlob->GetBufferSize(),&pInputLayout));
-				//DXR_INFO("BUffersize:", m_VertexShaderBlob->GetBufferSize());
-				//DX11Context::GetDeviceContext()->IASetInputLayout(pInputLayout.Get());
-				//---------------TODO:TEMP-------------
-
+				DXR_ASSERT(DX11Context::GetDevice()->CreateVertexShader(m_VertexShaderBlob->GetBufferPointer(),
+					m_VertexShaderBlob->GetBufferSize(), nullptr, &m_VertexShader));
 				break;
 			}
 			case DXR::PIXEL_SHADER:
@@ -116,10 +100,8 @@ namespace DXR
 				Microsoft::WRL::ComPtr<ID3DBlob> blob;
 				DXR_ASSERT(D3DCompile(source.c_str(), source.length(), nullptr, nullptr, nullptr,
 					"main", "ps_4_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &blob, nullptr));
-
-				DXR_ASSERT(DX11Context::GetDevice()->CreatePixelShader(
-					blob->GetBufferPointer(), blob->GetBufferSize(),
-					nullptr, &m_PixelShader));
+				DXR_ASSERT(DX11Context::GetDevice()->CreatePixelShader(blob->GetBufferPointer(),
+					blob->GetBufferSize(), nullptr, &m_PixelShader));
 				break;
 			}
 			case DXR::UNKNOWN:
@@ -144,10 +126,10 @@ namespace DXR
 	void DX11Shader::SetUniform(const std::string& name, int value)
 	{}
 
-	void DX11Shader::SetUniform(const std::string & name, int* values, uint32_t count)
+	void DX11Shader::SetUniform(const std::string& name, int* values, uint32_t count)
 	{}
 
-	void DX11Shader::SetUniform(const std::string & name, float value)
+	void DX11Shader::SetUniform(const std::string& name, float value)
 	{}
 
 	DX11Shader::~DX11Shader()

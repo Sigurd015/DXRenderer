@@ -21,4 +21,5 @@
 #include "Renderer/Shader.h"
 #include "Renderer/Buffer.h"
 #include "Renderer/VertexArray.h"
+#include "Renderer/UniformBuffer.h"
 //#include "Renderer/Camera.h"

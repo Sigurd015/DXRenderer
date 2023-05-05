@@ -7,16 +7,16 @@
 
 namespace DXR
 {
-	class DX11UniformBuffer : public UniformBuffer
+	class DX11ConstantBuffer : public UniformBuffer
 	{
 	public:
-		DX11UniformBuffer(uint32_t size, uint32_t binding);
-		virtual ~DX11UniformBuffer();
+		DX11ConstantBuffer(uint32_t size, uint32_t binding);
+		virtual ~DX11ConstantBuffer();
 
 		virtual void SetData(const void* data, uint32_t size, uint32_t offset = 0) override;
 	private:
 		uint32_t m_BindingID;
-		D3D11_BUFFER_DESC m_Buffer;
+
 		Microsoft::WRL::ComPtr<ID3D11Buffer> m_ConstantBuffer;
 	};
 }

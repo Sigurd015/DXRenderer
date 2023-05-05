@@ -11,7 +11,7 @@
 #include "Renderer/DX11/DX11VertexArray.h"
 #include "Renderer/DX11/DX11Buffer.h"
 #include "Renderer/DX11/DX11Shader.h"
-#include "Renderer/DX11/DX11UniformBuffer.h"
+#include "Renderer/DX11/DX11ConstantBuffer.h"
 
 namespace DXR
 {
@@ -144,7 +144,7 @@ namespace DXR
 		case RendererAPI::API::None:    
 			return nullptr;
 		case RendererAPI::API::DX11:  
-			return CreateRef<DX11UniformBuffer>(size, binding);
+			return CreateRef<DX11ConstantBuffer>(size, binding);
 		}
 
 		return nullptr;

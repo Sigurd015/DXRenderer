@@ -18,9 +18,9 @@ namespace DXR
 			s_RendererAPI->SetViewport(x, y, width, height);
 		}
 
-		static void SetClearColor(float r, float g, float b, float a)
+		static void SetClearColor(const DirectX::XMFLOAT4& color)
 		{
-			s_RendererAPI->SetClearColor(r, g, b, a);
+			s_RendererAPI->SetClearColor(color);
 		}
 
 		static void Clear()

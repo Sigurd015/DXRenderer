@@ -3,40 +3,40 @@
 #include "Events/KeyEvent.h"
 #include "Events/MouseEvent.h"
 #include <iostream>
-
+#include <DirectXMath.h>
 
 struct Vertex
 {
-	struct
-	{
-		float x;
-		float y;
-	} pos;
-	struct
-	{
-		float r;
-		float g;
-		float b;
-		float a;
-	} color;
+	float x;
+	float y;
+	float r;
+	float g;
+	float b;
+	float a;
 };
-
 
 uint32_t indices[] =
 {
 	0,1,2,
 	0,2,3,
-	0,4,1,
-	2,1,5,
+	4,1,0
+};
+
+struct TranMat
+{
+	DirectX::XMMATRIX Trans;
 };
 
 class ExampleLayer :public DXR::Layer
 {
 private:
+	DXR::Ref<DXR::VertexArray> m_VertexArray;
 	DXR::Ref<DXR::VertexBuffer>	m_VertexBuffer;
 	DXR::Ref<DXR::IndexBuffer>	m_IndexBuffer;
+	DXR::Ref<DXR::UniformBuffer> m_UniformBuffer;
 	DXR::Ref<DXR::Shader>	m_Shader;
-	DXR::Ref<DXR::VertexArray> m_VertexArray;
+	TranMat Trans = {};
+	DirectX::XMFLOAT4 color = { 0,0,0,0 };
 public:
 	ExampleLayer() :Layer("ExampleLayer") {}
 	~ExampleLayer() {}
@@ -44,12 +44,11 @@ public:
 	{
 		Vertex vertices[] =
 		{
-			{ 0.0f,0.5f,1.0f,0,0,0 },
-			{ 0.5f,-0.5f,0,1.0f,0,0 },
-			{ -0.5f,-0.5f,0,0,1.0f,0 },
-			{ -0.3f,0.3f,0,1.0f,0,0 },
-			{ 0.3f,0.3f,0,0,1.0f,0 },
-			{ 0.0f,-0.8f,1.0f,0,0,0 },
+			{  0.0f,  0.5f, 1.0f,    0,      0,   0 },
+			{  0.5f, -0.5f,    0, 1.0f,      0,   0 },
+			{ -0.5f, -0.5f,    0,    0,   1.0f,   0 },
+			{ -0.5f,  0.5f, 0.5f, 0.5f,   0.5f,   0 },
+			{  0.5f,  0.5f, 0.5f, 0.5f,   0.5f,   0 },
 		};
 		m_VertexArray = DXR::VertexArray::Create();
 		m_VertexBuffer = DXR::VertexBuffer::Create(60 * sizeof(Vertex));
@@ -59,10 +58,12 @@ public:
 			});
 		m_Shader = DXR::Shader::Create("assets/shaders/TestShader.hlsl");
 		m_VertexArray->AddVertexBuffer(m_VertexBuffer, m_Shader);
-		m_IndexBuffer = DXR::IndexBuffer::Create(indices, sizeof(indices));
+		m_IndexBuffer = DXR::IndexBuffer::Create(indices, (uint32_t)std::size(indices));
 		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
 		m_VertexBuffer->SetData(vertices, sizeof(vertices));
+
+		m_UniformBuffer = DXR::UniformBuffer::Create(sizeof(TranMat), 2);
 	}
 
 	void OnDetach() override
@@ -70,11 +71,16 @@ public:
 
 	void OnUpdate(DXR::Timestep ts)override
 	{
-		DXR::RenderCommand::SetClearColor(0, 0, 0, 0);
+		DXR::RenderCommand::SetClearColor(color);
 		DXR::RenderCommand::Clear();
-	
+
+		float angle = DirectX::XMConvertToRadians(45 * ts);
+		Trans.Trans = DirectX::XMMatrixRotationZ(angle);
+		DXR_INFO("Angle:", angle);
+		m_UniformBuffer->SetData(&Trans.Trans, sizeof(TranMat));
+
 		m_Shader->Bind();
-		DXR::RenderCommand::DrawIndexed(m_VertexArray, (UINT)std::size(indices));
+		DXR::RenderCommand::DrawIndexed(m_VertexArray);
 		//DXR_INFO("Timestep:",ts);
 	}
 

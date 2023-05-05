@@ -10,7 +10,7 @@ namespace DXR
 		~DX11VertexArray();
 		void Bind() const override;
 		void Unbind() const override;
-		void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, const Ref<Shader> shader = nullptr) override;
+		void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, const Ref<Shader>& shader = nullptr) override;
 		void SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer) override;
 		const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const { return m_VertexBuffers; }
 		const Ref<IndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }

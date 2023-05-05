@@ -18,7 +18,7 @@ namespace DXR
 		const BufferLayout& GetLayout() const override { return m_Layout; }
 		void SetLayout(const BufferLayout& layout)override { m_Layout = layout;	m_Stride = m_Layout.GetStride(); }
 	private:
-		uint32_t m_Stride;
+		uint32_t m_Stride = 0;
 		BufferLayout m_Layout;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> m_VertexBuffer;
 	};
