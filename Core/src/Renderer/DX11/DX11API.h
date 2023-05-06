@@ -21,6 +21,7 @@ namespace DXR
 		void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount) override;
 		void SetLineWidth(float width) override;
 	private:
+		void SetBuffer(uint32_t width, uint32_t height, uint32_t x = 0, uint32_t y = 0);
 		Microsoft::WRL::ComPtr<IDXGISwapChain> m_SwapChain;
 		Microsoft::WRL::ComPtr<ID3D11Device> m_Device;
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_DeviceContext;

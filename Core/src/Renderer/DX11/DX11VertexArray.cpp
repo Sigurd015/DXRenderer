@@ -18,10 +18,10 @@ namespace DXR
 		case ShaderDataType::Float4:   return DXGI_FORMAT_R32G32_FLOAT;
 		case ShaderDataType::Mat3:     return DXGI_FORMAT_R32G32_FLOAT;
 		case ShaderDataType::Mat4:     return DXGI_FORMAT_R32G32_FLOAT;
-		case ShaderDataType::Int:      return DXGI_FORMAT_R32_UINT;
-		case ShaderDataType::Int2:     return DXGI_FORMAT_R32_UINT;
-		case ShaderDataType::Int3:     return DXGI_FORMAT_R32_UINT;
-		case ShaderDataType::Int4:     return DXGI_FORMAT_R32_UINT;
+		case ShaderDataType::Int:      return DXGI_FORMAT_R32G32_UINT;
+		case ShaderDataType::Int2:     return DXGI_FORMAT_R32G32_UINT;
+		case ShaderDataType::Int3:     return DXGI_FORMAT_R32G32_UINT;
+		case ShaderDataType::Int4:     return DXGI_FORMAT_R32G32_UINT;
 		}
 		return DXGI_FORMAT_UNKNOWN;
 	}
@@ -41,9 +41,9 @@ namespace DXR
 	void DX11VertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, const Ref<Shader>& shader)
 	{
 		vertexBuffer->Bind();
-		DX11Shader* dx11shader = (DX11Shader*)shader.get();
+		DX11Shader* vertexShader = (DX11Shader*)shader.get();
 		const auto& layout = vertexBuffer->GetLayout();
-		std::vector<D3D11_INPUT_ELEMENT_DESC> tempArray;
+		std::vector<D3D11_INPUT_ELEMENT_DESC> temp;
 		for (const auto& element : layout)
 		{
 			switch (element.Type)
@@ -53,11 +53,9 @@ namespace DXR
 			case ShaderDataType::Float3:
 			case ShaderDataType::Float4:
 			{
-				tempArray.push_back(
-					D3D11_INPUT_ELEMENT_DESC{
-						element.Name.c_str(),0,
-						ShaderDataTypeToOpenGLBaseType(element.Type),0,
-						(UINT)element.Offset ,D3D11_INPUT_PER_VERTEX_DATA ,0 });
+				temp.push_back(D3D11_INPUT_ELEMENT_DESC{
+						element.Name.c_str(),0,ShaderDataTypeToOpenGLBaseType(element.Type),
+						0,(UINT)element.Offset ,D3D11_INPUT_PER_VERTEX_DATA ,0 });
 				m_VertexBufferIndex++;
 				break;
 			}
@@ -78,8 +76,8 @@ namespace DXR
 
 		Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
 		DXR_ASSERT(DX11Context::GetDevice()->CreateInputLayout(
-			&tempArray[0],(UINT)tempArray.size(), dx11shader->GetVertextBufferPointer(),
-			dx11shader->GetVertextBufferSize(), &inputLayout));
+			&temp[0], (UINT)temp.size(), vertexShader->GetVertextBufferPointer(),
+			vertexShader->GetVertextBufferSize(), &inputLayout));
 		DX11Context::GetDeviceContext()->IASetInputLayout(inputLayout.Get());
 		m_VertexBuffers.push_back(vertexBuffer);
 	}

@@ -4,35 +4,33 @@
 
 namespace DXR
 {
+	void CreateBuffer(D3D11_BIND_FLAG bindFlag, uint32_t size, D3D11_USAGE usage, int cpuAccess, uint32_t stride,
+		D3D11_SUBRESOURCE_DATA* pInitialData, ID3D11Buffer** ppBuffer)
+	{
+		D3D11_BUFFER_DESC bufferDesc = { 0 };
+		bufferDesc.ByteWidth = size;
+		bufferDesc.Usage = usage;
+		bufferDesc.BindFlags = bindFlag;
+		bufferDesc.CPUAccessFlags = cpuAccess;
+		bufferDesc.MiscFlags = 0;
+		bufferDesc.StructureByteStride = stride;
+		DXR_ASSERT(DX11Context::GetDevice()->CreateBuffer(&bufferDesc, pInitialData, ppBuffer));
+	}
+
 	//-------------
 	// VertexBuffer 
 	//-------------
 
 	DX11VertexBuffer::DX11VertexBuffer(uint32_t size)
 	{
-		D3D11_BUFFER_DESC bufferDesc = { 0 };
-		bufferDesc.ByteWidth = size;
-		bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-		bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		bufferDesc.MiscFlags = 0;
-		bufferDesc.StructureByteStride = m_Stride;
-		DXR_ASSERT(DX11Context::GetDevice()->CreateBuffer(&bufferDesc, nullptr, &m_VertexBuffer));
+		CreateBuffer(D3D11_BIND_VERTEX_BUFFER, size, D3D11_USAGE_DYNAMIC, D3D11_CPU_ACCESS_WRITE, m_Stride, nullptr, &m_VertexBuffer);
 	}
 
 	DX11VertexBuffer::DX11VertexBuffer(float* vertices, uint32_t size) 
 	{
-		D3D11_BUFFER_DESC bufferDesc = { 0 };
-		bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		bufferDesc.CPUAccessFlags = 0;
-		bufferDesc.MiscFlags = 0;
-		bufferDesc.ByteWidth = size;
-		bufferDesc.StructureByteStride = m_Stride;
 		D3D11_SUBRESOURCE_DATA resourceData = {};
 		resourceData.pSysMem = vertices;
-
-		DXR_ASSERT(DX11Context::GetDevice()->CreateBuffer(&bufferDesc, &resourceData, &m_VertexBuffer));
+		CreateBuffer(D3D11_BIND_VERTEX_BUFFER, size, D3D11_USAGE_DEFAULT, 0, m_Stride, &resourceData, &m_VertexBuffer);
 	}
 
 	DX11VertexBuffer::~DX11VertexBuffer()
@@ -66,16 +64,9 @@ namespace DXR
 
 	DX11IndexBuffer::DX11IndexBuffer(uint32_t* indices, uint32_t count) : m_Count(count)
 	{
-		D3D11_BUFFER_DESC buffer = {};
-		buffer.BindFlags = D3D11_BIND_INDEX_BUFFER;
-		buffer.Usage = D3D11_USAGE_DEFAULT;
-		buffer.CPUAccessFlags = 0;
-		buffer.MiscFlags = 0;
-		buffer.ByteWidth = count * sizeof(uint32_t);
-		buffer.StructureByteStride = 0;
 		D3D11_SUBRESOURCE_DATA resourceData = {};
 		resourceData.pSysMem = indices;
-		DX11Context::GetDevice()->CreateBuffer(&buffer, &resourceData, &m_IndexBuffer);
+		CreateBuffer(D3D11_BIND_INDEX_BUFFER, count * sizeof(uint32_t), D3D11_USAGE_DEFAULT, 0, 0, &resourceData, &m_IndexBuffer);
 	}
 
 	DX11IndexBuffer::~DX11IndexBuffer()

@@ -17,6 +17,8 @@ namespace DXR
 		m_Window = Create(WindowProps(DXR_BIND_EVENT_FN(Application::OnEvent), m_Specification.Name));
 
 		Renderer::Init();
+		m_ImGuiLayer = new ImGuiLayer();
+		PushOverlay(m_ImGuiLayer);
 	}
 
 	Application::~Application()
@@ -63,10 +65,10 @@ namespace DXR
 				for (Layer* layer : m_LayerStack)
 					layer->OnUpdate(timestep);
 
-				//m_ImGuiLayer->Begin();
+			/*	m_ImGuiLayer->Begin();
 				for (Layer* layer : m_LayerStack)
 					layer->OnImGuiRender();
-				//m_ImGuiLayer->End();
+				m_ImGuiLayer->End();*/
 			}
 
 			m_Window->OnUpdate();

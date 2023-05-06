@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Renderer/VertexArray.h"
+#include "Renderer/Texture.h"
 #include "Renderer/Buffer.h"
 #include "Renderer/UniformBuffer.h"
 #include "Renderer/Shader.h"
@@ -12,6 +13,7 @@
 #include "Renderer/DX11/DX11Buffer.h"
 #include "Renderer/DX11/DX11Shader.h"
 #include "Renderer/DX11/DX11ConstantBuffer.h"
+#include "Renderer/DX11/DX11Texture.h"
 
 namespace DXR
 {
@@ -103,27 +105,29 @@ namespace DXR
 		return nullptr;
 	}
 
-	//Ref<Texture2D> Texture2D::Create(const std::string& path)
-	//{
-	//	switch (RendererAPI::GetAPI())
-	//	{
-	//	case RendererAPI::API::None:    HNB_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-	//	case RendererAPI::API::OpenGL:  return  CreateRef<OpenGLTexture2D>(path);
-	//	}
-	//	HNB_CORE_ASSERT(false, "Unknown RendererAPI!");
-	//	return nullptr;
-	//}
+	Ref<Texture2D> Texture2D::Create(const std::string& path)
+	{
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::None:
+			return nullptr;
+		case RendererAPI::API::DX11: 
+			return  CreateRef<DX11Texture2D>(path);
+		}
+		return nullptr;
+	}
 
-	//Ref<Texture2D> Texture2D::Create(uint32_t width, uint32_t height)
-	//{
-	//	switch (RendererAPI::GetAPI())
-	//	{
-	//	case RendererAPI::API::None:    HNB_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-	//	case RendererAPI::API::OpenGL:  return CreateRef<OpenGLTexture2D>(width, height);
-	//	}
-	//	HNB_CORE_ASSERT(false, "Unknown RendererAPI!");
-	//	return nullptr;
-	//}
+	Ref<Texture2D> Texture2D::Create(uint32_t width, uint32_t height)
+	{
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::None:  
+			return nullptr;
+		case RendererAPI::API::DX11:  
+			return CreateRef<DX11Texture2D>(width, height);
+		}
+		return nullptr;
+	}
 
 	//Ref<Framebuffer> Framebuffer::Create(const FramebufferSpecification& spec)
 	//{

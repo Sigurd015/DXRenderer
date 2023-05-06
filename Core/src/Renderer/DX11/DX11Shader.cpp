@@ -90,7 +90,7 @@ namespace DXR
 			case DXR::VERTEX_SHADER:
 			{
 				DXR_ASSERT(D3DCompile(source.c_str(), source.length(), nullptr, nullptr, nullptr,
-					"main", "vs_4_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &m_VertexShaderBlob, nullptr));
+					"main", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &m_VertexShaderBlob, nullptr));
 				DXR_ASSERT(DX11Context::GetDevice()->CreateVertexShader(m_VertexShaderBlob->GetBufferPointer(),
 					m_VertexShaderBlob->GetBufferSize(), nullptr, &m_VertexShader));
 				break;
@@ -99,7 +99,7 @@ namespace DXR
 			{
 				Microsoft::WRL::ComPtr<ID3DBlob> blob;
 				DXR_ASSERT(D3DCompile(source.c_str(), source.length(), nullptr, nullptr, nullptr,
-					"main", "ps_4_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &blob, nullptr));
+					"main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &blob, nullptr));
 				DXR_ASSERT(DX11Context::GetDevice()->CreatePixelShader(blob->GetBufferPointer(),
 					blob->GetBufferSize(), nullptr, &m_PixelShader));
 				break;

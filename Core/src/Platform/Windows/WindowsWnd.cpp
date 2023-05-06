@@ -6,6 +6,9 @@
 
 #include <atlbase.h>
 #include <atlconv.h>
+#include <backends/imgui_impl_win32.h>
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace DXR
 {
@@ -49,17 +52,19 @@ namespace DXR
 		m_WndHandle = &wndHandle;
 
 		m_Context = RenderingContext::Create(m_WndHandle);
-		m_Context->Init();
 	}
 
 	void WindowsWnd::OnUpdate()
 	{
 		DispatchMsg();
-		m_Context->SwapBuffer();
+		m_Context->SwapBuffer(m_Data.VSync);
 	}
 
 	LRESULT WindowsWnd::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
+		if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+			return true;
+
 		switch (msg)
 		{
 		case WM_CREATE:
@@ -71,11 +76,11 @@ namespace DXR
 		}
 		case WM_SIZE:
 		{
-			static bool first = true;  //TODO:The first WM_SIZE call before SetWindowLongPtr can crash the app
+			static bool first = true;  //TODO:The first WM_SIZE call before RenderingContext::Create() can crash the app
 			if (first)
 			{
 				first = false;
-				return 0;
+				break;
 			}
 
 			const bool minimized = wParam == SIZE_MINIMIZED;

@@ -4,7 +4,6 @@
 #include <iostream>
 #include <Windows.h>
 #include <comdef.h>
-#include <tchar.h>
 template<typename ...Args>
 void DXR_INFO(Args && ...args)
 {

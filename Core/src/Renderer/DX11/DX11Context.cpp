@@ -1,12 +1,15 @@
 #include "pch.h"
 #include "Renderer/DX11/DX11Context.h"
+#include "Application.h"
 
 namespace DXR
 {
 	DX11Context* DX11Context::s_Instance = nullptr;
 
 	DX11Context::DX11Context(HWND* windowHandle) :m_WindowHandle(windowHandle)
-	{}
+	{
+		Init();
+	}
 
 	void DX11Context::Init()
 	{
@@ -31,23 +34,10 @@ namespace DXR
 
 		DXR_ASSERT(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &dscd,
 			&m_SwapChain, &m_Device, nullptr, &m_DeviceContext));
-
-		RECT rect = {};
-		GetClientRect(*m_WindowHandle, &rect);
-		ClientToScreen(*m_WindowHandle, (LPPOINT)&rect.left);
-		ClientToScreen(*m_WindowHandle, (LPPOINT)&rect.right);
-		D3D11_VIEWPORT viewPort{};
-		viewPort.Width = rect.right - rect.left;
-		viewPort.Height = rect.bottom - rect.top;
-		viewPort.MinDepth = 0;
-		viewPort.MaxDepth = 1;
-		viewPort.TopLeftX = 0;
-		viewPort.TopLeftY = 0;
-		m_DeviceContext->RSSetViewports(1, &viewPort);
 	}
 
-	void DX11Context::SwapBuffer()
+	void DX11Context::SwapBuffer(bool VSync)
 	{
-		m_SwapChain->Present(1, 0);
+		m_SwapChain->Present(VSync, 0);
 	}
 }

@@ -6,14 +6,14 @@ namespace DXR
 {
 	DX11ConstantBuffer::DX11ConstantBuffer(uint32_t size, uint32_t binding) :m_BindingID(binding)
 	{
-		D3D11_BUFFER_DESC buffer;
+		D3D11_BUFFER_DESC buffer = {};
 		buffer.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		buffer.Usage = D3D11_USAGE_DYNAMIC;
 		buffer.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		buffer.MiscFlags = 0;
 		buffer.ByteWidth = size;
 		buffer.StructureByteStride = 0;
-		DX11Context::GetDevice()->CreateBuffer(&buffer, nullptr, &m_ConstantBuffer);
+		DXR_ASSERT(DX11Context::GetDevice()->CreateBuffer(&buffer, nullptr, &m_ConstantBuffer));
 		DX11Context::GetDeviceContext()->VSSetConstantBuffers(0, 1, m_ConstantBuffer.GetAddressOf());
 	}
 
@@ -26,7 +26,7 @@ namespace DXR
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
-		DX11Context::GetDeviceContext()->Map(m_ConstantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		DXR_ASSERT(DX11Context::GetDeviceContext()->Map(m_ConstantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 		memcpy(mappedResource.pData, data, size);
 		DX11Context::GetDeviceContext()->Unmap(m_ConstantBuffer.Get(), 0);
 	}

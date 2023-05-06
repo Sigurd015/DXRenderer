@@ -11,12 +11,12 @@ namespace DXR
 	{
 	public:
 		DX11Context(HWND* windowHandle);
-		void Init() override;
-		void SwapBuffer() override;
+		void SwapBuffer(bool VSync) override;
 		static Microsoft::WRL::ComPtr<ID3D11Device> GetDevice() { return s_Instance->m_Device; }
 		static Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetDeviceContext() { return s_Instance->m_DeviceContext; }
 		static Microsoft::WRL::ComPtr<IDXGISwapChain> GetSwapChain() { return s_Instance->m_SwapChain; }
 	private:
+		void Init();
 		HWND* m_WindowHandle;
 		static DX11Context* s_Instance;
 		Microsoft::WRL::ComPtr<IDXGISwapChain> m_SwapChain;

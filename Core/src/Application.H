@@ -4,6 +4,8 @@
 #include "Layer/Layer.h"
 #include "Platform/Windows/WindowsWnd.h"
 #include "Layer/LayerStack.h"
+#include "Layer/ImGui/ImGuiLayer.h""
+
 #include <chrono>
 
 int main(int argc, char** argv);
@@ -46,6 +48,7 @@ namespace DXR
 		bool OnWindowResize(WindowResizeEvent& e);
 		ApplicationSpecification m_Specification;
 		Scope<WindowsWnd> m_Window;
+		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
 		bool m_Minimized = false;
 		LayerStack m_LayerStack;

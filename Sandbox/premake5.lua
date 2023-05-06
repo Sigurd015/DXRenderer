@@ -15,7 +15,8 @@ project "Sandbox"
 
 	includedirs
 	{
-		"%{wks.location}/Core/src"
+		"%{wks.location}/Core/src",
+		"%{IncludeDir.ImGui}"
 	}
 
 	links

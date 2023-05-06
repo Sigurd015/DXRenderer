@@ -11,8 +11,32 @@ namespace DXR
 		m_Device = DX11Context::GetDevice();
 		m_SwapChain = DX11Context::GetSwapChain();
 
+		SetBuffer(Application::Get().GetWindow().GetWidth(), Application::Get().GetWindow().GetHeight());
+	}
+
+	void DX11RendererAPI::SetClearColor(const DirectX::XMFLOAT4& color)
+	{
+		m_DeviceContext->ClearRenderTargetView(m_RenderTargetView.Get(), &color.x);
+	}
+
+	void DX11RendererAPI::Clear()
+	{
+		m_DeviceContext->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1, 0);
+	}
+
+	void DX11RendererAPI::SetBuffer(uint32_t width, uint32_t height, uint32_t x, uint32_t y)
+	{
+		D3D11_VIEWPORT viewPort{};
+		viewPort.Width = width;
+		viewPort.Height = height;
+		viewPort.MinDepth = 0;
+		viewPort.MaxDepth = 1.0f;
+		viewPort.TopLeftX = x;
+		viewPort.TopLeftY = y;
+		m_DeviceContext->RSSetViewports(1, &viewPort);
+
 		Microsoft::WRL::ComPtr<ID3D11Resource> backBuffer;
-		m_SwapChain->GetBuffer(0, __uuidof(ID3D11Resource), &backBuffer);
+		DXR_ASSERT(m_SwapChain->GetBuffer(0, __uuidof(ID3D11Resource), &backBuffer));
 		DXR_ASSERT(m_Device->CreateRenderTargetView(backBuffer.Get(), nullptr, &m_RenderTargetView));
 
 		D3D11_DEPTH_STENCIL_DESC depthStencil = {};
@@ -24,8 +48,8 @@ namespace DXR
 		m_DeviceContext->OMSetDepthStencilState(depthStencilState.Get(), 1);
 
 		D3D11_TEXTURE2D_DESC depthTexture = {};
-		depthTexture.Width = Application::Get().GetWindow().GetWidth();
-		depthTexture.Height = Application::Get().GetWindow().GetHeight();
+		depthTexture.Width = width;
+		depthTexture.Height = height;
 		depthTexture.MipLevels = 1;
 		depthTexture.ArraySize = 1;
 		depthTexture.Format = DXGI_FORMAT_D32_FLOAT;
@@ -44,26 +68,14 @@ namespace DXR
 		m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
 	}
 
-	void DX11RendererAPI::SetClearColor(const DirectX::XMFLOAT4& color)
-	{
-		m_DeviceContext->ClearRenderTargetView(m_RenderTargetView.Get(), &color.x);
-	}
-
-	void DX11RendererAPI::Clear()
-	{
-		m_DeviceContext->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1, 0);
-	}
-
 	void DX11RendererAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
-		D3D11_VIEWPORT viewPort{};
-		viewPort.Width = (float)width;
-		viewPort.Height = (float)height;
-		viewPort.MinDepth = 0;
-		viewPort.MaxDepth = 1.0f;
-		viewPort.TopLeftX = (float)x;
-		viewPort.TopLeftY = (float)y;
-		m_DeviceContext->RSSetViewports(1, &viewPort);
+		m_RenderTargetView.Reset();
+		m_DepthStencilView.Reset();
+
+		DXR_ASSERT(m_SwapChain->ResizeBuffers(1, width, height, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
+
+		SetBuffer(width, height, x, y);
 	}
 
 	void DX11RendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
@@ -76,4 +88,5 @@ namespace DXR
 	{}
 	void DX11RendererAPI::SetLineWidth(float width)
 	{}
+
 }

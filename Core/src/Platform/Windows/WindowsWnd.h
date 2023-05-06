@@ -27,12 +27,12 @@ namespace DXR
 	class WindowsWnd
 	{
 	public:
-
 		WindowsWnd(const WindowProps& props);
 		virtual ~WindowsWnd();
 		void OnUpdate();
-		unsigned int GetWidth() const { return m_Data.Width; }
-		unsigned int GetHeight() const { return m_Data.Height; }
+		uint32_t GetWidth() const { return m_Data.Width; }
+		uint32_t GetHeight() const { return m_Data.Height; }
+		void* GetNativeWindow() const { return m_WndHandle; }
 		RenderingContext& GetRenderingContext() const { return *m_Context; };
 	private:
 		static LRESULT WndProc(HWND, UINT, WPARAM, LPARAM);

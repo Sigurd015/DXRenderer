@@ -1,0 +1,3 @@
+[submodule "Core/vendor/imgui"]
+	path = Core/vendor/imgui
+	url = https://github.com/Sigurd015/imgui.git

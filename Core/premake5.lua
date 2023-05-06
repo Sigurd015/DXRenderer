@@ -13,23 +13,28 @@ project "Core"
 	files
 	{
 		"src/**.h",
-		"src/**.cpp"
+		"src/**.cpp",
+		"vendor/stb_image/**.h",
+		"vendor/stb_image/**.cpp"
 	}
 
 	includedirs
 	{
-		"src"
+		"src",
+		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.stb_image}"
+	}
+
+	links
+	{
+		"d3d11.lib",
+		"D3DCompiler.lib",
+		"ImGui"
 	}
 
 	filter "system:windows"
 		systemversion "latest"
 		
-		links
-		{
-			"d3d11.lib",
-			"D3DCompiler.lib"
-		}
-
 	filter "configurations:Debug"
 		defines "DXR_DEBUG"
 		runtime "Debug"
