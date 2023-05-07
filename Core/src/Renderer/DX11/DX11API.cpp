@@ -31,14 +31,6 @@ namespace DXR
 		DXR_ASSERT(m_SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), &backBuffer));
 		DXR_ASSERT(m_Device->CreateRenderTargetView(backBuffer.Get(), nullptr, m_RenderTargetView.GetAddressOf()));
 
-		//D3D11_DEPTH_STENCIL_DESC depthStencil = {};
-		//depthStencil.DepthEnable = true;
-		//depthStencil.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-		//depthStencil.DepthFunc = D3D11_COMPARISON_LESS;
-		//Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState;
-		//DXR_ASSERT(m_Device->CreateDepthStencilState(&depthStencil, &depthStencilState));
-		//m_DeviceContext->OMSetDepthStencilState(depthStencilState.Get(), 1);
-
 		D3D11_TEXTURE2D_DESC depthStencilDesc = {};
 		depthStencilDesc.Width = width;
 		depthStencilDesc.Height = height;
@@ -50,11 +42,6 @@ namespace DXR
 		depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
 		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 		DXR_ASSERT(m_Device->CreateTexture2D(&depthStencilDesc, nullptr, m_DepthStencilBuffer.GetAddressOf()));
-
-		//D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilView = {};
-		//depthStencilView.Format = DXGI_FORMAT_D32_FLOAT;
-		//depthStencilView.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-		//depthStencilView.Texture2D.MipSlice = 0;
 		DXR_ASSERT(m_Device->CreateDepthStencilView(m_DepthStencilBuffer.Get(), nullptr, m_DepthStencilView.GetAddressOf()));
 		m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
 

@@ -71,7 +71,7 @@ namespace DXR
 		ImGuiIO& io = ImGui::GetIO();
 		Application& app = Application::Get();
 		io.DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
-		DXR_INFO("Windows Size: Width:(", app.GetWindow().GetWidth(), "),Height:(", app.GetWindow().GetHeight(), ")");
+
 		// Rendering
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

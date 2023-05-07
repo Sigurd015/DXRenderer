@@ -70,7 +70,7 @@ namespace DXR
 			const CREATESTRUCTW* const temp = reinterpret_cast<CREATESTRUCTW*>(lParam);
 			WindowsWnd* const windowsWnd = static_cast<WindowsWnd*>(temp->lpCreateParams);
 			SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&windowsWnd->m_Data));
-			break;
+			return 0;
 		}
 		case WM_SIZE:
 		{
@@ -78,45 +78,30 @@ namespace DXR
 			if (first)
 			{
 				first = false;
-				break;
+				return 0;
 			}
 
-			const bool minimized = wParam == SIZE_MINIMIZED;
-			const bool maximized = wParam == SIZE_MAXIMIZED;
 			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-			if (minimized)
+			if (wParam == SIZE_MINIMIZED)
 			{
 				data.Width = data.Height = 0;
-				break;
-			}
-			else if (maximized)
-			{
-				RECT rect = {};
-				rect.right = ::GetSystemMetrics(SM_CXSCREEN);
-				rect.bottom = ::GetSystemMetrics(SM_CYSCREEN);
-				data.Width = rect.right - rect.left;
-				data.Height = rect.bottom - rect.top;
-				break;
 			}
 			else
 			{
-				RECT rect = {};
-				GetClientRect(hWnd, &rect);
-				ClientToScreen(hWnd, (LPPOINT)&rect.left);
-				ClientToScreen(hWnd, (LPPOINT)&rect.right);
-				data.Width = rect.right - rect.left;
-				data.Height = rect.bottom - rect.top;
+				data.Width = LOWORD(lParam);
+				data.Height = HIWORD(lParam);
 			}
+
 			WindowResizeEvent event(data.Width, data.Height);
 			data.EventCallback(event);
-			break;
+			return 0;
 		}
 		case WM_CLOSE:
 		{
 			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 			WindowCloseEvent event;
 			data.EventCallback(event);
-			break;
+			return 0;
 		}
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
@@ -124,7 +109,7 @@ namespace DXR
 			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 			KeyPressedEvent event(wParam, lParam & 0x40000000 ? true : false);
 			data.EventCallback(event);
-			break;
+			return 0;
 		}
 		case WM_SYSKEYUP:
 		case WM_KEYUP:
@@ -132,14 +117,14 @@ namespace DXR
 			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 			KeyReleasedEvent event(wParam);
 			data.EventCallback(event);
-			break;
+			return 0;
 		}
 		case WM_CHAR:
 		{
 			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 			KeyTypedEvent event(wParam);
 			data.EventCallback(event);
-			break;
+			return 0;
 		}
 		case WM_MOUSEMOVE:
 		{
@@ -147,7 +132,7 @@ namespace DXR
 			auto point = MAKEPOINTS(lParam);
 			MouseMovedEvent event((float)point.x, (float)point.y);
 			data.EventCallback(event);
-			break;
+			return 0;
 		}
 		case WM_MOUSEWHEEL:
 		{
@@ -159,49 +144,49 @@ namespace DXR
 				yOffset = -1;
 			MouseScrolledEvent event(xOffset, yOffset);
 			data.EventCallback(event);
-			break;
+			return 0;
 		}
 		case WM_RBUTTONDOWN:
 		{
 			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 			MouseButtonPressedEvent event(Mouse::ButtonRight);
 			data.EventCallback(event);
-			break;
+			return 0;
 		}
 		case WM_MBUTTONDOWN:
 		{
 			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 			MouseButtonPressedEvent event(Mouse::ButtonMiddle);
 			data.EventCallback(event);
-			break;
+			return 0;
 		}
 		case WM_LBUTTONDOWN:
 		{
 			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 			MouseButtonPressedEvent event(Mouse::ButtonLeft);
 			data.EventCallback(event);
-			break;
+			return 0;
 		}
 		case WM_RBUTTONUP:
 		{
 			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 			MouseButtonReleasedEvent event(Mouse::ButtonRight);
 			data.EventCallback(event);
-			break;
+			return 0;
 		}
 		case WM_MBUTTONUP:
 		{
 			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 			MouseButtonReleasedEvent event(Mouse::ButtonMiddle);
 			data.EventCallback(event);
-			break;
+			return 0;
 		}
 		case WM_LBUTTONUP:
 		{
 			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 			MouseButtonReleasedEvent event(Mouse::ButtonLeft);
 			data.EventCallback(event);
-			break;
+			return 0;
 		}
 		default:
 			return DefWindowProc(hWnd, msg, wParam, lParam);

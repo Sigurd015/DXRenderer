@@ -84,7 +84,6 @@ public:
 		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
 		m_VertexBuffer->SetData(vertices, sizeof(vertices));
-		DXR_INFO("SIZE:", sizeof(ConstantBuffer));
 		m_UniformBuffer = DXR::UniformBuffer::Create(sizeof(ConstantBuffer), 0);
 
 		//m_Texture = DXR::Texture2D::Create("assets/textures/Checkerboard.png");
@@ -135,8 +134,7 @@ public:
 	}
 	void OnImGuiRender()override
 	{
-		static bool show = true;
-		ImGui::ShowDemoWindow(&show);
+		ImGui::ShowDemoWindow();
 	}
 
 	bool OnMouseMove(DXR::MouseMovedEvent& event)

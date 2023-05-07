@@ -99,7 +99,7 @@ namespace DXR
 			{
 				Microsoft::WRL::ComPtr<ID3DBlob> blob;
 				DXR_ASSERT(D3DCompile(source.c_str(), source.length(), nullptr, nullptr, nullptr,
-					"main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, blob.GetAddressOf(), nullptr));
+					"main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, blob.ReleaseAndGetAddressOf(), nullptr));
 				DXR_ASSERT(DX11Context::GetDevice()->CreatePixelShader(blob->GetBufferPointer(),
 					blob->GetBufferSize(), nullptr, m_PixelShader.GetAddressOf()));
 				break;
