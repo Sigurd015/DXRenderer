@@ -13,7 +13,7 @@ namespace DXR
 		buffer.MiscFlags = 0;
 		buffer.ByteWidth = size;
 		buffer.StructureByteStride = 0;
-		DXR_ASSERT(DX11Context::GetDevice()->CreateBuffer(&buffer, nullptr, &m_ConstantBuffer));
+		DXR_ASSERT(DX11Context::GetDevice()->CreateBuffer(&buffer, nullptr, m_ConstantBuffer.GetAddressOf()));
 		DX11Context::GetDeviceContext()->VSSetConstantBuffers(0, 1, m_ConstantBuffer.GetAddressOf());
 	}
 

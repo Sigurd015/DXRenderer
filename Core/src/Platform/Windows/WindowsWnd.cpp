@@ -8,7 +8,8 @@
 #include <atlconv.h>
 #include <backends/imgui_impl_win32.h>
 
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+// Forward declare message handler from imgui_impl_win32.cpp
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace DXR
 {
@@ -17,7 +18,7 @@ namespace DXR
 		return CreateScope<WindowsWnd>(props);
 	}
 
-	WindowsWnd::WindowsWnd(const WindowProps& props) :m_Data(props)
+	WindowsWnd::WindowsWnd(const WindowProps& props) :m_Data(props), m_WndHandle(nullptr)
 	{
 		Init();
 	}
@@ -39,19 +40,16 @@ namespace DXR
 		RECT rect = { 0, 0, m_Data.Width, m_Data.Height };
 		AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
 
-		HWND wndHandle = CreateWindow(wndClass.lpszClassName, CA2T(m_Data.Title.c_str()),
+		m_WndHandle = CreateWindowEx(0, wndClass.lpszClassName, CA2T(m_Data.Title.c_str()),
 			WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
 			rect.right - rect.left, rect.bottom - rect.top, nullptr, nullptr, wndClass.hInstance, this);
 
-		if (wndHandle == nullptr)
+		if (m_WndHandle == nullptr)
 			DXR_INFO("[CerateWindow]Failed");
 
-		ShowWindow(wndHandle, SW_SHOW);
+		ShowWindow(m_WndHandle, SW_SHOW);
 
-		m_WndClass = &wndClass;
-		m_WndHandle = &wndHandle;
-
-		m_Context = RenderingContext::Create(m_WndHandle);
+		m_Context = RenderingContext::Create(&m_WndHandle);
 	}
 
 	void WindowsWnd::OnUpdate()
@@ -86,7 +84,7 @@ namespace DXR
 			const bool minimized = wParam == SIZE_MINIMIZED;
 			const bool maximized = wParam == SIZE_MAXIMIZED;
 			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-			if(minimized)
+			if (minimized)
 			{
 				WindowResizeEvent event(0, 0);
 				data.EventCallback(event);
@@ -219,7 +217,6 @@ namespace DXR
 
 	void WindowsWnd::Shutdown()
 	{
-		UnregisterClass(m_WndClass->lpszClassName, m_WndClass->hInstance);
-		DestroyWindow(*m_WndHandle);
+		DestroyWindow(m_WndHandle);
 	}
 }

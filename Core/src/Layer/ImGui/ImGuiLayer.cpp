@@ -77,8 +77,7 @@ namespace DXR
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			
+		{		
 			ImGui::UpdatePlatformWindows();
 			ImGui::RenderPlatformWindowsDefault();
 		}

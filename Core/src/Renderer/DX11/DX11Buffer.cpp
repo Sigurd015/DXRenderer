@@ -23,14 +23,14 @@ namespace DXR
 
 	DX11VertexBuffer::DX11VertexBuffer(uint32_t size)
 	{
-		CreateBuffer(D3D11_BIND_VERTEX_BUFFER, size, D3D11_USAGE_DYNAMIC, D3D11_CPU_ACCESS_WRITE, m_Stride, nullptr, &m_VertexBuffer);
+		CreateBuffer(D3D11_BIND_VERTEX_BUFFER, size, D3D11_USAGE_DYNAMIC, D3D11_CPU_ACCESS_WRITE, m_Stride, nullptr, m_VertexBuffer.GetAddressOf());
 	}
 
 	DX11VertexBuffer::DX11VertexBuffer(float* vertices, uint32_t size) 
 	{
 		D3D11_SUBRESOURCE_DATA resourceData = {};
 		resourceData.pSysMem = vertices;
-		CreateBuffer(D3D11_BIND_VERTEX_BUFFER, size, D3D11_USAGE_DEFAULT, 0, m_Stride, &resourceData, &m_VertexBuffer);
+		CreateBuffer(D3D11_BIND_VERTEX_BUFFER, size, D3D11_USAGE_DEFAULT, 0, m_Stride, &resourceData, m_VertexBuffer.GetAddressOf());
 	}
 
 	DX11VertexBuffer::~DX11VertexBuffer()
@@ -66,7 +66,7 @@ namespace DXR
 	{
 		D3D11_SUBRESOURCE_DATA resourceData = {};
 		resourceData.pSysMem = indices;
-		CreateBuffer(D3D11_BIND_INDEX_BUFFER, count * sizeof(uint32_t), D3D11_USAGE_DEFAULT, 0, 0, &resourceData, &m_IndexBuffer);
+		CreateBuffer(D3D11_BIND_INDEX_BUFFER, count * sizeof(uint32_t), D3D11_USAGE_DEFAULT, 0, 0, &resourceData, m_IndexBuffer.GetAddressOf());
 	}
 
 	DX11IndexBuffer::~DX11IndexBuffer()

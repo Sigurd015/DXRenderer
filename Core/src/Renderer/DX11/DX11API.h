@@ -27,5 +27,6 @@ namespace DXR
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_DeviceContext;
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_RenderTargetView;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_DepthStencilView;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> m_DepthStencilBuffer;
 	};
 }

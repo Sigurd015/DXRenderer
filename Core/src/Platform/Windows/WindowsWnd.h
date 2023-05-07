@@ -37,10 +37,9 @@ namespace DXR
 	private:
 		static LRESULT WndProc(HWND, UINT, WPARAM, LPARAM);
 		void DispatchMsg();
-		virtual void Init();
-		virtual void Shutdown();
-		WNDCLASSEX* m_WndClass;
-		HWND* m_WndHandle;
+		void Init();
+		void Shutdown();
+		HWND m_WndHandle;
 		Scope<RenderingContext> m_Context;
 		WindowProps m_Data;
 	};

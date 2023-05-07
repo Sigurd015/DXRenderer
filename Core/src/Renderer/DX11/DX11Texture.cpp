@@ -60,8 +60,8 @@ namespace DXR
 			D3D11_SUBRESOURCE_DATA subresourceData = {};
 			subresourceData.pSysMem = data;
 			subresourceData.SysMemPitch = m_Width * 4;
-			CreateTexDesc(D3D11_USAGE_DEFAULT, 0, m_Width, m_Height, m_DataFormat, &subresourceData, &m_Texture);
-			CreateShaderView(m_DataFormat, m_Texture.Get(), &m_TextureView);
+			CreateTexDesc(D3D11_USAGE_DEFAULT, 0, m_Width, m_Height, m_DataFormat, &subresourceData, m_Texture.GetAddressOf());
+			CreateShaderView(m_DataFormat, m_Texture.Get(), m_TextureView.GetAddressOf());
 			CreateSamplerState(&m_SamplerState);
 			stbi_image_free(data);
 		}
@@ -70,8 +70,8 @@ namespace DXR
 	DX11Texture2D::DX11Texture2D(uint32_t width, uint32_t height) : m_Width(width), m_Height(height)
 	{
 		m_DataFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-		CreateTexDesc(D3D11_USAGE_DYNAMIC, D3D11_CPU_ACCESS_WRITE, m_Width, m_Height, m_DataFormat, nullptr, &m_Texture);
-		CreateShaderView(m_DataFormat, m_Texture.Get(), &m_TextureView);
+		CreateTexDesc(D3D11_USAGE_DYNAMIC, D3D11_CPU_ACCESS_WRITE, m_Width, m_Height, m_DataFormat, nullptr, m_Texture.GetAddressOf());
+		CreateShaderView(m_DataFormat, m_Texture.Get(), m_TextureView.GetAddressOf());
 		CreateSamplerState(&m_SamplerState);
 	}
 

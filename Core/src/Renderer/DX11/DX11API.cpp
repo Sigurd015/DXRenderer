@@ -21,11 +21,43 @@ namespace DXR
 
 	void DX11RendererAPI::Clear()
 	{
-		m_DeviceContext->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1, 0);
+		m_DeviceContext->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
+		m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
 	}
 
 	void DX11RendererAPI::SetBuffer(uint32_t width, uint32_t height, uint32_t x, uint32_t y)
 	{
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
+		DXR_ASSERT(m_SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), &backBuffer));
+		DXR_ASSERT(m_Device->CreateRenderTargetView(backBuffer.Get(), nullptr, m_RenderTargetView.GetAddressOf()));
+
+		//D3D11_DEPTH_STENCIL_DESC depthStencil = {};
+		//depthStencil.DepthEnable = true;
+		//depthStencil.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		//depthStencil.DepthFunc = D3D11_COMPARISON_LESS;
+		//Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState;
+		//DXR_ASSERT(m_Device->CreateDepthStencilState(&depthStencil, &depthStencilState));
+		//m_DeviceContext->OMSetDepthStencilState(depthStencilState.Get(), 1);
+
+		D3D11_TEXTURE2D_DESC depthStencilDesc = {};
+		depthStencilDesc.Width = width;
+		depthStencilDesc.Height = height;
+		depthStencilDesc.MipLevels = 1;
+		depthStencilDesc.ArraySize = 1;
+		depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthStencilDesc.SampleDesc.Count = 1;
+		depthStencilDesc.SampleDesc.Quality = 0;
+		depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		DXR_ASSERT(m_Device->CreateTexture2D(&depthStencilDesc, nullptr, m_DepthStencilBuffer.GetAddressOf()));
+
+		//D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilView = {};
+		//depthStencilView.Format = DXGI_FORMAT_D32_FLOAT;
+		//depthStencilView.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		//depthStencilView.Texture2D.MipSlice = 0;
+		DXR_ASSERT(m_Device->CreateDepthStencilView(m_DepthStencilBuffer.Get(), nullptr, m_DepthStencilView.GetAddressOf()));
+		m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
+
 		D3D11_VIEWPORT viewPort{};
 		viewPort.Width = width;
 		viewPort.Height = height;
@@ -34,46 +66,15 @@ namespace DXR
 		viewPort.TopLeftX = x;
 		viewPort.TopLeftY = y;
 		m_DeviceContext->RSSetViewports(1, &viewPort);
-
-		Microsoft::WRL::ComPtr<ID3D11Resource> backBuffer;
-		DXR_ASSERT(m_SwapChain->GetBuffer(0, __uuidof(ID3D11Resource), &backBuffer));
-		DXR_ASSERT(m_Device->CreateRenderTargetView(backBuffer.Get(), nullptr, &m_RenderTargetView));
-
-		D3D11_DEPTH_STENCIL_DESC depthStencil = {};
-		depthStencil.DepthEnable = true;
-		depthStencil.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-		depthStencil.DepthFunc = D3D11_COMPARISON_LESS;
-		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState;
-		DXR_ASSERT(m_Device->CreateDepthStencilState(&depthStencil, &depthStencilState));
-		m_DeviceContext->OMSetDepthStencilState(depthStencilState.Get(), 1);
-
-		D3D11_TEXTURE2D_DESC depthTexture = {};
-		depthTexture.Width = width;
-		depthTexture.Height = height;
-		depthTexture.MipLevels = 1;
-		depthTexture.ArraySize = 1;
-		depthTexture.Format = DXGI_FORMAT_D32_FLOAT;
-		depthTexture.SampleDesc.Count = 1;
-		depthTexture.SampleDesc.Quality = 0;
-		depthTexture.Usage = D3D11_USAGE_DEFAULT;
-		depthTexture.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilTexture;
-		DXR_ASSERT(m_Device->CreateTexture2D(&depthTexture, nullptr, &depthStencilTexture));
-
-		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilView = {};
-		depthStencilView.Format = DXGI_FORMAT_D32_FLOAT;
-		depthStencilView.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-		depthStencilView.Texture2D.MipSlice = 0;
-		DXR_ASSERT(m_Device->CreateDepthStencilView(depthStencilTexture.Get(), &depthStencilView, &m_DepthStencilView));
-		m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
 	}
 
 	void DX11RendererAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
 		m_RenderTargetView.Reset();
 		m_DepthStencilView.Reset();
+		m_DepthStencilBuffer.Reset();
 
-		DXR_ASSERT(m_SwapChain->ResizeBuffers(1, width, height, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
+		DXR_ASSERT(m_SwapChain->ResizeBuffers(2, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
 
 		SetBuffer(width, height, x, y);
 	}
