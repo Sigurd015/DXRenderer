@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Layer/ImGui/ImGuiLayer.h"
-#include "Application.h"
+#include "Engine/Application.h"
 #include "Renderer/DX11/DX11Context.h"
 
 #include <imgui.h>
@@ -71,13 +71,13 @@ namespace DXR
 		ImGuiIO& io = ImGui::GetIO();
 		Application& app = Application::Get();
 		io.DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
-
+		DXR_INFO("Windows Size: Width:(", app.GetWindow().GetWidth(), "),Height:(", app.GetWindow().GetHeight(), ")");
 		// Rendering
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{		
+		{
 			ImGui::UpdatePlatformWindows();
 			ImGui::RenderPlatformWindowsDefault();
 		}

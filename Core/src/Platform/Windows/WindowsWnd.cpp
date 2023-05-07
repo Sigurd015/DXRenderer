@@ -86,25 +86,28 @@ namespace DXR
 			WindowProps& data = *reinterpret_cast<WindowProps*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 			if (minimized)
 			{
-				WindowResizeEvent event(0, 0);
-				data.EventCallback(event);
+				data.Width = data.Height = 0;
 				break;
 			}
-			if (maximized)
+			else if (maximized)
 			{
 				RECT rect = {};
 				rect.right = ::GetSystemMetrics(SM_CXSCREEN);
 				rect.bottom = ::GetSystemMetrics(SM_CYSCREEN);
-				WindowResizeEvent event(rect.right, rect.bottom);
-				data.EventCallback(event);
+				data.Width = rect.right - rect.left;
+				data.Height = rect.bottom - rect.top;
 				break;
 			}
-
-			RECT rect = {};
-			GetClientRect(hWnd, &rect);
-			ClientToScreen(hWnd, (LPPOINT)&rect.left);
-			ClientToScreen(hWnd, (LPPOINT)&rect.right);
-			WindowResizeEvent event(rect.right - rect.left, rect.bottom - rect.top);
+			else
+			{
+				RECT rect = {};
+				GetClientRect(hWnd, &rect);
+				ClientToScreen(hWnd, (LPPOINT)&rect.left);
+				ClientToScreen(hWnd, (LPPOINT)&rect.right);
+				data.Width = rect.right - rect.left;
+				data.Height = rect.bottom - rect.top;
+			}
+			WindowResizeEvent event(data.Width, data.Height);
 			data.EventCallback(event);
 			break;
 		}

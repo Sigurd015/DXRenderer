@@ -1,28 +1,41 @@
 #type:vertex
+struct VSIn
+{
+    float3 pos : Position;
+    float4 color : Color;
+};
 struct VSOut
 {
-	float2 tex : TexCoord;
 	float4 pos : SV_Position;
+	float4 color : Color;
 };
 
-cbuffer CBuf
+cbuffer ConstantBuffer : register(b0)
 {
-	float4x4 transform;
+    matrix World; 
+    matrix View;  
+    matrix Proj;  
 }
 
-VSOut main( float2 pos : Position, float2 tex : TexCoord)
+VSOut main(VSIn vsi)
 {
 	VSOut vso;
-	vso.pos = mul(float4(pos.x,pos.y,0.0f,1.0f),transform);
-	vso.tex = tex;
+	vso.pos = mul(float4(vsi.pos,1.0f),World);
+	vso.pos = mul(vso.pos,View);
+	vso.pos = mul(vso.pos,Proj);
+	vso.color = vsi.color;
 	return vso;
 }
 
 #type:pixel
-Texture2D tex;
-SamplerState samplerState;
 
-float4 main(float2 texCoord : TexCoord) : SV_Target
+struct VSOut
 {
-    return tex.Sample(samplerState, texCoord);
+	float4 pos : SV_Position;
+	float4 color : Color;
+};
+
+float4 main(VSOut pin) : SV_Target
+{
+    return pin.color;
 }

@@ -4,7 +4,7 @@
 
 namespace DXR
 {
-//	Scope<Renderer::SceneData> Renderer::s_SceneData = CreateScope<Renderer::SceneData>();
+	Scope<Renderer::SceneData> Renderer::s_SceneData = CreateScope<Renderer::SceneData>();
 
 	void Renderer::Init()
 	{
@@ -22,21 +22,21 @@ namespace DXR
 		RenderCommand::SetViewport(0, 0, width, height);
 	}
 
-	//void Renderer::BeginScene(const Camera& camera, const glm::mat4& transform)
-	//{
-	//	s_SceneData->ViewProjectionMatrix = camera.GetProjection() * glm::inverse(transform);
-	//}
+	void Renderer::BeginScene(const Camera& camera, const DirectX::XMMATRIX& transform)
+	{
+		s_SceneData->ViewProjectionMatrix = camera.GetProjection() * DirectX::XMMatrixInverse(nullptr, transform);
+	}
 
 	void Renderer::EndScene()
 	{}
 
-	//void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform)
-	//{
-	//	shader->Bind();
-	//	shader->SetUniform("u_ViewProjection", s_SceneData->ViewProjectionMatrix);
-	//	shader->SetUniform("u_Transform", transform);
+	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const DirectX::XMMATRIX& transform)
+	{
+		shader->Bind();
+		//shader->SetUniform("u_ViewProjection", s_SceneData->ViewProjectionMatrix);
+		//shader->SetUniform("u_Transform", transform);
 
-	//	vertexArray->Bind();
-	//	RenderCommand::DrawIndexed(vertexArray);
-	//}
+		vertexArray->Bind();
+		RenderCommand::DrawIndexed(vertexArray);
+	}
 }

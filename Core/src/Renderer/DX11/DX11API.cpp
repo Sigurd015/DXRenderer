@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "Renderer/DX11/DX11API.h"
 #include "Renderer/DX11/DX11Context.h"
-#include "Application.h"
+#include "Engine/Application.h"
 
 namespace DXR
 {
@@ -74,7 +74,7 @@ namespace DXR
 		m_DepthStencilView.Reset();
 		m_DepthStencilBuffer.Reset();
 
-		DXR_ASSERT(m_SwapChain->ResizeBuffers(2, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
+		DXR_ASSERT(m_SwapChain->ResizeBuffers(1, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
 
 		SetBuffer(width, height, x, y);
 	}

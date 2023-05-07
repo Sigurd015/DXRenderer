@@ -12,16 +12,16 @@ namespace DXR
 	{
 		switch (type)
 		{
-		case ShaderDataType::Float:    return DXGI_FORMAT_R32G32_FLOAT;
+		case ShaderDataType::Float:    return DXGI_FORMAT_R32_FLOAT;
 		case ShaderDataType::Float2:   return DXGI_FORMAT_R32G32_FLOAT;
-		case ShaderDataType::Float3:   return DXGI_FORMAT_R32G32_FLOAT;
-		case ShaderDataType::Float4:   return DXGI_FORMAT_R32G32_FLOAT;
-		case ShaderDataType::Mat3:     return DXGI_FORMAT_R32G32_FLOAT;
-		case ShaderDataType::Mat4:     return DXGI_FORMAT_R32G32_FLOAT;
-		case ShaderDataType::Int:      return DXGI_FORMAT_R32G32_UINT;
+		case ShaderDataType::Float3:   return DXGI_FORMAT_R32G32B32_FLOAT;
+		case ShaderDataType::Float4:   return DXGI_FORMAT_R32G32B32A32_FLOAT;
+		case ShaderDataType::Mat3:     return DXGI_FORMAT_R32G32B32_FLOAT;
+		case ShaderDataType::Mat4:     return DXGI_FORMAT_R32G32B32A32_FLOAT;
+		case ShaderDataType::Int:      return DXGI_FORMAT_R32_UINT;
 		case ShaderDataType::Int2:     return DXGI_FORMAT_R32G32_UINT;
-		case ShaderDataType::Int3:     return DXGI_FORMAT_R32G32_UINT;
-		case ShaderDataType::Int4:     return DXGI_FORMAT_R32G32_UINT;
+		case ShaderDataType::Int3:     return DXGI_FORMAT_R32G32B32_UINT;
+		case ShaderDataType::Int4:     return DXGI_FORMAT_R32G32B32A32_UINT;
 		}
 		return DXGI_FORMAT_UNKNOWN;
 	}

@@ -1,8 +1,8 @@
 #pragma once
 // ---Core---------------------
-#include "Base.h"
-#include "Application.h"
-#include "Timestep.h"
+#include "Engine/Base.h"
+#include "Engine/Application.h"
+#include "Engine/Timestep.h"
 
 // ---Layer---------------------
 #include "Layer/Layer.h"
@@ -14,7 +14,7 @@
 
 // ---Renderer---------------------
 #include "Renderer/Renderer.h"
-//#include "Renderer/Renderer2D.h"
+#include "Renderer/Renderer2D.h"
 #include "Renderer/RenderCommand.h"
 #include "Renderer/Texture.h"
 #include "Renderer/SubTexture2D.h"
@@ -22,4 +22,4 @@
 #include "Renderer/Buffer.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/UniformBuffer.h"
-//#include "Renderer/Camera.h"
+#include "Renderer/Camera.h"

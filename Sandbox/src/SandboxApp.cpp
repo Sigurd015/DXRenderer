@@ -1,4 +1,4 @@
-#include "DXR.h"
+﻿#include "DXR.h"
 #include "EntryPoint.h"
 #include "Events/KeyEvent.h"
 #include "Events/MouseEvent.h"
@@ -9,35 +9,49 @@
 
 struct Vertex
 {
-	struct
-	{
-		float x;
-		float y;
-	}Pos;
-	//struct
-	//{
-	//	float r;
-	//	float g;
-	//	float b;
-	//	float a;
-	//}Color;
-	struct
-	{
-		float u;
-		float v;
-	}TexCoord;
+	DirectX::XMFLOAT3 Pos;
+	DirectX::XMFLOAT4 Color;
+};
+
+Vertex vertices[] =
+{
+	{ DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) },
+	{ DirectX::XMFLOAT3(-1.0f, 1.0f, -1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) },
+	{ DirectX::XMFLOAT3(1.0f, 1.0f, -1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f) },
+	{ DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
+	{ DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) },
+	{ DirectX::XMFLOAT3(-1.0f, 1.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
+	{ DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
+	{ DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) }
 };
 
 uint32_t indices[] =
 {
-	0,1,2,
-	0,2,3
+	// 正面
+  0, 1, 2,
+  2, 3, 0,
+  // 左面
+  4, 5, 1,
+  1, 0, 4,
+  // 顶面
+  1, 5, 6,
+  6, 2, 1,
+  // 背面
+  7, 6, 5,
+  5, 4, 7,
+  // 右面
+  3, 2, 6,
+  6, 7, 3,
+  // 底面
+  4, 0, 3,
+  3, 7, 4
 };
 
-struct TranslationMat
+struct ConstantBuffer
 {
-	DirectX::XMFLOAT4X4 Position;
-	DirectX::XMFLOAT4X4 Rotation;
+	DirectX::XMMATRIX World;
+	DirectX::XMMATRIX View;
+	DirectX::XMMATRIX Proj;
 };
 
 class ExampleLayer :public DXR::Layer
@@ -47,9 +61,9 @@ private:
 	DXR::Ref<DXR::VertexBuffer>	m_VertexBuffer;
 	DXR::Ref<DXR::IndexBuffer>	m_IndexBuffer;
 	DXR::Ref<DXR::UniformBuffer> m_UniformBuffer;
-	DXR::Ref<DXR::Texture2D> m_WhiteTexture;
+	DXR::Ref<DXR::Texture2D> m_Texture;
 	DXR::Ref<DXR::Shader>	m_Shader;
-	TranslationMat Trans = {};
+	ConstantBuffer m_ConstantBuffer = {};
 
 	DirectX::XMFLOAT4 color = { 0.3f,0.3f,0.3f,1.0f };
 public:
@@ -57,33 +71,12 @@ public:
 	~ExampleLayer() {}
 	void OnAttach() override
 	{
-		Vertex vertices[] =
-		{
-			{  0.5f,  0.5f,   1.0f,         0 },
-			{  0.5f, -0.5f,   1.0f,      1.0f },
-			{ -0.5f, -0.5f,      0,      1.0f },
-			{ -0.5f,  0.5f,      0,         0 }
-		};
-		/*Vertex vertices[] =
-		{
-			{  0.5f,  0.5f, 0,    1.0f,      0,   0,  1.0f,      0 },
-			{  0.5f, -0.5f, 0,    1.0f,      0,   0,  1.0f,   1.0f },
-			{ -0.5f, -0.5f, 0,    1.0f,      0,   0,     0,   1.0f },
-			{ -0.5f,  0.5f, 0,    1.0f,      0,   0,     0,      0 }
-		};*/
-	/*	Vertex vertices[] =
-		{
-			{  0.5f,  0.5f, 1.0f,   0,   0,   0 },
-			{  0.5f, -0.5f, 1.0f,   0,   0,   0 },
-			{ -0.5f, -0.5f, 1.0f,   0,   0,   0 },
-			{ -0.5f,  0.5f, 1.0f,   0,   0,   0 }
-		};*/
 		m_VertexArray = DXR::VertexArray::Create();
 		m_VertexBuffer = DXR::VertexBuffer::Create(60 * sizeof(Vertex));
 		m_VertexBuffer->SetLayout({
-			{ DXR::ShaderDataType::Float2, "Position" },
-		/*	{ DXR::ShaderDataType::Float4, "Color"    },*/
-			{ DXR::ShaderDataType::Float2, "TexCoord" },
+				{ DXR::ShaderDataType::Float3, "Position" },
+				{ DXR::ShaderDataType::Float4, "Color"    },
+				/*{ DXR::ShaderDataType::Float2, "TexCoord" },*/
 			});
 		m_Shader = DXR::Shader::Create("assets/shaders/TestShader.hlsl");
 		m_VertexArray->AddVertexBuffer(m_VertexBuffer, m_Shader);
@@ -91,16 +84,21 @@ public:
 		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
 		m_VertexBuffer->SetData(vertices, sizeof(vertices));
+		DXR_INFO("SIZE:", sizeof(ConstantBuffer));
+		m_UniformBuffer = DXR::UniformBuffer::Create(sizeof(ConstantBuffer), 0);
 
-		m_UniformBuffer = DXR::UniformBuffer::Create(sizeof(DirectX::XMFLOAT4X4), 0);
+		//m_Texture = DXR::Texture2D::Create("assets/textures/Checkerboard.png");
+		/*	m_WhiteTexture = DXR::Texture2D::Create(1,1);
+			uint32_t whiteTextureData = 0xffffffff;
+			m_WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));*/
 
-		m_WhiteTexture = DXR::Texture2D::Create("assets/textures/Checkerboard.png");
-	/*	m_WhiteTexture = DXR::Texture2D::Create(1,1);
-		uint32_t whiteTextureData = 0xffffffff;
-		m_WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));*/
-		
-		DirectX::XMMATRIX projectionMatrix = DirectX::XMMatrixOrthographicLH(3.2f, 1.8f, 0.9f, 10.0f);
-		DirectX::XMStoreFloat4x4(&Trans.Position, projectionMatrix);
+		m_ConstantBuffer.World = DirectX::XMMatrixIdentity();    // 单位矩阵的转置是它本身
+		m_ConstantBuffer.View = DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(
+			DirectX::XMVectorSet(0.0f, 0.0f, -5.0f, 0.0f),
+			DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f),
+			DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)
+		));
+		m_ConstantBuffer.Proj = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, 16/9, 1.0f, 1000.0f));
 	}
 
 	void OnDetach() override
@@ -111,29 +109,16 @@ public:
 		DXR::RenderCommand::SetClearColor(color);
 		DXR::RenderCommand::Clear();
 
-		//static float angleRadians = 0;
-		//angleRadians += DirectX::XMConvertToRadians(15.0f * ts);
-		//DirectX::XMStoreFloat4x4(&Trans.Rotation, DirectX::XMMatrixRotationZ(angleRadians));
-		////DirectX::XMStoreFloat4x4(&Trans.Position, DirectX::XMMatrixTranslation(0.3f, 0.3f, 0));
+		static float phi = 0.0f, theta = 0.0f;
+		phi += 0.0001f, theta += 0.00015f;
+		m_ConstantBuffer.World = DirectX::XMMatrixTranspose(DirectX::XMMatrixRotationX(phi) * DirectX::XMMatrixRotationY(theta));
 
-		//DirectX::XMStoreFloat4x4(&Trans.Position, DirectX::XMMatrixIdentity());
-		////DirectX::XMStoreFloat4x4(&Trans.Rotation, DirectX::XMMatrixIdentity());
+		m_UniformBuffer->SetData(&m_ConstantBuffer, sizeof(ConstantBuffer));
 
-		////Trans.Rotation._11 = DirectX::XMScalarCos(angleRadians);
-		////Trans.Rotation._12 = -DirectX::XMScalarSin(angleRadians);
-		////Trans.Rotation._21 = DirectX::XMScalarSin(angleRadians);
-		////Trans.Rotation._22 = DirectX::XMScalarCos(angleRadians);
+		//m_Texture->Bind(1);
 
-		//Trans.Position._14 = 0;
-		//Trans.Position._24 = 0;
+		DXR::Renderer::Submit(m_Shader, m_VertexArray, DirectX::XMMatrixIdentity());
 
-		m_UniformBuffer->SetData(&Trans.Position, sizeof(DirectX::XMFLOAT4X4));
-
-		m_WhiteTexture->Bind();
-
-		m_Shader->Bind();
-
-		DXR::RenderCommand::DrawIndexed(m_VertexArray);
 		//DXR_INFO("Timestep:",ts);
 	}
 

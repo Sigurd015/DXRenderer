@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Renderer/DX11/DX11Texture.h"
 #include "Renderer/DX11/DX11Context.h"
+#include "Engine/UUID.h"
 
 #include <stb_image.h>
 
@@ -44,7 +45,7 @@ namespace DXR
 		DXR_ASSERT(DX11Context::GetDevice()->CreateSamplerState(&samplerDesc, ppSamplerState));
 	}
 
-	DX11Texture2D::DX11Texture2D(const std::string& path) : m_Path(path)
+	DX11Texture2D::DX11Texture2D(const std::string& path) : m_Path(path), m_UUID(UUID())
 	{
 		int width, height, channels;
 		stbi_set_flip_vertically_on_load(1);
@@ -62,22 +63,21 @@ namespace DXR
 			subresourceData.SysMemPitch = m_Width * 4;
 			CreateTexDesc(D3D11_USAGE_DEFAULT, 0, m_Width, m_Height, m_DataFormat, &subresourceData, m_Texture.GetAddressOf());
 			CreateShaderView(m_DataFormat, m_Texture.Get(), m_TextureView.GetAddressOf());
-			CreateSamplerState(&m_SamplerState);
+			CreateSamplerState(m_SamplerState.GetAddressOf());
 			stbi_image_free(data);
 		}
 	}
 
-	DX11Texture2D::DX11Texture2D(uint32_t width, uint32_t height) : m_Width(width), m_Height(height)
+	DX11Texture2D::DX11Texture2D(uint32_t width, uint32_t height) : m_Width(width), m_Height(height), m_UUID(UUID())
 	{
 		m_DataFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 		CreateTexDesc(D3D11_USAGE_DYNAMIC, D3D11_CPU_ACCESS_WRITE, m_Width, m_Height, m_DataFormat, nullptr, m_Texture.GetAddressOf());
 		CreateShaderView(m_DataFormat, m_Texture.Get(), m_TextureView.GetAddressOf());
-		CreateSamplerState(&m_SamplerState);
+		CreateSamplerState(m_SamplerState.GetAddressOf());
 	}
 
 	DX11Texture2D::~DX11Texture2D()
-	{
-	}
+	{}
 
 	void DX11Texture2D::SetData(void* data, uint32_t size)
 	{
@@ -90,12 +90,12 @@ namespace DXR
 
 	bool DX11Texture2D::operator==(const Texture& other) const
 	{
-		return m_RendererID == other.GetRendererID();
+		return m_UUID == other.GetRendererID();
 	}
 
 	void DX11Texture2D::Bind(uint32_t slot) const
 	{
-		DX11Context::GetDeviceContext()->PSSetSamplers(0, 1, m_SamplerState.GetAddressOf());
-		DX11Context::GetDeviceContext()->PSSetShaderResources(0, 1, m_TextureView.GetAddressOf());
+		DX11Context::GetDeviceContext()->PSSetSamplers(slot, 1, m_SamplerState.GetAddressOf());
+		DX11Context::GetDeviceContext()->PSSetShaderResources(slot, 1, m_TextureView.GetAddressOf());
 	}
 }
