@@ -1,32 +1,13 @@
 ﻿#pragma once
 
-#ifdef DXR_DEBUG
 #include <iostream>
+
+#ifdef DXR_DEBUG
 #include <Windows.h>
 #include <comdef.h>
-template<typename ...Args>
-void DXR_INFO(Args && ...args)
-{
-	(std::cout << ... << args);
-	std::cout << std::endl;
-}
-template<typename ...Args>
-void DXR_ASSERT(HRESULT result)
-{
-	if (FAILED(result))
-	{
-		_com_error err(result);
-		LPCTSTR errMsg = err.ErrorMessage();
-		__debugbreak();
-	}
-}
+#define DXR_ASSERT(x) {if(FAILED(x)){_com_error err(x);LPCTSTR errMsg = err.ErrorMessage();	__debugbreak();}}
 #else
-template<typename ...Args>
-void DXR_INFO(Args && ...args)
-{}
-template<typename ...Args>
-void DXR_ASSERT(HRESULT result)
-{}
+#define DXR_ASSERT(x)
 #endif
 
 #define BIT(x) (1 << x)
@@ -34,6 +15,13 @@ void DXR_ASSERT(HRESULT result)
 #define DXR_BIND_EVENT_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
 
 #include <memory>
+
+template<typename ...Args>
+void DXR_INFO(Args && ...args)
+{
+	(std::cout << ... << args);
+	std::cout << std::endl;
+}
 
 namespace DXR
 {

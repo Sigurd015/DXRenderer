@@ -18,7 +18,7 @@ namespace DXR
 		return CreateScope<WindowsWnd>(props);
 	}
 
-	WindowsWnd::WindowsWnd(const WindowProps& props) :m_Data(props), m_WndHandle(nullptr)
+	WindowsWnd::WindowsWnd(const WindowProps& props) :m_Data(props)
 	{
 		Init();
 	}

@@ -28,7 +28,7 @@ namespace DXR
 	{
 	public:
 		WindowsWnd(const WindowProps& props);
-		virtual ~WindowsWnd();
+		~WindowsWnd();
 		void OnUpdate();
 		uint32_t GetWidth() const { return m_Data.Width; }
 		uint32_t GetHeight() const { return m_Data.Height; }

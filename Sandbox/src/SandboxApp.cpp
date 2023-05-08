@@ -26,22 +26,16 @@ Vertex vertices[] =
 
 uint32_t indices[] =
 {
-	// 正面
   0, 1, 2,
   2, 3, 0,
-  // 左面
   4, 5, 1,
   1, 0, 4,
-  // 顶面
   1, 5, 6,
   6, 2, 1,
-  // 背面
   7, 6, 5,
   5, 4, 7,
-  // 右面
   3, 2, 6,
   6, 7, 3,
-  // 底面
   4, 0, 3,
   3, 7, 4
 };
@@ -91,7 +85,7 @@ public:
 			uint32_t whiteTextureData = 0xffffffff;
 			m_WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));*/
 
-		m_ConstantBuffer.World = DirectX::XMMatrixIdentity();    // 单位矩阵的转置是它本身
+		m_ConstantBuffer.World = DirectX::XMMatrixIdentity(); 
 		m_ConstantBuffer.View = DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(
 			DirectX::XMVectorSet(0.0f, 0.0f, -5.0f, 0.0f),
 			DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f),
@@ -110,11 +104,6 @@ public:
 	{
 		DXR::RenderCommand::SetClearColor(color);
 		DXR::RenderCommand::Clear();
-
-		//Phi = DirectX::XMConvertToRadians(Phi);
-		//Theta = DirectX::XMConvertToRadians(Theta);
-		Phi = DirectX::XMScalarModAngle(Phi);
-		Theta = DirectX::XMScalarModAngle(Theta);
 
 		m_ConstantBuffer.World = DirectX::XMMatrixTranspose(
 			DirectX::XMMatrixScalingFromVector(DirectX::XMVectorReplicate(Scale)) *
@@ -143,8 +132,7 @@ public:
 	}
 	void OnImGuiRender()override
 	{
-
-		if (ImGui::Begin("Use ImGui"))
+		if (ImGui::Begin("Tools"))
 		{
 			if (ImGui::Button("Reset Params"))
 			{
