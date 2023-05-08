@@ -290,8 +290,8 @@ namespace DXR
 	void Renderer2D::DrawRect(const DirectX::XMMATRIX& transform, const DirectX::XMFLOAT4& color, int entityID)
 	{
 		DirectX::XMFLOAT3 lineVertices[4];
-		//for (size_t i = 0; i < 4; i++)
-		//	lineVertices[i] = transform /** s_Data.QuadVertexPositions[i]*/;
+		/*for (size_t i = 0; i < 4; i++)
+			lineVertices[i] = DirectX::XMVector4Transform(s_Data.QuadVertexPositions[i], transform) ;*/
 
 		DrawLine(lineVertices[0], lineVertices[1], color, entityID);
 		DrawLine(lineVertices[1], lineVertices[2], color, entityID);
@@ -317,8 +317,8 @@ namespace DXR
 
 		for (size_t i = 0; i < 4; i++)
 		{
-	/*		s_Data.CircleVertexBufferPtr->WorldPosition = transform * s_Data.QuadVertexPositions[i];
-			s_Data.CircleVertexBufferPtr->LocalPosition = s_Data.QuadVertexPositions[i] * 2.0f;*/
+			/*		s_Data.CircleVertexBufferPtr->WorldPosition = transform * s_Data.QuadVertexPositions[i];
+					s_Data.CircleVertexBufferPtr->LocalPosition = s_Data.QuadVertexPositions[i] * 2.0f;*/
 			s_Data.CircleVertexBufferPtr->Color = color;
 			s_Data.CircleVertexBufferPtr->Thickness = thickness;
 			s_Data.CircleVertexBufferPtr->Fade = fade;

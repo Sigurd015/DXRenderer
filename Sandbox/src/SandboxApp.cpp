@@ -10,19 +10,18 @@
 struct Vertex
 {
 	DirectX::XMFLOAT3 Pos;
-	DirectX::XMFLOAT4 Color;
 };
 
 Vertex vertices[] =
 {
-	{ DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) },
-	{ DirectX::XMFLOAT3(-1.0f, 1.0f, -1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) },
-	{ DirectX::XMFLOAT3(1.0f, 1.0f, -1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f) },
-	{ DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-	{ DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) },
-	{ DirectX::XMFLOAT3(-1.0f, 1.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
-	{ DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
-	{ DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) }
+	{ DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f)},
+	{ DirectX::XMFLOAT3(-1.0f, 1.0f, -1.0f)},
+	{ DirectX::XMFLOAT3(1.0f, 1.0f, -1.0f) },
+	{ DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f)},
+	{ DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f)},
+	{ DirectX::XMFLOAT3(-1.0f, 1.0f, 1.0f)},
+	{ DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f) },
+	{ DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f)}
 };
 
 uint32_t indices[] =
@@ -52,6 +51,7 @@ struct ConstantBuffer
 	DirectX::XMMATRIX World;
 	DirectX::XMMATRIX View;
 	DirectX::XMMATRIX Proj;
+	DirectX::XMFLOAT4 Color;
 };
 
 class ExampleLayer :public DXR::Layer
@@ -64,7 +64,7 @@ private:
 	DXR::Ref<DXR::Texture2D> m_Texture;
 	DXR::Ref<DXR::Shader>	m_Shader;
 	ConstantBuffer m_ConstantBuffer = {};
-
+	float Phi, Theta, Scale, Tx, Ty;
 	DirectX::XMFLOAT4 color = { 0.3f,0.3f,0.3f,1.0f };
 public:
 	ExampleLayer() :Layer("ExampleLayer") {}
@@ -75,8 +75,8 @@ public:
 		m_VertexBuffer = DXR::VertexBuffer::Create(60 * sizeof(Vertex));
 		m_VertexBuffer->SetLayout({
 				{ DXR::ShaderDataType::Float3, "Position" },
-				{ DXR::ShaderDataType::Float4, "Color"    },
-				/*{ DXR::ShaderDataType::Float2, "TexCoord" },*/
+				/*			{ DXR::ShaderDataType::Float4, "Color"    },*/
+							/*{ DXR::ShaderDataType::Float2, "TexCoord" },*/
 			});
 		m_Shader = DXR::Shader::Create("assets/shaders/TestShader.hlsl");
 		m_VertexArray->AddVertexBuffer(m_VertexBuffer, m_Shader);
@@ -97,7 +97,10 @@ public:
 			DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f),
 			DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)
 		));
-		m_ConstantBuffer.Proj = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, 16/9, 1.0f, 1000.0f));
+		m_ConstantBuffer.Proj = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, 16.0f / 9.0f, 1.0f, 1000.0f));
+		Tx = Ty = Phi = Theta = 0.0f;
+		Scale = 1.0f;
+		m_ConstantBuffer.Color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
 	void OnDetach() override
@@ -108,9 +111,15 @@ public:
 		DXR::RenderCommand::SetClearColor(color);
 		DXR::RenderCommand::Clear();
 
-		static float phi = 0.0f, theta = 0.0f;
-		phi += 0.0001f, theta += 0.00015f;
-		m_ConstantBuffer.World = DirectX::XMMatrixTranspose(DirectX::XMMatrixRotationX(phi) * DirectX::XMMatrixRotationY(theta));
+		//Phi = DirectX::XMConvertToRadians(Phi);
+		//Theta = DirectX::XMConvertToRadians(Theta);
+		Phi = DirectX::XMScalarModAngle(Phi);
+		Theta = DirectX::XMScalarModAngle(Theta);
+
+		m_ConstantBuffer.World = DirectX::XMMatrixTranspose(
+			DirectX::XMMatrixScalingFromVector(DirectX::XMVectorReplicate(Scale)) *
+			DirectX::XMMatrixRotationX(Phi) * DirectX::XMMatrixRotationY(Theta) *
+			DirectX::XMMatrixTranslation(Tx, Ty, 0.0f));
 
 		m_UniformBuffer->SetData(&m_ConstantBuffer, sizeof(ConstantBuffer));
 
@@ -134,7 +143,23 @@ public:
 	}
 	void OnImGuiRender()override
 	{
-		ImGui::ShowDemoWindow();
+
+		if (ImGui::Begin("Use ImGui"))
+		{
+			if (ImGui::Button("Reset Params"))
+			{
+				Tx = Ty = Phi = Theta = 0.0f;
+				Scale = 1.0f;
+			}
+			ImGui::SliderFloat("Scale", &Scale, 0.2f, 2.0f);
+
+			ImGui::Text("Phi: %.2f degrees", DirectX::XMConvertToDegrees(Phi));
+			ImGui::SliderFloat("##1", &Phi, -DirectX::XM_PI, DirectX::XM_PI, "");
+			ImGui::Text("Theta: %.2f degrees", DirectX::XMConvertToDegrees(Theta));
+			ImGui::SliderFloat("##2", &Theta, -DirectX::XM_PI, DirectX::XM_PI, "");
+			ImGui::ColorEdit4("Color:", &m_ConstantBuffer.Color.x);
+		}
+		ImGui::End();
 	}
 
 	bool OnMouseMove(DXR::MouseMovedEvent& event)

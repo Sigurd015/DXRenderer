@@ -2,7 +2,6 @@
 struct VSIn
 {
     float3 pos : Position;
-    float4 color : Color;
 };
 struct VSOut
 {
@@ -14,7 +13,8 @@ cbuffer ConstantBuffer : register(b0)
 {
     matrix World; 
     matrix View;  
-    matrix Proj;  
+    matrix Proj; 
+	float4 Color; 
 }
 
 VSOut main(VSIn vsi)
@@ -23,7 +23,7 @@ VSOut main(VSIn vsi)
 	vso.pos = mul(float4(vsi.pos,1.0f),World);
 	vso.pos = mul(vso.pos,View);
 	vso.pos = mul(vso.pos,Proj);
-	vso.color = vsi.color;
+	vso.color = Color;
 	return vso;
 }
 
