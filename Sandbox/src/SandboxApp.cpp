@@ -85,7 +85,7 @@ public:
 			uint32_t whiteTextureData = 0xffffffff;
 			m_WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));*/
 
-		m_ConstantBuffer.World = DirectX::XMMatrixIdentity(); 
+		m_ConstantBuffer.World = DirectX::XMMatrixIdentity();
 		m_ConstantBuffer.View = DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(
 			DirectX::XMVectorSet(0.0f, 0.0f, -5.0f, 0.0f),
 			DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f),
@@ -122,6 +122,21 @@ public:
 	void OnEvent(DXR::Event& evnet) override
 	{
 		DXR::EventDispatcher dispatcher(evnet);
+		if (DXR::Input::IsKeyPressed(DXR::Key::A))
+		{
+			DXR_INFO("A Is pressed!");
+		}
+		if (DXR::Input::IsKeyPressed(DXR::Key::G))
+		{
+			DXR_INFO("G Is pressed!");
+		}
+		if (DXR::Input::IsKeyPressed(DXR::Key::U))
+		{
+			DXR_INFO("U Is pressed!");
+		}
+		auto [x, y] = DXR::Input::GetMousePosition();
+		DXR_INFO("Mouse X(", x, "), Y(", y, ")");
+
 		//dispatcher.Dispatch<DXR::KeyPressedEvent>(DXR_BIND_EVENT_FN(ExampleLayer::OnKeyPressed));
 		//dispatcher.Dispatch<DXR::KeyReleasedEvent>(DXR_BIND_EVENT_FN(ExampleLayer::OnKeyReleased));
 		//dispatcher.Dispatch<DXR::KeyTypedEvent>(DXR_BIND_EVENT_FN(ExampleLayer::OnKeyTyped));

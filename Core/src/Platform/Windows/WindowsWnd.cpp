@@ -28,6 +28,11 @@ namespace DXR
 		Shutdown();
 	}
 
+	void WindowsWnd::SetWindowTitle(const std::string& title)
+	{
+		SetWindowTextA(m_WndHandle, (m_Data.Title + title).c_str());
+	}
+
 	void WindowsWnd::Init()
 	{
 		WNDCLASSEX wndClass = { sizeof(wndClass), CS_OWNDC,

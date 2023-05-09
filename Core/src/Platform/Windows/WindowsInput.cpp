@@ -6,15 +6,19 @@ namespace DXR
 {
 	bool Input::IsKeyPressed(const KeyCode key)
 	{
-		return false;
+		return GetKeyState(key) & 0x8000;
 	}
+
 	bool Input::IsMouseButtonPressed(const MouseCode button)
 	{
-		return false;
+		return GetKeyState(button) & 0x8000;
 	}
+
 	std::pair<float, float> Input::GetMousePosition()
 	{
-		double x, y;
-		return { x, y };
+		POINT point{ 0,0 };
+		GetCursorPos(&point);
+		ScreenToClient((HWND)Application::Get().GetWindow().GetNativeWindow(), &point);
+		return { point.x,point.y };
 	}
 }
