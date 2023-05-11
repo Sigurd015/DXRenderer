@@ -35,7 +35,17 @@ struct VSOut
 	float4 color : Color;
 };
 
-float4 main(VSOut pin) : SV_Target
+struct PSOut
 {
-    return pin.color;
+    float4 color : SV_Target0; // 输出颜色到索引为 0 的渲染目标视图
+	float4 id : SV_Target1;
+};
+
+
+PSOut main(VSOut pin)
+{
+	PSOut pso;
+	pso.color=pin.color;
+	pso.id=float4(-1.0f,1.0f,1.0f,1.0f);
+    return pso;
 }

@@ -7,13 +7,15 @@
 #include "Renderer/RenderingContext.h"
 #include "Renderer/RendererAPI.h"
 #include "Renderer/RenderCommand.h"
+#include "Renderer/Framebuffer.h"
 #include "Renderer/DX11/DX11Context.h"
 #include "Renderer/DX11/DX11API.h"
-#include "Renderer/DX11/DX11VertexArray.h"
+#include "Renderer/DX11/DX11VertexDeclaration.h"
 #include "Renderer/DX11/DX11Buffer.h"
 #include "Renderer/DX11/DX11Shader.h"
 #include "Renderer/DX11/DX11ConstantBuffer.h"
 #include "Renderer/DX11/DX11Texture.h"
+#include "Renderer/DX11/DX11Framebuffer.h"
 
 namespace DXR
 {
@@ -65,7 +67,7 @@ namespace DXR
 		case RendererAPI::API::None:
 			return nullptr;
 		case RendererAPI::API::DX11:
-			return CreateRef<DX11VertexArray>();
+			return CreateRef<DX11VertexDeclaration>();
 		}
 		return nullptr;
 	}
@@ -111,7 +113,7 @@ namespace DXR
 		{
 		case RendererAPI::API::None:
 			return nullptr;
-		case RendererAPI::API::DX11: 
+		case RendererAPI::API::DX11:
 			return  CreateRef<DX11Texture2D>(path);
 		}
 		return nullptr;
@@ -121,33 +123,33 @@ namespace DXR
 	{
 		switch (RendererAPI::GetAPI())
 		{
-		case RendererAPI::API::None:  
+		case RendererAPI::API::None:
 			return nullptr;
-		case RendererAPI::API::DX11:  
+		case RendererAPI::API::DX11:
 			return CreateRef<DX11Texture2D>(width, height);
 		}
 		return nullptr;
 	}
 
-	//Ref<Framebuffer> Framebuffer::Create(const FramebufferSpecification& spec)
-	//{
-	//	switch (RendererAPI::GetAPI())
-	//	{
-	//	case RendererAPI::API::None:    HNB_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-	//	case RendererAPI::API::OpenGL:  return CreateRef<OpenGLFramebuffer>(spec);
-	//	}
-
-	//	HNB_CORE_ASSERT(false, "Unknown RendererAPI!");
-	//	return nullptr;
-	//}
+	Ref<Framebuffer> Framebuffer::Create(const FramebufferSpecification& spec)
+	{
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::None:
+			return nullptr;
+		case RendererAPI::API::DX11:
+			return CreateRef<DX11Framebuffer>(spec);
+		}
+		return nullptr;
+	}
 
 	Ref<UniformBuffer> UniformBuffer::Create(uint32_t size, uint32_t binding)
 	{
 		switch (RendererAPI::GetAPI())
 		{
-		case RendererAPI::API::None:    
+		case RendererAPI::API::None:
 			return nullptr;
-		case RendererAPI::API::DX11:  
+		case RendererAPI::API::DX11:
 			return CreateRef<DX11ConstantBuffer>(size, binding);
 		}
 

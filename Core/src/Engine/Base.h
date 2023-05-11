@@ -5,9 +5,10 @@
 #ifdef DXR_DEBUG
 #include <Windows.h>
 #include <comdef.h>
-#define DXR_ASSERT(x) {if(FAILED(x)){_com_error err(x);LPCTSTR errMsg = err.ErrorMessage();	__debugbreak();}}
+#define DXR_DX_ASSERT(x) {HRESULT hr=x;if(FAILED(hr)){_com_error err(hr);LPCTSTR errMsg = err.ErrorMessage();	__debugbreak();}}
+#define DXR_ASSERT(x) {if(!x){__debugbreak();}}
 #else
-#define DXR_ASSERT(x)
+#define DXR_DX_ASSERT(x)
 #endif
 
 #define BIT(x) (1 << x)

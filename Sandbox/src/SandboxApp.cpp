@@ -51,15 +51,17 @@ struct ConstantBuffer
 class ExampleLayer :public DXR::Layer
 {
 private:
+	DirectX::XMFLOAT2 m_ViewportSize = { 0.0f, 0.0f };
+	DirectX::XMFLOAT2 m_ViewportBounds[2];
 	DXR::Ref<DXR::VertexArray> m_VertexArray;
 	DXR::Ref<DXR::VertexBuffer>	m_VertexBuffer;
 	DXR::Ref<DXR::IndexBuffer>	m_IndexBuffer;
 	DXR::Ref<DXR::UniformBuffer> m_UniformBuffer;
 	DXR::Ref<DXR::Texture2D> m_Texture;
 	DXR::Ref<DXR::Shader>	m_Shader;
+	DXR::Ref<DXR::Framebuffer> m_Framebuffer;
 	ConstantBuffer m_ConstantBuffer = {};
 	float Phi, Theta, Scale, Tx, Ty;
-	DirectX::XMFLOAT4 color = { 0.3f,0.3f,0.3f,1.0f };
 public:
 	ExampleLayer() :Layer("ExampleLayer") {}
 	~ExampleLayer() {}
@@ -80,7 +82,7 @@ public:
 		m_VertexBuffer->SetData(vertices, sizeof(vertices));
 		m_UniformBuffer = DXR::UniformBuffer::Create(sizeof(ConstantBuffer), 0);
 
-		//m_Texture = DXR::Texture2D::Create("assets/textures/Checkerboard.png");
+		m_Texture = DXR::Texture2D::Create("assets/textures/Checkerboard.png");
 		/*	m_WhiteTexture = DXR::Texture2D::Create(1,1);
 			uint32_t whiteTextureData = 0xffffffff;
 			m_WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));*/
@@ -91,10 +93,15 @@ public:
 			DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f),
 			DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)
 		));
-		m_ConstantBuffer.Proj = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, 16.0f / 9.0f, 1.0f, 1000.0f));
 		Tx = Ty = Phi = Theta = 0.0f;
 		Scale = 1.0f;
 		m_ConstantBuffer.Color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+
+		DXR::FramebufferSpecification fbSpec;
+		fbSpec.Attachments = { DXR::FramebufferTextureFormat::RGBA8, DXR::FramebufferTextureFormat::RED_INTEGER ,DXR::FramebufferTextureFormat::Depth };
+		fbSpec.Width = 1920;
+		fbSpec.Height = 1080;
+		m_Framebuffer = DXR::Framebuffer::Create(fbSpec);
 	}
 
 	void OnDetach() override
@@ -102,8 +109,19 @@ public:
 
 	void OnUpdate(DXR::Timestep ts)override
 	{
-		DXR::RenderCommand::SetClearColor(color);
+		// Resize
+		if (DXR::FramebufferSpecification spec = m_Framebuffer->GetSpecification();
+			m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && // zero sized framebuffer is invalid
+			(spec.Width != m_ViewportSize.x || spec.Height != m_ViewportSize.y))
+		{
+			m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+		}
+		m_ConstantBuffer.Proj = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, m_ViewportSize.x / m_ViewportSize.y, 1.0f, 1000.0f));
+
+		m_Framebuffer->Bind();
+		DXR::RenderCommand::SetClearColor({ 0.3f,0.3f,0.3f,1.0f });
 		DXR::RenderCommand::Clear();
+		m_Framebuffer->ClearAttachment(1, -1);
 
 		m_ConstantBuffer.World = DirectX::XMMatrixTranspose(
 			DirectX::XMMatrixScalingFromVector(DirectX::XMVectorReplicate(Scale)) *
@@ -112,9 +130,11 @@ public:
 
 		m_UniformBuffer->SetData(&m_ConstantBuffer, sizeof(ConstantBuffer));
 
-		//m_Texture->Bind(1);
+		m_Texture->Bind(1);
 
 		DXR::Renderer::Submit(m_Shader, m_VertexArray, DirectX::XMMatrixIdentity());
+
+		m_Framebuffer->Unbind();
 
 		//DXR_INFO("Timestep:",ts);
 	}
@@ -134,8 +154,8 @@ public:
 		{
 			DXR_INFO("U Is pressed!");
 		}
-		auto [x, y] = DXR::Input::GetMousePosition();
-		DXR_INFO("Mouse X(", x, "), Y(", y, ")");
+		//auto [x, y] = DXR::Input::GetMousePosition();
+		//DXR_INFO("Mouse X(", x, "), Y(", y, ")");
 
 		//dispatcher.Dispatch<DXR::KeyPressedEvent>(DXR_BIND_EVENT_FN(ExampleLayer::OnKeyPressed));
 		//dispatcher.Dispatch<DXR::KeyReleasedEvent>(DXR_BIND_EVENT_FN(ExampleLayer::OnKeyReleased));
@@ -147,6 +167,54 @@ public:
 	}
 	void OnImGuiRender()override
 	{
+		static bool dockspaceOpen = true;
+		static bool opt_fullscreen_persistant = true;
+		bool opt_fullscreen = opt_fullscreen_persistant;
+		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+
+		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
+		// because it would be confusing to have two docking targets within each others.
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+		if (opt_fullscreen)
+		{
+			ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImGui::SetNextWindowPos(viewport->Pos);
+			ImGui::SetNextWindowSize(viewport->Size);
+			ImGui::SetNextWindowViewport(viewport->ID);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+			window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+		}
+
+		// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background and handle the pass-thru hole, so we ask Begin() to not render a background.
+		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+			window_flags |= ImGuiWindowFlags_NoBackground;
+
+		// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
+		// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive, 
+		// all active windows docked into it will lose their parent and become undocked.
+		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise 
+		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		ImGui::Begin("DockSpace Demo", &dockspaceOpen, window_flags);
+		ImGui::PopStyleVar();
+
+		if (opt_fullscreen)
+			ImGui::PopStyleVar(2);
+
+		// DockSpace
+		ImGuiIO& io = ImGui::GetIO();
+		ImGuiStyle& style = ImGui::GetStyle();
+		float minWinSizeX = style.WindowMinSize.x;
+		style.WindowMinSize.x = 370.0f;
+		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+		{
+			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+		}
+		style.WindowMinSize.x = minWinSizeX;
+
 		if (ImGui::Begin("Tools"))
 		{
 			if (ImGui::Button("Reset Params"))
@@ -162,6 +230,15 @@ public:
 			ImGui::SliderFloat("##2", &Theta, -DirectX::XM_PI, DirectX::XM_PI, "");
 			ImGui::ColorEdit4("Color:", &m_ConstantBuffer.Color.x);
 		}
+		ImGui::End();
+
+		ImGui::Begin("Viewport");
+
+		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+		m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
+		ImGui::Image(m_Framebuffer->GetColorAttachment(), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+		ImGui::End();
 		ImGui::End();
 	}
 

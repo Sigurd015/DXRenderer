@@ -14,7 +14,7 @@ namespace DXR
 		bufferDesc.CPUAccessFlags = cpuAccess;
 		bufferDesc.MiscFlags = 0;
 		bufferDesc.StructureByteStride = stride;
-		DXR_ASSERT(DX11Context::GetDevice()->CreateBuffer(&bufferDesc, pInitialData, ppBuffer));
+		DXR_DX_ASSERT(DX11Context::GetDevice()->CreateBuffer(&bufferDesc, pInitialData, ppBuffer));
 	}
 
 	//-------------
@@ -26,7 +26,7 @@ namespace DXR
 		CreateBuffer(D3D11_BIND_VERTEX_BUFFER, size, D3D11_USAGE_DYNAMIC, D3D11_CPU_ACCESS_WRITE, m_Stride, nullptr, m_VertexBuffer.GetAddressOf());
 	}
 
-	DX11VertexBuffer::DX11VertexBuffer(float* vertices, uint32_t size) 
+	DX11VertexBuffer::DX11VertexBuffer(float* vertices, uint32_t size)
 	{
 		D3D11_SUBRESOURCE_DATA resourceData = {};
 		resourceData.pSysMem = vertices;
@@ -35,7 +35,7 @@ namespace DXR
 
 	DX11VertexBuffer::~DX11VertexBuffer()
 	{
-
+		m_VertexBuffer.Reset();
 	}
 
 	void DX11VertexBuffer::Bind() const
@@ -71,7 +71,7 @@ namespace DXR
 
 	DX11IndexBuffer::~DX11IndexBuffer()
 	{
-
+		m_IndexBuffer.Reset();
 	}
 
 	void DX11IndexBuffer::Bind() const
@@ -83,5 +83,4 @@ namespace DXR
 	{
 
 	}
-
 }
