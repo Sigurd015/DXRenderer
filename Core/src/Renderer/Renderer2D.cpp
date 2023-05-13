@@ -113,7 +113,7 @@ namespace DXR
 			{ ShaderDataType::Float,  "a_TilingFactor" },
 			{ ShaderDataType::Int,    "a_EntityID"     }
 			});
-		s_Data.QuadShader = Shader::Create("assets/shaders/Renderer2D_Quad.glsl");
+		s_Data.QuadShader = Shader::Create("Renderer2D_Quad");
 		s_Data.QuadVertexArray->AddVertexBuffer(s_Data.QuadVertexBuffer, s_Data.QuadShader);
 		s_Data.QuadVertexBufferBase = new QuadVertex[s_Data.MaxVertices];
 		//IndexBuffer
@@ -150,7 +150,7 @@ namespace DXR
 			{ ShaderDataType::Float,  "a_Fade"          },
 			{ ShaderDataType::Int,    "a_EntityID"      }
 			});
-		s_Data.CircleShader = Shader::Create("assets/shaders/Renderer2D_Circle.glsl");
+		s_Data.CircleShader = Shader::Create("Renderer2D_Circle");
 		s_Data.CircleVertexArray->AddVertexBuffer(s_Data.CircleVertexBuffer, s_Data.CircleShader);
 		s_Data.CircleVertexArray->SetIndexBuffer(quadIB); // Use quad IB
 		s_Data.CircleVertexBufferBase = new CircleVertex[s_Data.MaxVertices];
@@ -164,7 +164,7 @@ namespace DXR
 			{ ShaderDataType::Float4, "a_Color"    },
 			{ ShaderDataType::Int,    "a_EntityID" }
 			});
-		s_Data.LineShader = Shader::Create("assets/shaders/Renderer2D_Line.glsl");
+		s_Data.LineShader = Shader::Create("Renderer2D_Line");
 		s_Data.LineVertexArray->AddVertexBuffer(s_Data.LineVertexBuffer, s_Data.LineShader);
 		s_Data.LineVertexBufferBase = new LineVertex[s_Data.MaxVertices];
 
@@ -177,6 +177,14 @@ namespace DXR
 	void Renderer2D::Shutdown()
 	{
 		delete[] s_Data.QuadVertexBufferBase;
+	}
+
+	void Renderer2D::BeginScene(const DirectX::XMMATRIX& proj)
+	{
+		s_Data.CameraBuffer.ViewProjection = proj;
+		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));
+
+		StartBatch();
 	}
 
 	void Renderer2D::BeginScene(const Camera& camera, const DirectX::XMMATRIX& transform)
@@ -290,8 +298,12 @@ namespace DXR
 	void Renderer2D::DrawRect(const DirectX::XMMATRIX& transform, const DirectX::XMFLOAT4& color, int entityID)
 	{
 		DirectX::XMFLOAT3 lineVertices[4];
-		/*for (size_t i = 0; i < 4; i++)
-			lineVertices[i] = DirectX::XMVector4Transform(s_Data.QuadVertexPositions[i], transform) ;*/
+		for (size_t i = 0; i < 4; i++)
+		{
+			DirectX::XMFLOAT4 posTemp;
+			DirectX::XMStoreFloat4(&posTemp, DirectX::XMVector4Transform(DirectX::XMLoadFloat4(&s_Data.QuadVertexPositions[i]), transform));
+			lineVertices[i] = { posTemp.x,posTemp.y ,posTemp.z };
+		}
 
 		DrawLine(lineVertices[0], lineVertices[1], color, entityID);
 		DrawLine(lineVertices[1], lineVertices[2], color, entityID);
@@ -317,8 +329,11 @@ namespace DXR
 
 		for (size_t i = 0; i < 4; i++)
 		{
-			/*		s_Data.CircleVertexBufferPtr->WorldPosition = transform * s_Data.QuadVertexPositions[i];
-					s_Data.CircleVertexBufferPtr->LocalPosition = s_Data.QuadVertexPositions[i] * 2.0f;*/
+			DirectX::XMFLOAT4 wolrdPosTemp, localPosTemp;
+			DirectX::XMStoreFloat4(&wolrdPosTemp, DirectX::XMVector4Transform(DirectX::XMLoadFloat4(&s_Data.QuadVertexPositions[i]), transform));
+			s_Data.CircleVertexBufferPtr->WorldPosition = { wolrdPosTemp.x,wolrdPosTemp.y,wolrdPosTemp.z };
+			DirectX::XMStoreFloat4(&localPosTemp, DirectX::XMVectorScale(DirectX::XMLoadFloat4(&s_Data.QuadVertexPositions[i]), 2.0f));
+			s_Data.CircleVertexBufferPtr->LocalPosition = { localPosTemp.x,localPosTemp.y,localPosTemp.z };
 			s_Data.CircleVertexBufferPtr->Color = color;
 			s_Data.CircleVertexBufferPtr->Thickness = thickness;
 			s_Data.CircleVertexBufferPtr->Fade = fade;
@@ -391,7 +406,9 @@ namespace DXR
 	{
 		for (size_t i = 0; i < 4; i++)
 		{
-			//s_Data.QuadVertexBufferPtr->Position = /*transform * s_Data.QuadVertexPositions[i]*/;
+			DirectX::XMFLOAT4 temp;
+			DirectX::XMStoreFloat4(&temp, DirectX::XMVector4Transform(DirectX::XMLoadFloat4(&s_Data.QuadVertexPositions[i]), transform));
+			s_Data.QuadVertexBufferPtr->Position = { temp.x,temp.y,temp.z };
 			s_Data.QuadVertexBufferPtr->Color = color;
 			s_Data.QuadVertexBufferPtr->TexCoord = texCoord[i];
 			s_Data.QuadVertexBufferPtr->TexIndex = texIndex;

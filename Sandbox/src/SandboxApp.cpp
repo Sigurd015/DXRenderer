@@ -10,18 +10,19 @@
 struct Vertex
 {
 	DirectX::XMFLOAT3 Pos;
+	int Id;
 };
 
 Vertex vertices[] =
 {
-	{ DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f)},
-	{ DirectX::XMFLOAT3(-1.0f, 1.0f, -1.0f)},
-	{ DirectX::XMFLOAT3(1.0f, 1.0f, -1.0f) },
-	{ DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f)},
-	{ DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f)},
-	{ DirectX::XMFLOAT3(-1.0f, 1.0f, 1.0f)},
-	{ DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f) },
-	{ DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f)}
+	{ DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f),5},
+	{ DirectX::XMFLOAT3(-1.0f, 1.0f, -1.0f),5},
+	{ DirectX::XMFLOAT3(1.0f, 1.0f, -1.0f),5 },
+	{ DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f),5},
+	{ DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f),5},
+	{ DirectX::XMFLOAT3(-1.0f, 1.0f, 1.0f),5},
+	{ DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f),5 },
+	{ DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f),5}
 };
 
 uint32_t indices[] =
@@ -71,10 +72,11 @@ public:
 		m_VertexBuffer = DXR::VertexBuffer::Create(60 * sizeof(Vertex));
 		m_VertexBuffer->SetLayout({
 				{ DXR::ShaderDataType::Float3, "Position" },
+				{ DXR::ShaderDataType::Int, "Id" },
 				/*			{ DXR::ShaderDataType::Float4, "Color"    },*/
 							/*{ DXR::ShaderDataType::Float2, "TexCoord" },*/
 			});
-		m_Shader = DXR::Shader::Create("assets/shaders/TestShader.hlsl");
+		m_Shader = DXR::Shader::Create("TestShader");
 		m_VertexArray->AddVertexBuffer(m_VertexBuffer, m_Shader);
 		m_IndexBuffer = DXR::IndexBuffer::Create(indices, (uint32_t)std::size(indices));
 		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
@@ -115,8 +117,8 @@ public:
 			(spec.Width != m_ViewportSize.x || spec.Height != m_ViewportSize.y))
 		{
 			m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+			m_ConstantBuffer.Proj = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, m_ViewportSize.x / m_ViewportSize.y, 1.0f, 1000.0f));
 		}
-		m_ConstantBuffer.Proj = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, m_ViewportSize.x / m_ViewportSize.y, 1.0f, 1000.0f));
 
 		m_Framebuffer->Bind();
 		DXR::RenderCommand::SetClearColor({ 0.3f,0.3f,0.3f,1.0f });
@@ -130,7 +132,7 @@ public:
 
 		m_UniformBuffer->SetData(&m_ConstantBuffer, sizeof(ConstantBuffer));
 
-		m_Texture->Bind(1);
+		//m_Texture->Bind(1);
 
 		DXR::Renderer::Submit(m_Shader, m_VertexArray, DirectX::XMMatrixIdentity());
 

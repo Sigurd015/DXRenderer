@@ -25,6 +25,18 @@ namespace DXR
 			return sampleDesc;
 		}
 
+		static DXGI_FORMAT FBTextureFormatToDX11(FramebufferTextureFormat format)
+		{
+			switch (format)
+			{
+			case FramebufferTextureFormat::RGBA8:       return DXGI_FORMAT_R32G32B32A32_FLOAT;
+			case FramebufferTextureFormat::RED_INTEGER: return DXGI_FORMAT_R32_SINT;
+			case FramebufferTextureFormat::DEPTH24STENCIL8: return DXGI_FORMAT_D24_UNORM_S8_UINT;
+			}
+
+			return DXGI_FORMAT_UNKNOWN;
+		}
+
 		static bool IsDepthFormat(FramebufferTextureFormat format)
 		{
 			switch (format)
@@ -90,38 +102,18 @@ namespace DXR
 			{
 				Microsoft::WRL::ComPtr<ID3D11Texture2D>  texture;
 				D3D11_TEXTURE2D_DESC textureDesc = {};
-				switch (m_ColorAttachmentSpecifications[i].TextureFormat)
-				{
-				case FramebufferTextureFormat::RGBA8:
-				{
-					textureDesc.Width = m_Specification.Width;
-					textureDesc.Height = m_Specification.Height;
-					textureDesc.MipLevels = 1;
-					textureDesc.ArraySize = 1;
-					textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-					textureDesc.SampleDesc = Utils::Multisample(m_Specification.Samples, DXGI_FORMAT_R32G32B32A32_FLOAT);
-					textureDesc.Usage = D3D11_USAGE_DEFAULT;
-					textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-					textureDesc.CPUAccessFlags = 0;
-					DXR_DX_ASSERT(DX11Context::GetDevice()->CreateTexture2D(&textureDesc, nullptr, texture.GetAddressOf()))
-						break;
-				}
-				case FramebufferTextureFormat::RED_INTEGER:
-				{
-					textureDesc.Width = m_Specification.Width;
-					textureDesc.Height = m_Specification.Height;
-					textureDesc.MipLevels = 1;
-					textureDesc.ArraySize = 1;
-					textureDesc.Format = DXGI_FORMAT_R32_SINT;
-					textureDesc.SampleDesc = Utils::Multisample(m_Specification.Samples, DXGI_FORMAT_R32_SINT);
-					textureDesc.Usage = D3D11_USAGE_DEFAULT;
-					textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-					textureDesc.CPUAccessFlags = 0;
-					DXR_DX_ASSERT(DX11Context::GetDevice()->CreateTexture2D(&textureDesc, nullptr, texture.GetAddressOf()))
-						break;
-				}
-				}
-				m_RenderTargetAttachmentsTextures.push_back(texture);
+				textureDesc.Width = m_Specification.Width;
+				textureDesc.Height = m_Specification.Height;
+				textureDesc.MipLevels = 1;
+				textureDesc.ArraySize = 1;
+				textureDesc.Format = Utils::FBTextureFormatToDX11(m_ColorAttachmentSpecifications[i].TextureFormat);
+				textureDesc.SampleDesc = Utils::Multisample(m_Specification.Samples, textureDesc.Format);
+				textureDesc.Usage = D3D11_USAGE_DEFAULT;
+				textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+				textureDesc.CPUAccessFlags = 0;
+				DXR_DX_ASSERT(DX11Context::GetDevice()->CreateTexture2D(&textureDesc, nullptr, texture.GetAddressOf()))
+					m_RenderTargetAttachmentsTextures.push_back(texture);
+
 				Microsoft::WRL::ComPtr<ID3D11RenderTargetView> targetView;
 				D3D11_RENDER_TARGET_VIEW_DESC targetViewDesc = {};
 				targetViewDesc.Format = textureDesc.Format;
@@ -141,26 +133,19 @@ namespace DXR
 		}
 		if (m_DepthAttachmentSpecification.TextureFormat != FramebufferTextureFormat::None)
 		{
-			switch (m_DepthAttachmentSpecification.TextureFormat)
-			{
-			case FramebufferTextureFormat::DEPTH24STENCIL8:
-			{
-				D3D11_TEXTURE2D_DESC depthStencilDesc = {};
-				depthStencilDesc.Width = m_Specification.Width;
-				depthStencilDesc.Height = m_Specification.Height;
-				depthStencilDesc.MipLevels = 1;
-				depthStencilDesc.ArraySize = 1;
-				depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-				depthStencilDesc.SampleDesc = Utils::Multisample(m_Specification.Samples, DXGI_FORMAT_D24_UNORM_S8_UINT);
-				depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
-				depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-				depthStencilDesc.CPUAccessFlags = 0;
-				depthStencilDesc.MiscFlags = 0;
-				DXR_DX_ASSERT(DX11Context::GetDevice()->CreateTexture2D(&depthStencilDesc, nullptr, m_DepthStencilAttachmentsTexture.GetAddressOf()));
-				DXR_DX_ASSERT(DX11Context::GetDevice()->CreateDepthStencilView(m_DepthStencilAttachmentsTexture.Get(), nullptr, m_DepthStencilAttachment.GetAddressOf()));
-				break;
-			}
-			}
+			D3D11_TEXTURE2D_DESC depthStencilDesc = {};
+			depthStencilDesc.Width = m_Specification.Width;
+			depthStencilDesc.Height = m_Specification.Height;
+			depthStencilDesc.MipLevels = 1;
+			depthStencilDesc.ArraySize = 1;
+			depthStencilDesc.Format = Utils::FBTextureFormatToDX11(m_DepthAttachmentSpecification.TextureFormat);
+			depthStencilDesc.SampleDesc = Utils::Multisample(m_Specification.Samples, depthStencilDesc.Format);
+			depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+			depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+			depthStencilDesc.CPUAccessFlags = 0;
+			depthStencilDesc.MiscFlags = 0;
+			DXR_DX_ASSERT(DX11Context::GetDevice()->CreateTexture2D(&depthStencilDesc, nullptr, m_DepthStencilAttachmentsTexture.GetAddressOf()));
+			DXR_DX_ASSERT(DX11Context::GetDevice()->CreateDepthStencilView(m_DepthStencilAttachmentsTexture.Get(), nullptr, m_DepthStencilAttachment.GetAddressOf()));
 		}
 	}
 
@@ -174,7 +159,7 @@ namespace DXR
 				const float temp[] = { value,0,0,0 };
 				DX11Context::GetDeviceContext()->ClearRenderTargetView(m_RenderTargetAttachments[i].Get(), temp);
 				continue;
-			}		
+			}
 			DX11Context::GetDeviceContext()->ClearRenderTargetView(m_RenderTargetAttachments[i].Get(), &color.x);
 		}
 		DX11Context::GetDeviceContext()->ClearDepthStencilView(m_DepthStencilAttachment.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
@@ -183,18 +168,28 @@ namespace DXR
 
 	void DX11Framebuffer::Bind()
 	{
-		DX11RendererAPI::Get()->SetAttachments();
+		DX11RendererAPI::SetAttachments();
 	}
 
 	void DX11Framebuffer::Unbind()
 	{
-		DX11RendererAPI::Get()->ReSetAttachments();
+		DX11RendererAPI::ReSetAttachments();
 	}
 
 	void DX11Framebuffer::Resize(uint32_t width, uint32_t height)
 	{
 		m_Specification.Width = width;
 		m_Specification.Height = height;
+
+		D3D11_VIEWPORT viewPort{};
+		viewPort.Width = width;
+		viewPort.Height = height;
+		viewPort.MinDepth = 0;
+		viewPort.MaxDepth = 1.0f;
+		viewPort.TopLeftX = 0;
+		viewPort.TopLeftY = 0;
+		DX11Context::GetDeviceContext()->RSSetViewports(1, &viewPort);
+
 		Invalidate();
 	}
 
@@ -206,20 +201,34 @@ namespace DXR
 		D3D11_TEXTURE2D_DESC textureCopyDesc = textureDesc;
 		textureCopyDesc.Usage = D3D11_USAGE_STAGING;
 		textureCopyDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-		DXR_DX_ASSERT(DX11Context::GetDevice()->CreateTexture2D(&textureCopyDesc, nullptr, &textureCopy));
+		textureCopyDesc.BindFlags = 0;
+		DXR_DX_ASSERT(DX11Context::GetDevice()->CreateTexture2D(&textureCopyDesc, nullptr, textureCopy.GetAddressOf()));
 		DX11Context::GetDeviceContext()->CopyResource(textureCopy.Get(), m_RenderTargetAttachmentsTextures[attachmentIndex].Get());
 
 		D3D11_MAPPED_SUBRESOURCE mappedTexture;
 		DXR_DX_ASSERT(DX11Context::GetDeviceContext()->Map(textureCopy.Get(), 0, D3D11_MAP_READ, 0, &mappedTexture));
 
-		uint32_t* id = static_cast<uint32_t*>(mappedTexture.pData);
-		uint32_t objectId = id[x + (m_Specification.Height - y - 1) * m_Specification.Width];
+		//TODO::Make Position Correctly
+		//DXR_INFO("RowPitch:", mappedTexture.RowPitch, ",DepthPitch:", mappedTexture.DepthPitch);
+		size_t pixelSize = sizeof(int);
+		size_t rowPitch = textureCopyDesc.Width * pixelSize;
+		size_t x_offset = x * sizeof(int);
+		size_t y_offset = (textureCopyDesc.Height - y - 1) * rowPitch;
+		size_t offset = x_offset + y_offset;
+
+		int* pixels = reinterpret_cast<int*>(mappedTexture.pData);
+		int value = pixels[offset / pixelSize];
+
+		/*	int* pixels = reinterpret_cast<int*>(mappedTexture.pData);
+			int value = pixels[(textureCopyDesc.Height - 1 - y) * rowPitch / pixelSize + x];*/
+			//uint32_t* id = static_cast<float*>(mappedTexture.pData);
+			//uint32_t objectId = id[x + (m_Specification.Height - y - 1) * m_Specification.Width];
 
 		DX11Context::GetDeviceContext()->Unmap(textureCopy.Get(), 0);
 
-		textureCopy->Release();
+		textureCopy.Reset();
 
-		return objectId;
+		return value;
 	}
 
 	void* DX11Framebuffer::GetColorAttachment(uint32_t index) const

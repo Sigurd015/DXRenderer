@@ -5,25 +5,27 @@
 #type:vertex
 struct VertexInput
 {
-	float3 a_WorldPosition : POSITION0;
-	float3 a_LocalPosition : POSITION1;
-	float4 a_Color : COLOR0;
-	float a_Thickness : TEXCOORD0;
-	float a_Fade : TEXCOORD1;
-	int a_EntityID : TEXCOORD2;
+	float3 a_WorldPosition : a_WorldPosition;
+	float3 a_LocalPosition : a_LocalPosition;
+	float4 a_Color : a_Color;
+	float a_Thickness : a_Thickness;
+	float a_Fade : a_Fade;
+	int a_EntityID : a_EntityID;
+};
+
+struct VertexOutput
+{
+	float4 Pos : SV_Position;
+	float3 LocalPosition : LoP;
+	float4 Color : Cor;
+	float Thickness : Ths;
+	float Fade : Fde;
+	int EntityID : EID;
 };
 
 cbuffer Camera : register(b0)
 {
 	float4x4 u_ViewProjection;
-};
-
-struct VertexOutput
-{
-	float3 LocalPosition : TEXCOORD0;
-	float4 Color : COLOR0;
-	float Thickness : TEXCOORD1;
-	float Fade : TEXCOORD2;
 };
 
 VertexOutput main(VertexInput Input)
@@ -33,31 +35,41 @@ VertexOutput main(VertexInput Input)
 	Output.Color = Input.a_Color;
 	Output.Thickness = Input.a_Thickness;
 	Output.Fade = Input.a_Fade;
-
-	Output.Color.a = 1.0f;
-
-	Output.Color.rgb *= Input.a_Color.a;
-
-	Output.Color.rgb /= Output.Color.a;
-	Output.Color.a = saturate(1.0f - length(Output.LocalPosition));
-	Output.Color.a *= smoothstep(Input.a_Thickness + Input.a_Fade, Input.a_Thickness, Output.Color.a);
-
+	Output.EntityID = Input.a_EntityID;
+	Output.Pos = mul(float4(Input.a_WorldPosition,1.0f),u_ViewProjection);
 	return Output;
 }
 
-#type:fragment
-struct VertexOutput
+#type:pixel
+struct PixelInput
 {
-	float3 LocalPosition : TEXCOORD0;
-	float4 Color : COLOR0;
-	float Thickness : TEXCOORD1;
-	float Fade : TEXCOORD2;
+	float3 LocalPosition : LoP;
+	float4 Color : Cor;
+	float Thickness : Ths;
+	float Fade : Fde;
+	int EntityID : EID;
 };
 
-float4 main(VertexOutput Input) : SV_Target
+struct PixelOutput
 {
-	if (Input.Color.a == 0.0f)
+    float4 Color : SV_Target0;
+	int EntityID : SV_Target1;
+};
+
+PixelOutput main(PixelInput Input)
+{
+	PixelOutput Output;
+	
+    // Calculate distance and fill circle with white
+	float distance = 1.0f - length(Input.LocalPosition);
+	float circle = smoothstep(0.0, Input.Fade, distance);
+	circle *= smoothstep(Input.Thickness + Input.Fade, Input.Thickness, distance);
+	
+	if (circle == 0.0)
 		discard;
 
-	return Input.Color;
+    Output.Color = Input.Color;
+	Output.Color.a *= circle;
+	Output.EntityID = Input.EntityID;
+	return Output;
 }

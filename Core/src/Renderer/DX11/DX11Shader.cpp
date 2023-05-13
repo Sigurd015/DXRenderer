@@ -19,7 +19,7 @@ namespace DXR
 
 	DX11Shader::DX11Shader(const std::string& filepath)
 	{
-		std::string source = ReadFile(filepath);
+		std::string source = ReadFile("assets/shaders/" + filepath + ".hlsl");
 		auto shaderSources = PreProcess(source);
 		Compile(shaderSources);
 
@@ -80,7 +80,6 @@ namespace DXR
 
 	void DX11Shader::Compile(const std::unordered_map<ShaderType, std::string>& shaderSources)
 	{
-
 		for (auto& kv : shaderSources)
 		{
 			ShaderType type = kv.first;

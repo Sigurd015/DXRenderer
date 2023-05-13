@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Renderer/Renderer.h"
+#include "Renderer/Renderer2D.h"
 #include "Renderer/RenderCommand.h"
 
 namespace DXR
@@ -36,7 +37,6 @@ namespace DXR
 		//shader->SetUniform("u_ViewProjection", s_SceneData->ViewProjectionMatrix);
 		//shader->SetUniform("u_Transform", transform);
 
-		vertexArray->Bind();
 		RenderCommand::DrawIndexed(vertexArray);
 	}
 }

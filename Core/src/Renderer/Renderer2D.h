@@ -12,6 +12,7 @@ namespace DXR
 	public:
 		static void Init();
 		static void Shutdown();
+		static void BeginScene(const DirectX::XMMATRIX& proj);
 		static void BeginScene(const Camera& camera, const DirectX::XMMATRIX& transform);
 		static void EndScene();
 		static void Flush();
