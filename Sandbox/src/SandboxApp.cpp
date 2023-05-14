@@ -235,12 +235,11 @@ public:
 		ImGui::End();
 
 		ImGui::Begin("Viewport");
-
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
 		ImGui::Image(m_Framebuffer->GetColorAttachment(), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-
 		ImGui::End();
+
 		ImGui::End();
 	}
 

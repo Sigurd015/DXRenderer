@@ -4,8 +4,6 @@
 
 namespace DXR
 {
-	uint32_t DX11VertexBuffer::m_RendererID = 0;
-
 	void CreateBuffer(D3D11_BIND_FLAG bindFlag, uint32_t size, D3D11_USAGE usage, int cpuAccess, uint32_t stride,
 		D3D11_SUBRESOURCE_DATA* pInitialData, ID3D11Buffer** ppBuffer)
 	{
@@ -43,7 +41,7 @@ namespace DXR
 	void DX11VertexBuffer::Bind() const
 	{
 		const UINT offset = 0;
-		DX11Context::GetDeviceContext()->IASetVertexBuffers(m_RendererID++, 1, m_VertexBuffer.GetAddressOf(), &m_Stride, &offset);
+		DX11Context::GetDeviceContext()->IASetVertexBuffers(0, 1, m_VertexBuffer.GetAddressOf(), &m_Stride, &offset);
 	}
 
 	void DX11VertexBuffer::Unbind() const

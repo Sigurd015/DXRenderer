@@ -33,13 +33,13 @@ namespace DXR
 
 	void DX11VertexDeclaration::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
 	{
-		indexBuffer->Bind();
+		//indexBuffer->Bind();
 		m_IndexBuffer = indexBuffer;
 	}
 
 	void DX11VertexDeclaration::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, const Ref<Shader>& shader)
 	{
-		vertexBuffer->Bind();
+		//vertexBuffer->Bind();
 		DX11Shader* vertexShader = (DX11Shader*)shader.get();
 		const auto& layout = vertexBuffer->GetLayout();
 		std::vector<D3D11_INPUT_ELEMENT_DESC> temp;
@@ -59,11 +59,21 @@ namespace DXR
 
 	void DX11VertexDeclaration::Bind() const
 	{
+		for (auto vertexBuffer : m_VertexBuffers)
+		{
+			vertexBuffer->Bind();
+		}
+		m_IndexBuffer->Bind();
 		DX11Context::GetDeviceContext()->IASetInputLayout(m_InputLayout.Get());
 	}
 
 	void DX11VertexDeclaration::Unbind() const
 	{
-
+		for (auto vertexBuffer : m_VertexBuffers)
+		{
+			vertexBuffer->Unbind();
+		}
+		m_IndexBuffer->Unbind();
+		DX11Context::GetDeviceContext()->IASetInputLayout(nullptr);
 	}
 }

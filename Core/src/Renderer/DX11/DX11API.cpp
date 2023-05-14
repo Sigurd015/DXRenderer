@@ -80,12 +80,14 @@ namespace DXR
 		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
 		m_DeviceContext->DrawIndexed(count, 0, 0);
+		vertexArray->Unbind();
 	}
 	void DX11RendererAPI::DrawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount)
 	{
 		vertexArray->Bind();
 		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 		m_DeviceContext->DrawIndexed(vertexCount, 0, 0);
+		vertexArray->Unbind();
 	}
 	void DX11RendererAPI::SetLineWidth(float width)
 	{}
