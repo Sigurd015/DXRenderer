@@ -33,13 +33,11 @@ namespace DXR
 
 	void DX11VertexDeclaration::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
 	{
-		//indexBuffer->Bind();
 		m_IndexBuffer = indexBuffer;
 	}
 
 	void DX11VertexDeclaration::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, const Ref<Shader>& shader)
 	{
-		//vertexBuffer->Bind();
 		DX11Shader* vertexShader = (DX11Shader*)shader.get();
 		const auto& layout = vertexBuffer->GetLayout();
 		std::vector<D3D11_INPUT_ELEMENT_DESC> temp;
