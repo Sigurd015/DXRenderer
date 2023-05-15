@@ -61,7 +61,8 @@ namespace DXR
 		{
 			vertexBuffer->Bind();
 		}
-		m_IndexBuffer->Bind();
+		if (m_IndexBuffer != nullptr)
+			m_IndexBuffer->Bind();
 		DX11Context::GetDeviceContext()->IASetInputLayout(m_InputLayout.Get());
 	}
 
@@ -71,7 +72,8 @@ namespace DXR
 		{
 			vertexBuffer->Unbind();
 		}
-		m_IndexBuffer->Unbind();
+		if (m_IndexBuffer != nullptr)
+			m_IndexBuffer->Unbind();
 		DX11Context::GetDeviceContext()->IASetInputLayout(nullptr);
 	}
 }
