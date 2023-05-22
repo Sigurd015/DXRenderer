@@ -119,7 +119,14 @@ namespace DXR
 
 	void DX11Shader::Unbind() const
 	{
+		DX11Context::GetDeviceContext()->VSSetShader(nullptr, nullptr, 0);
+		DX11Context::GetDeviceContext()->PSSetShader(nullptr, nullptr, 0);
+	}
 
+	DX11Shader::~DX11Shader()
+	{
+		m_VertexShader.Reset();
+		m_PixelShader.Reset();
 	}
 
 	void DX11Shader::SetUniform(const std::string& name, int value)
@@ -129,8 +136,5 @@ namespace DXR
 	{}
 
 	void DX11Shader::SetUniform(const std::string& name, float value)
-	{}
-
-	DX11Shader::~DX11Shader()
 	{}
 }

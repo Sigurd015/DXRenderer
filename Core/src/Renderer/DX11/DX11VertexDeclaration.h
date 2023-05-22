@@ -10,8 +10,8 @@ namespace DXR
 	class DX11VertexDeclaration : public VertexArray
 	{
 	public:
-		DX11VertexDeclaration();
-		~DX11VertexDeclaration();
+		DX11VertexDeclaration() = default;
+		~DX11VertexDeclaration() = default;
 		void Bind() const override;
 		void Unbind() const override;
 		void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, const Ref<Shader>& shader) override;

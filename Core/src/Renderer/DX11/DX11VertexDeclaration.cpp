@@ -25,12 +25,6 @@ namespace DXR
 		return DXGI_FORMAT_UNKNOWN;
 	}
 
-	DX11VertexDeclaration::DX11VertexDeclaration()
-	{}
-
-	DX11VertexDeclaration::~DX11VertexDeclaration()
-	{}
-
 	void DX11VertexDeclaration::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
 	{
 		m_IndexBuffer = indexBuffer;

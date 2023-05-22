@@ -6,6 +6,7 @@
 
 namespace DXR
 {
+	static const uint32_t s_MaxFramebufferSize = 8192;
 	namespace Utils
 	{
 		static DXGI_SAMPLE_DESC Multisample(UINT count, DXGI_FORMAT format)
@@ -183,6 +184,8 @@ namespace DXR
 
 	void DX11Framebuffer::Resize(uint32_t width, uint32_t height)
 	{
+		DXR_ASSERT(!(width == 0 || height == 0 || width > s_MaxFramebufferSize || height > s_MaxFramebufferSize));
+
 		m_Specification.Width = width;
 		m_Specification.Height = height;
 
@@ -213,27 +216,17 @@ namespace DXR
 		D3D11_MAPPED_SUBRESOURCE mappedTexture;
 		DXR_DX_ASSERT(DX11Context::GetDeviceContext()->Map(textureCopy.Get(), 0, D3D11_MAP_READ, 0, &mappedTexture));
 
-		//TODO::Make Position Correctly
-		//DXR_INFO("RowPitch:", mappedTexture.RowPitch, ",DepthPitch:", mappedTexture.DepthPitch);
-		size_t pixelSize = sizeof(int);
-		size_t rowPitch = textureCopyDesc.Width * pixelSize;
-		size_t x_offset = x * sizeof(int);
-		size_t y_offset = (textureCopyDesc.Height - y - 1) * rowPitch;
-		size_t offset = x_offset + y_offset;
+		uint8_t* pData = reinterpret_cast<uint8_t*>(mappedTexture.pData);
+		int32_t rowPitch = mappedTexture.RowPitch;
+		int32_t pixelValue = -1;
 
-		int* pixels = reinterpret_cast<int*>(mappedTexture.pData);
-		int value = pixels[offset / pixelSize];
-
-		/*	int* pixels = reinterpret_cast<int*>(mappedTexture.pData);
-			int value = pixels[(textureCopyDesc.Height - 1 - y) * rowPitch / pixelSize + x];*/
-			//uint32_t* id = static_cast<float*>(mappedTexture.pData);
-			//uint32_t objectId = id[x + (m_Specification.Height - y - 1) * m_Specification.Width];
+		if (textureDesc.Format == DXGI_FORMAT_R32_SINT)
+			memcpy(&pixelValue, pData + y * rowPitch + x * sizeof(int32_t), sizeof(int32_t));
 
 		DX11Context::GetDeviceContext()->Unmap(textureCopy.Get(), 0);
-
 		textureCopy.Reset();
 
-		return value;
+		return pixelValue;
 	}
 
 	void* DX11Framebuffer::GetColorAttachment(uint32_t index) const
