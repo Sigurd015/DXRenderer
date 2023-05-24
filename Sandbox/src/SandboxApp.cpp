@@ -139,6 +139,21 @@ public:
 		m_Framebuffer->Unbind();
 
 		//DXR_INFO("Timestep:",ts);
+
+		ImVec2 mousePos = ImGui::GetMousePos();
+		mousePos.x -= m_ViewportBounds[0].x;
+		mousePos.y -= m_ViewportBounds[0].y;
+		DirectX::XMFLOAT2 viewportSize;
+		DirectX::XMStoreFloat2(&viewportSize, DirectX::XMVectorSubtract(DirectX::XMLoadFloat2(&m_ViewportBounds[1]), DirectX::XMLoadFloat2(&m_ViewportBounds[0])));
+		
+		int mouseX = (int)mousePos.x;
+		int mouseY = (int)mousePos.y;
+
+		if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
+		{
+			int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
+			//Pick Object
+		}
 	}
 
 	void OnEvent(DXR::Event& evnet) override
@@ -237,7 +252,7 @@ public:
 		ImGui::Begin("Viewport");
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
-		ImGui::Image(m_Framebuffer->GetColorAttachment(), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+		ImGui::Image(m_Framebuffer->GetColorAttachment(), ImVec2{ m_ViewportSize.x, m_ViewportSize.y });
 
 		auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
 		auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
