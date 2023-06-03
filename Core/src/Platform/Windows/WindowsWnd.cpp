@@ -39,8 +39,7 @@ namespace DXR
 			WndProc, 0, 0, GetModuleHandle(nullptr), nullptr,
 			nullptr, nullptr, nullptr, L"DXR", nullptr };
 
-		if (!RegisterClassEx(&wndClass))
-			DXR_INFO("[RegisterWndClass]Failed");
+		DXR_ASSERT(RegisterClassEx(&wndClass));
 
 		RECT rect = { 0, 0, m_Data.Width, m_Data.Height };
 		AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
@@ -49,8 +48,7 @@ namespace DXR
 			WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
 			rect.right - rect.left, rect.bottom - rect.top, nullptr, nullptr, wndClass.hInstance, this);
 
-		if (m_WndHandle == nullptr)
-			DXR_INFO("[CerateWindow]Failed");
+		DXR_ASSERT(m_WndHandle);
 
 		ShowWindow(m_WndHandle, SW_SHOW);
 
