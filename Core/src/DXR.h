@@ -14,13 +14,11 @@
 
 // ---Renderer---------------------
 #include "Renderer/Renderer.h"
-#include "Renderer/Renderer2D.h"
 #include "Renderer/RenderCommand.h"
 #include "Renderer/Texture.h"
-#include "Renderer/SubTexture2D.h"
 #include "Renderer/Shader.h"
 #include "Renderer/Buffer.h"
-#include "Renderer/VertexArray.h"
-#include "Renderer/UniformBuffer.h"
+#include "Renderer/Pipeline.h"
+#include "Renderer/ConstantBuffer.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Framebuffer.h"

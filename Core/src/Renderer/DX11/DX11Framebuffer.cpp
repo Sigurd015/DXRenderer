@@ -112,8 +112,8 @@ namespace DXR
 				textureDesc.Usage = D3D11_USAGE_DEFAULT;
 				textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 				textureDesc.CPUAccessFlags = 0;
-				DXR_DX_ASSERT(DX11Context::GetDevice()->CreateTexture2D(&textureDesc, nullptr, texture.GetAddressOf()))
-					m_RenderTargetAttachmentsTextures.push_back(texture);
+				DXR_DX_ASSERT(DX11Context::GetDevice()->CreateTexture2D(&textureDesc, nullptr, texture.GetAddressOf()));
+				m_RenderTargetAttachmentsTextures.push_back(texture);
 
 				Microsoft::WRL::ComPtr<ID3D11RenderTargetView> targetView;
 				D3D11_RENDER_TARGET_VIEW_DESC targetViewDesc = {};

@@ -1,6 +1,6 @@
 #pragma once
 #include "Renderer/RendererAPI.h"
-#include "Renderer/VertexArray.h"
+#include "Renderer/Pipeline.h"
 #include "Renderer/Shader.h"
 
 #include <d3d11.h>
@@ -17,9 +17,8 @@ namespace DXR
 		void SetClearColor(const DirectX::XMFLOAT4& color) override;
 		void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
 		void Clear() override;
-		void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
-		void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount) override;
-		void SetLineWidth(float width) override;
+		void DrawIndexed(const Ref<Pipeline>& pipeline, uint32_t indexCount = 0) override;
+		void DrawLines(const Ref<Pipeline>& pipeline, uint32_t vertexCount) override;
 		static void DX11RendererAPI::SetAttachments(bool renderToBackbuffer = false) { s_Instance->m_RenderToBackbuffer = renderToBackbuffer; }
 		static void ReSetAttachments() { s_Instance->m_RenderToBackbuffer = true; s_Instance->Clear(); }
 		static const DirectX::XMFLOAT4& GetClearColor() { return s_Instance->m_ClearColor; }

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Renderer/Renderer.h"
-#include "Renderer/Renderer2D.h"
 #include "Renderer/RenderCommand.h"
+#include "Renderer/Pipeline.h"
 
 namespace DXR
 {
@@ -10,13 +10,10 @@ namespace DXR
 	void Renderer::Init()
 	{
 		RenderCommand::Init();
-		Renderer2D::Init();
 	}
 
 	void Renderer::Shutdown()
-	{
-		Renderer2D::Shutdown();
-	}
+	{}
 
 	void Renderer::OnWindowResize(uint32_t width, uint32_t height)
 	{
@@ -31,12 +28,12 @@ namespace DXR
 	void Renderer::EndScene()
 	{}
 
-	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const DirectX::XMMATRIX& transform)
+	void Renderer::Submit(const Ref<Shader>& shader, const Ref<Pipeline>& pipeline, const DirectX::XMMATRIX& transform)
 	{
 		shader->Bind();
 		//shader->SetUniform("u_ViewProjection", s_SceneData->ViewProjectionMatrix);
 		//shader->SetUniform("u_Transform", transform);
 
-		RenderCommand::DrawIndexed(vertexArray);
+		RenderCommand::DrawIndexed(pipeline);
 	}
 }

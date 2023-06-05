@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Renderer/DX11/DX11VertexDeclaration.h"
+#include "Renderer/DX11/DX11Pipeline.h"
 #include "Renderer/DX11/DX11Shader.h"
 #include "Renderer/DX11/DX11Context.h"
 
@@ -25,12 +25,12 @@ namespace DXR
 		return DXGI_FORMAT_UNKNOWN;
 	}
 
-	void DX11VertexDeclaration::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
+	void DX11Pipeline::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
 	{
 		m_IndexBuffer = indexBuffer;
 	}
 
-	void DX11VertexDeclaration::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, const Ref<Shader>& shader)
+	void DX11Pipeline::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, const Ref<Shader>& shader)
 	{
 		DX11Shader* vertexShader = (DX11Shader*)shader.get();
 		const auto& layout = vertexBuffer->GetLayout();
@@ -49,7 +49,7 @@ namespace DXR
 		m_VertexBuffers.push_back(vertexBuffer);
 	}
 
-	void DX11VertexDeclaration::Bind() const
+	void DX11Pipeline::Bind() const
 	{
 		for (auto vertexBuffer : m_VertexBuffers)
 		{
@@ -60,7 +60,7 @@ namespace DXR
 		DX11Context::GetDeviceContext()->IASetInputLayout(m_InputLayout.Get());
 	}
 
-	void DX11VertexDeclaration::Unbind() const
+	void DX11Pipeline::Unbind() const
 	{
 		for (auto vertexBuffer : m_VertexBuffers)
 		{

@@ -1,4 +1,3 @@
-#type:vertex
 struct VSIn
 {
     float3 pos : Position;
@@ -28,28 +27,4 @@ VSOut main(VSIn vsi)
 	vso.color = Color;
 	vso.id = vsi.id;
 	return vso;
-}
-
-#type:pixel
-
-struct PSin
-{
-	float4 pos : SV_Position;
-	float4 color : Color;
-	int id : ID;
-};
-
-struct PSOut
-{
-    float4 color : SV_Target0; // 输出颜色到索引为 0 的渲染目标视图
-	int id : SV_Target1;
-};
-
-
-PSOut main(PSin pin)
-{
-	PSOut pso;
-	pso.color = pin.color;
-	pso.id = pin.id;
-    return pso;
 }

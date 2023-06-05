@@ -54,10 +54,10 @@ class ExampleLayer :public DXR::Layer
 private:
 	DirectX::XMFLOAT2 m_ViewportSize = { 0.0f, 0.0f };
 	DirectX::XMFLOAT2 m_ViewportBounds[2];
-	DXR::Ref<DXR::VertexArray> m_VertexArray;
+	DXR::Ref<DXR::Pipeline> m_Pipeline;
 	DXR::Ref<DXR::VertexBuffer>	m_VertexBuffer;
 	DXR::Ref<DXR::IndexBuffer>	m_IndexBuffer;
-	DXR::Ref<DXR::UniformBuffer> m_UniformBuffer;
+	DXR::Ref<DXR::ConstantBuffer> m_UniformBuffer;
 	DXR::Ref<DXR::Texture2D> m_Texture;
 	DXR::Ref<DXR::Shader>	m_Shader;
 	DXR::Ref<DXR::Framebuffer> m_Framebuffer;
@@ -68,7 +68,7 @@ public:
 	~ExampleLayer() {}
 	void OnAttach() override
 	{
-		m_VertexArray = DXR::VertexArray::Create();
+		m_Pipeline = DXR::Pipeline::Create();
 		m_VertexBuffer = DXR::VertexBuffer::Create(60 * sizeof(Vertex));
 		m_VertexBuffer->SetLayout({
 				{ DXR::ShaderDataType::Float3, "Position" },
@@ -77,12 +77,12 @@ public:
 							/*{ DXR::ShaderDataType::Float2, "TexCoord" },*/
 			});
 		m_Shader = DXR::Shader::Create("TestShader");
-		m_VertexArray->AddVertexBuffer(m_VertexBuffer, m_Shader);
+		m_Pipeline->AddVertexBuffer(m_VertexBuffer, m_Shader);
 		m_IndexBuffer = DXR::IndexBuffer::Create(indices, (uint32_t)std::size(indices));
-		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
+		m_Pipeline->SetIndexBuffer(m_IndexBuffer);
 
 		m_VertexBuffer->SetData(vertices, sizeof(vertices));
-		m_UniformBuffer = DXR::UniformBuffer::Create(sizeof(ConstantBuffer), 0);
+		m_UniformBuffer = DXR::ConstantBuffer::Create(sizeof(ConstantBuffer), 0);
 
 		m_Texture = DXR::Texture2D::Create("assets/textures/Checkerboard.png");
 		/*	m_WhiteTexture = DXR::Texture2D::Create(1,1);
@@ -134,7 +134,7 @@ public:
 
 		//m_Texture->Bind(1);
 
-		DXR::Renderer::Submit(m_Shader, m_VertexArray, DirectX::XMMatrixIdentity());
+		DXR::Renderer::Submit(m_Shader, m_Pipeline, DirectX::XMMatrixIdentity());
 
 		m_Framebuffer->Unbind();
 

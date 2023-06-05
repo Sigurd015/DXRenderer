@@ -1,8 +1,8 @@
 #include "pch.h"
-#include "Renderer/VertexArray.h"
+#include "Renderer/Pipeline.h"
 #include "Renderer/Texture.h"
 #include "Renderer/Buffer.h"
-#include "Renderer/UniformBuffer.h"
+#include "Renderer/ConstantBuffer.h"
 #include "Renderer/Shader.h"
 #include "Renderer/RenderingContext.h"
 #include "Renderer/RendererAPI.h"
@@ -10,7 +10,7 @@
 #include "Renderer/Framebuffer.h"
 #include "Renderer/DX11/DX11Context.h"
 #include "Renderer/DX11/DX11API.h"
-#include "Renderer/DX11/DX11VertexDeclaration.h"
+#include "Renderer/DX11/DX11Pipeline.h"
 #include "Renderer/DX11/DX11Buffer.h"
 #include "Renderer/DX11/DX11Shader.h"
 #include "Renderer/DX11/DX11ConstantBuffer.h"
@@ -47,27 +47,26 @@ namespace DXR
 		return nullptr;
 	}
 
-	Ref<Shader> Shader::Create(const std::string& filepath)
+	Ref<Shader> Shader::Create(const std::string& name)
 	{
 		switch (RendererAPI::GetAPI())
 		{
 		case RendererAPI::API::None:
 			return nullptr;
 		case RendererAPI::API::DX11:
-			return CreateRef<DX11Shader>(filepath);
-			return nullptr;
+			return CreateRef<DX11Shader>(name);
 		}
 		return nullptr;
 	}
 
-	Ref<VertexArray> VertexArray::Create()
+	Ref<Pipeline> Pipeline::Create()
 	{
 		switch (RendererAPI::GetAPI())
 		{
 		case RendererAPI::API::None:
 			return nullptr;
 		case RendererAPI::API::DX11:
-			return CreateRef<DX11VertexDeclaration>();
+			return CreateRef<DX11Pipeline>();
 		}
 		return nullptr;
 	}
@@ -143,7 +142,7 @@ namespace DXR
 		return nullptr;
 	}
 
-	Ref<UniformBuffer> UniformBuffer::Create(uint32_t size, uint32_t binding)
+	Ref<ConstantBuffer> ConstantBuffer::Create(uint32_t size, uint32_t binding)
 	{
 		switch (RendererAPI::GetAPI())
 		{

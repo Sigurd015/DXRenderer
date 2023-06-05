@@ -9,7 +9,7 @@ namespace DXR
 
 	void DX11RendererAPI::Init()
 	{
-		DXR_ASSERT(s_Instance);
+		DXR_ASSERT(!s_Instance);
 
 		s_Instance = this;
 
@@ -76,21 +76,18 @@ namespace DXR
 		SetBuffer(width, height, x, y);
 	}
 
-	void DX11RendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
+	void DX11RendererAPI::DrawIndexed(const Ref<Pipeline>& pipeline, uint32_t indexCount)
 	{
-		vertexArray->Bind();
+		pipeline->Bind();
 		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
+		uint32_t count = indexCount ? indexCount : pipeline->GetIndexBuffer()->GetCount();
 		m_DeviceContext->DrawIndexed(count, 0, 0);
 	}
 
-	void DX11RendererAPI::DrawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount)
+	void DX11RendererAPI::DrawLines(const Ref<Pipeline>& pipeline, uint32_t vertexCount)
 	{
-		vertexArray->Bind();
+		pipeline->Bind();
 		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 		m_DeviceContext->DrawIndexed(vertexCount, 0, 0);
 	}
-
-	void DX11RendererAPI::SetLineWidth(float width)
-	{}
 }

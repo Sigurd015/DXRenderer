@@ -1,5 +1,5 @@
 #pragma once
-#include "Renderer/UniformBuffer.h"
+#include "Renderer/ConstantBuffer.h"
 
 #include <d3d11.h>
 #include <Windows.h>
@@ -7,7 +7,7 @@
 
 namespace DXR
 {
-	class DX11ConstantBuffer : public UniformBuffer
+	class DX11ConstantBuffer : public ConstantBuffer
 	{
 	public:
 		DX11ConstantBuffer(uint32_t size, uint32_t binding);

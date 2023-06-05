@@ -10,8 +10,20 @@ project "Sandbox"
 	files
 	{
 		"src/**.h",
-		"src/**.cpp"
+		"src/**.cpp",
+		"assets/shaders/**.hlsl"
 	}
+
+	filter { "files:**.hlsl" }
+		flags "ExcludeFromBuild"
+		shadermodel "5.0"
+ 	filter { "files:**_p.hlsl" }
+		removeflags "ExcludeFromBuild"
+		shadertype "Pixel"
+ 	filter { "files:**_v.hlsl" }
+		removeflags "ExcludeFromBuild"
+		shadertype "Vertex"
+ 	filter {}
 
 	includedirs
 	{
@@ -22,6 +34,11 @@ project "Sandbox"
 	links
 	{
 		"Core"
+	}
+
+	postbuildcommands 
+	{
+		"{COPY} %{cfg.targetdir}/*.cso assets/shaders/cache/"
 	}
 
 	filter "system:windows"

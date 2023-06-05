@@ -1,5 +1,5 @@
 #pragma once
-#include "Renderer/VertexArray.h"
+#include "Renderer/Pipeline.h"
 
 #include <d3d11.h>
 #include <Windows.h>
@@ -7,11 +7,11 @@
 
 namespace DXR
 {
-	class DX11VertexDeclaration : public VertexArray
+	class DX11Pipeline : public Pipeline
 	{
 	public:
-		DX11VertexDeclaration() = default;
-		~DX11VertexDeclaration() = default;
+		DX11Pipeline() = default;
+		~DX11Pipeline() = default;
 		void Bind() const override;
 		void Unbind() const override;
 		void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, const Ref<Shader>& shader) override;

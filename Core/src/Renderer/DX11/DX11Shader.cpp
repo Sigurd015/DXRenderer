@@ -7,108 +7,20 @@
 
 namespace DXR
 {
-	static ShaderType ShaderTypeFromString(const std::string& type)
+	DX11Shader::DX11Shader(const std::string& name)
 	{
-		if (type == "vertex")
-			return VERTEX_SHADER;
-		if (type == "fragment" || type == "pixel")
-			return PIXEL_SHADER;
+		std::string vs = "assets/shaders/cache/" + name + "_v.cso";
+		std::string ps = "assets/shaders/cache/" + name + "_p.cso";
+		std::wstring vertexShader(vs.begin(), vs.end());
+		std::wstring pixelShader(ps.begin(), ps.end());
+		DXR_DX_ASSERT(D3DReadFileToBlob(vertexShader.c_str(), m_VertexShaderBlob.GetAddressOf()));
+		DXR_DX_ASSERT(DX11Context::GetDevice()->CreateVertexShader(m_VertexShaderBlob->GetBufferPointer(),
+			m_VertexShaderBlob->GetBufferSize(), nullptr, m_VertexShader.GetAddressOf()));
 
-		return UNKNOWN;
-	}
-
-	DX11Shader::DX11Shader(const std::string& filepath)
-	{
-		std::string source = ReadFile("assets/shaders/" + filepath + ".hlsl");
-		auto shaderSources = PreProcess(source);
-		Compile(shaderSources);
-
-		// Extract name from filepath
-		auto lastSlash = filepath.find_last_of("/\\");
-		lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
-		auto lastDot = filepath.rfind('.');
-		auto count = lastDot == std::string::npos ? filepath.size() - lastSlash : lastDot - lastSlash;
-		m_Name = filepath.substr(lastSlash, count);
-	}
-
-	std::string DX11Shader::ReadFile(const std::string& filepath)
-	{
-		std::string result;
-		std::ifstream in(filepath, std::ios::in | std::ios::binary);
-		if (in)
-		{
-			in.seekg(0, std::ios::end);
-			size_t size = in.tellg();
-			if (size != -1)
-			{
-				result.resize(size);
-				in.seekg(0, std::ios::beg);
-				in.read(&result[0], size);
-				in.close();
-			}
-			else
-			{
-				DXR_INFO("[Shader]Could not read from file", filepath);
-			}
-		}
-		else
-		{
-			DXR_INFO("[Shader]Could not open file", filepath);
-		}
-		return result;
-	}
-
-	std::unordered_map<ShaderType, std::string> DX11Shader::PreProcess(const std::string& source)
-	{
-
-		std::unordered_map<ShaderType, std::string> shaderSources;
-		const char* typeToken = "#type:";
-		size_t typeTokenLength = strlen(typeToken);
-		size_t pos = source.find(typeToken, 0); //Start of shader type declaration line
-		while (pos != std::string::npos)
-		{
-			size_t eol = source.find_first_of("\r\n", pos); //End of shader type declaration line
-			size_t begin = pos + typeTokenLength; //Start of shader type name (after "#type:" keyword)
-			std::string type = source.substr(begin, eol - begin);
-			size_t nextLinePos = source.find_first_not_of("\r\n", eol); //Start of shader code after shader type declaration line
-			pos = source.find(typeToken, nextLinePos); //Start of next shader type declaration line
-			shaderSources[ShaderTypeFromString(type)] =
-				(pos == std::string::npos) ? source.substr(nextLinePos) : source.substr(nextLinePos, pos - nextLinePos);
-		}
-		return shaderSources;
-	}
-
-	void DX11Shader::Compile(const std::unordered_map<ShaderType, std::string>& shaderSources)
-	{
-		for (auto& kv : shaderSources)
-		{
-			ShaderType type = kv.first;
-			const std::string& source = kv.second;
-			switch (type)
-			{
-			case DXR::VERTEX_SHADER:
-			{
-				DXR_DX_ASSERT(D3DCompile(source.c_str(), source.length(), nullptr, nullptr, nullptr,
-					"main", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, m_VertexShaderBlob.GetAddressOf(), nullptr));
-				DXR_DX_ASSERT(DX11Context::GetDevice()->CreateVertexShader(m_VertexShaderBlob->GetBufferPointer(),
-					m_VertexShaderBlob->GetBufferSize(), nullptr, m_VertexShader.GetAddressOf()));
-				break;
-			}
-			case DXR::PIXEL_SHADER:
-			{
-				Microsoft::WRL::ComPtr<ID3DBlob> blob;
-				DXR_DX_ASSERT(D3DCompile(source.c_str(), source.length(), nullptr, nullptr, nullptr,
-					"main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, blob.ReleaseAndGetAddressOf(), nullptr));
-				DXR_DX_ASSERT(DX11Context::GetDevice()->CreatePixelShader(blob->GetBufferPointer(),
-					blob->GetBufferSize(), nullptr, m_PixelShader.GetAddressOf()));
-				break;
-			}
-			case DXR::UNKNOWN:
-			default:
-				DXR_INFO("[Shader]Unknown Shader Type!");
-				break;
-			}
-		}
+		Microsoft::WRL::ComPtr<ID3DBlob> blob;
+		DXR_DX_ASSERT(D3DReadFileToBlob(pixelShader.c_str(), blob.GetAddressOf()));
+		DXR_DX_ASSERT(DX11Context::GetDevice()->CreatePixelShader(blob->GetBufferPointer(),
+			blob->GetBufferSize(), nullptr, m_PixelShader.GetAddressOf()));
 	}
 
 	void DX11Shader::Bind() const
@@ -128,13 +40,4 @@ namespace DXR
 		m_VertexShader.Reset();
 		m_PixelShader.Reset();
 	}
-
-	void DX11Shader::SetUniform(const std::string& name, int value)
-	{}
-
-	void DX11Shader::SetUniform(const std::string& name, int* values, uint32_t count)
-	{}
-
-	void DX11Shader::SetUniform(const std::string& name, float value)
-	{}
 }
