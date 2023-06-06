@@ -44,8 +44,7 @@ uint32_t indices[] =
 struct ConstantBuffer
 {
 	DirectX::XMMATRIX World;
-	DirectX::XMMATRIX View;
-	DirectX::XMMATRIX Proj;
+	DirectX::XMMATRIX ViewProj;
 	DirectX::XMFLOAT4 Color;
 };
 
@@ -62,6 +61,7 @@ private:
 	DXR::Ref<DXR::Shader>	m_Shader;
 	DXR::Ref<DXR::Framebuffer> m_Framebuffer;
 	ConstantBuffer m_ConstantBuffer = {};
+	DXR::EditorCamera m_Camera;
 	float Phi, Theta, Scale, Tx, Ty;
 public:
 	ExampleLayer() :Layer("ExampleLayer") {}
@@ -90,11 +90,6 @@ public:
 			m_WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));*/
 
 		m_ConstantBuffer.World = DirectX::XMMatrixIdentity();
-		m_ConstantBuffer.View = DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(
-			DirectX::XMVectorSet(0.0f, 0.0f, -5.0f, 0.0f),
-			DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f),
-			DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)
-		));
 		Tx = Ty = Phi = Theta = 0.0f;
 		Scale = 1.0f;
 		m_ConstantBuffer.Color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -104,6 +99,8 @@ public:
 		fbSpec.Width = 1920;
 		fbSpec.Height = 1080;
 		m_Framebuffer = DXR::Framebuffer::Create(fbSpec);
+
+		m_Camera = DXR::EditorCamera(30.0f, 1920.0f / 1080.0f, 0.1f, 1000.0f);
 	}
 
 	void OnDetach() override
@@ -117,8 +114,13 @@ public:
 			(spec.Width != m_ViewportSize.x || spec.Height != m_ViewportSize.y))
 		{
 			m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-			m_ConstantBuffer.Proj = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, m_ViewportSize.x / m_ViewportSize.y, 1.0f, 1000.0f));
+			m_Camera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
 		}
+
+		m_Camera.OnUpdate(ts);
+
+		///	m_ConstantBuffer.Proj = DirectX::XMMatrixTranspose(m_Camera.GetProjection());
+		m_ConstantBuffer.ViewProj = DirectX::XMMatrixTranspose(m_Camera.GetViewProjection());
 
 		m_Framebuffer->Bind();
 		DXR::RenderCommand::SetClearColor({ 0.3f,0.3f,0.3f,1.0f });
@@ -145,7 +147,7 @@ public:
 		mousePos.y -= m_ViewportBounds[0].y;
 		DirectX::XMFLOAT2 viewportSize;
 		DirectX::XMStoreFloat2(&viewportSize, DirectX::XMVectorSubtract(DirectX::XMLoadFloat2(&m_ViewportBounds[1]), DirectX::XMLoadFloat2(&m_ViewportBounds[0])));
-		
+
 		int mouseX = (int)mousePos.x;
 		int mouseY = (int)mousePos.y;
 
@@ -158,6 +160,7 @@ public:
 
 	void OnEvent(DXR::Event& evnet) override
 	{
+		m_Camera.OnEvent(evnet);
 		DXR::EventDispatcher dispatcher(evnet);
 		if (DXR::Input::IsKeyPressed(DXR::Key::A))
 		{
@@ -250,6 +253,8 @@ public:
 		ImGui::End();
 
 		ImGui::Begin("Viewport");
+
+		DXR::Application::Get().GetImGuiLayer()->BlockEvents(!ImGui::IsWindowHovered());
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
 		ImGui::Image(m_Framebuffer->GetColorAttachment(), ImVec2{ m_ViewportSize.x, m_ViewportSize.y });

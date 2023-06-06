@@ -11,6 +11,6 @@ namespace DXR
 		Camera(const const DirectX::XMMATRIX& projection) : m_Projection(projection) {}
 		const const DirectX::XMMATRIX& GetProjection() const { return m_Projection; }
 	protected:
-		const DirectX::XMMATRIX m_Projection = DirectX::XMMatrixIdentity();
+		DirectX::XMMATRIX m_Projection = DirectX::XMMatrixIdentity();
 	};
 }

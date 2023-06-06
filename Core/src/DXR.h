@@ -21,4 +21,5 @@
 #include "Renderer/Pipeline.h"
 #include "Renderer/ConstantBuffer.h"
 #include "Renderer/Camera.h"
+#include "Renderer/EditorCamera.h"
 #include "Renderer/Framebuffer.h"

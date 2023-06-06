@@ -14,11 +14,11 @@ namespace DXR
 		return GetKeyState(button) & 0x8000;
 	}
 
-	std::pair<float, float> Input::GetMousePosition()
+	DirectX::XMFLOAT2 Input::GetMousePosition()
 	{
 		POINT point{ 0,0 };
 		GetCursorPos(&point);
 		ScreenToClient((HWND)Application::Get().GetWindow().GetNativeWindow(), &point);
-		return { point.x,point.y };
+		return { (float)point.x ,(float)point.y };
 	}
 }

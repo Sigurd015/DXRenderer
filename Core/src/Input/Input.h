@@ -2,6 +2,8 @@
 #include "MouseCodes.h"
 #include "KeyCodes.h"
 
+#include <DirectXMath.h>
+
 namespace DXR
 {
 	class Input
@@ -9,6 +11,6 @@ namespace DXR
 	public:
 		static bool IsKeyPressed(KeyCode key);
 		static bool IsMouseButtonPressed(MouseCode button);
-		static std::pair<float, float> GetMousePosition();
+		static DirectX::XMFLOAT2 GetMousePosition();
 	};
 }

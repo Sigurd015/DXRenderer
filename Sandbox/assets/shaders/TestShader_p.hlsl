@@ -11,7 +11,6 @@ struct PSOut
 	int id : SV_Target1;
 };
 
-
 PSOut main(PSin pin)
 {
 	PSOut pso;	
