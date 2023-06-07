@@ -27,7 +27,7 @@ namespace DXR
 		DirectX::XMVECTOR orientation = GetOrientation();
 		DirectX::XMFLOAT3 temp;
 		DirectX::XMStoreFloat3(&temp, m_Position);
-		m_ViewMatrix = DirectX::XMMatrixTranslation(temp.x, temp.y, temp.z) * DirectX::XMMatrixRotationQuaternion(orientation);
+		m_ViewMatrix = DirectX::XMMatrixRotationQuaternion(orientation) * DirectX::XMMatrixTranslation(temp.x, temp.y, temp.z); // Notice: DirectXMath is row major
 		m_ViewMatrix = DirectX::XMMatrixInverse(nullptr, m_ViewMatrix);
 	}
 
@@ -140,7 +140,7 @@ namespace DXR
 
 	DirectX::XMVECTOR  EditorCamera::GetOrientation() const
 	{
-		DirectX::XMFLOAT3 euler(-m_Pitch, -m_Yaw, 0.0f);
+		DirectX::XMFLOAT3 euler(m_Pitch, m_Yaw, 0.0f);
 		return DirectX::XMQuaternionRotationRollPitchYawFromVector(XMLoadFloat3(&euler));
 	}
 }

@@ -117,20 +117,18 @@ public:
 			m_Camera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
 		}
 
-		m_Camera.OnUpdate(ts);
-
-		///	m_ConstantBuffer.Proj = DirectX::XMMatrixTranspose(m_Camera.GetProjection());
-		m_ConstantBuffer.ViewProj = DirectX::XMMatrixTranspose(m_Camera.GetViewProjection());
-
 		m_Framebuffer->Bind();
 		DXR::RenderCommand::SetClearColor({ 0.3f,0.3f,0.3f,1.0f });
 		DXR::RenderCommand::Clear();
-		m_Framebuffer->ClearAttachment(1, -1);
+		m_Framebuffer->ClearAttachment(1, -1);		
+		
+		m_Camera.OnUpdate(ts);
 
 		m_ConstantBuffer.World = DirectX::XMMatrixTranspose(
 			DirectX::XMMatrixScalingFromVector(DirectX::XMVectorReplicate(Scale)) *
 			DirectX::XMMatrixRotationX(Phi) * DirectX::XMMatrixRotationY(Theta) *
 			DirectX::XMMatrixTranslation(Tx, Ty, 0.0f));
+		m_ConstantBuffer.ViewProj = DirectX::XMMatrixTranspose(m_Camera.GetViewProjection());
 
 		m_UniformBuffer->SetData(&m_ConstantBuffer, sizeof(ConstantBuffer));
 
@@ -154,7 +152,7 @@ public:
 		if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
 		{
 			int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
-			//Pick Object
+			//DXR_INFO("Picked Object is ", pixelData); //Pick Object
 		}
 	}
 

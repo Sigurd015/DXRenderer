@@ -6,12 +6,12 @@ namespace DXR
 {
 	bool Input::IsKeyPressed(const KeyCode key)
 	{
-		return GetKeyState(key) & 0x8000;
+		return GetAsyncKeyState(key) & 0x8000;
 	}
 
 	bool Input::IsMouseButtonPressed(const MouseCode button)
 	{
-		return GetKeyState(button) & 0x8000;
+		return GetAsyncKeyState(button) & 0x8000;
 	}
 
 	DirectX::XMFLOAT2 Input::GetMousePosition()
