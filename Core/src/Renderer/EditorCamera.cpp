@@ -21,9 +21,6 @@ namespace DXR
 
 	void EditorCamera::UpdateView()
 	{
-		// m_Yaw = m_Pitch = 0.0f; // Lock the camera's rotation
-		m_Position = CalculatePosition();
-
 		DirectX::XMVECTOR orientation = GetOrientation();
 		DirectX::XMFLOAT3 temp;
 		DirectX::XMStoreFloat3(&temp, m_Position);
@@ -54,8 +51,31 @@ namespace DXR
 
 	void EditorCamera::OnUpdate(Timestep ts)
 	{
-		if (Input::IsKeyPressed(Key::Alt))
+		if (Input::IsMouseButtonPressed(Mouse::ButtonRight) && !Input::IsKeyPressed(Key::Alt))
 		{
+			m_CameraMode = CameraMode::FLYCAM;
+			DirectX::XMFLOAT3 upDir;
+			DirectX::XMStoreFloat3(&upDir, GetUpDirection());
+			const float yawSign = upDir.y < 0 ? -1.0f : 1.0f;
+			DirectX::XMVECTOR temp = { 0.f, yawSign, 0.f };
+			float speed = ts * m_TranslationSpeed;
+
+			if (Input::IsKeyPressed(Key::Q))
+				m_PositionDelta = DirectX::XMVectorAdd(m_PositionDelta, DirectX::XMVectorScale(temp, speed));
+			if (Input::IsKeyPressed(Key::E))
+				m_PositionDelta = DirectX::XMVectorSubtract(m_PositionDelta, DirectX::XMVectorScale(temp, speed));
+			if (Input::IsKeyPressed(Key::S))
+				m_PositionDelta = DirectX::XMVectorSubtract(m_PositionDelta, DirectX::XMVectorScale(GetForwardDirection(), speed));
+			if (Input::IsKeyPressed(Key::W))
+				m_PositionDelta = DirectX::XMVectorAdd(m_PositionDelta, DirectX::XMVectorScale(GetForwardDirection(), speed));
+			if (Input::IsKeyPressed(Key::A))
+				m_PositionDelta = DirectX::XMVectorSubtract(m_PositionDelta, DirectX::XMVectorScale(GetRightDirection(), speed));
+			if (Input::IsKeyPressed(Key::D))
+				m_PositionDelta = DirectX::XMVectorAdd(m_PositionDelta, DirectX::XMVectorScale(GetRightDirection(), speed));
+		}
+		else if (Input::IsKeyPressed(Key::Alt))
+		{
+			m_CameraMode = CameraMode::ARCBALL;
 			const DirectX::XMFLOAT2& mouse = Input::GetMousePosition();
 			DirectX::XMFLOAT2 delta;
 			DirectX::XMStoreFloat2(&delta, DirectX::XMVectorScale(
@@ -70,6 +90,12 @@ namespace DXR
 				MouseZoom(delta.y);
 		}
 
+		m_Position = DirectX::XMVectorAdd(m_Position, m_PositionDelta);
+		//m_FocalPoint = DirectX::XMVectorAdd(m_FocalPoint, DirectX::XMVectorScale(GetForwardDirection(), m_Distance));
+
+		if (m_CameraMode == CameraMode::ARCBALL)
+			m_Position = CalculatePosition();
+
 		UpdateView();
 	}
 
@@ -81,6 +107,9 @@ namespace DXR
 
 	bool EditorCamera::OnMouseScroll(MouseScrolledEvent& e)
 	{
+		if (m_CameraMode != CameraMode::ARCBALL)
+			return false;
+
 		float delta = e.GetYOffset() * 0.1f;
 		MouseZoom(delta);
 		UpdateView();
@@ -134,8 +163,8 @@ namespace DXR
 
 	DirectX::XMVECTOR EditorCamera::CalculatePosition() const
 	{
-		return DirectX::XMVectorSubtract(m_FocalPoint,
-			DirectX::XMVectorScale(GetForwardDirection(), m_Distance));
+		return DirectX::XMVectorAdd(DirectX::XMVectorSubtract(m_FocalPoint,
+			DirectX::XMVectorScale(GetForwardDirection(), m_Distance)), m_PositionDelta);
 	}
 
 	DirectX::XMVECTOR  EditorCamera::GetOrientation() const

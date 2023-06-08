@@ -1,29 +1,31 @@
 struct VSIn
 {
     float3 pos : Position;
-	int id : Id;
+    float3 nor : Normal;
+    float2 tex : Texcoord;
 };
 struct VSOut
 {
-	float4 pos : SV_Position;
-	float4 color : Color;
-	int id : ID;
+    float4 pos : SV_Position;
+    float3 nor : Normal;
+    float2 tex : Texcoord;
+    float4 col : Color;
 };
 
 cbuffer ConstantBuffer : register(b0)
 {
-    matrix World; 
+    matrix World;
     matrix ViewProj;
-	float4 Color; 
+    float4 Color;
 }
 
 VSOut main(VSIn vsi)
 {
-	VSOut vso;
-	vso.pos = mul(float4(vsi.pos,1.0f),World);
+    VSOut vso;
+    vso.pos = mul(float4(vsi.pos, 1.0f), World);
     vso.pos = mul(vso.pos, ViewProj);
-	//vso.pos = mul(vso.pos,Proj);
-	vso.color = Color;
-	vso.id = vsi.id;
-	return vso;
+    vso.nor = vsi.nor;
+    vso.tex = vsi.tex;
+    vso.col = Color;
+    return vso;
 }

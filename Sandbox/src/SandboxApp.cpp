@@ -7,40 +7,6 @@
 #include <iostream>
 #include <DirectXMath.h>
 
-struct Vertex
-{
-	DirectX::XMFLOAT3 Pos;
-	int Id;
-};
-
-Vertex vertices[] =
-{
-	{ DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f),5},
-	{ DirectX::XMFLOAT3(-1.0f, 1.0f, -1.0f),5},
-	{ DirectX::XMFLOAT3(1.0f, 1.0f, -1.0f),5 },
-	{ DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f),5},
-	{ DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f),5},
-	{ DirectX::XMFLOAT3(-1.0f, 1.0f, 1.0f),5},
-	{ DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f),5 },
-	{ DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f),5}
-};
-
-uint32_t indices[] =
-{
-  0, 1, 2,
-  2, 3, 0,
-  4, 5, 1,
-  1, 0, 4,
-  1, 5, 6,
-  6, 2, 1,
-  7, 6, 5,
-  5, 4, 7,
-  3, 2, 6,
-  6, 7, 3,
-  4, 0, 3,
-  3, 7, 4
-};
-
 struct ConstantBuffer
 {
 	DirectX::XMMATRIX World;
@@ -54,34 +20,24 @@ private:
 	DirectX::XMFLOAT2 m_ViewportSize = { 0.0f, 0.0f };
 	DirectX::XMFLOAT2 m_ViewportBounds[2];
 	DXR::Ref<DXR::Pipeline> m_Pipeline;
-	DXR::Ref<DXR::VertexBuffer>	m_VertexBuffer;
-	DXR::Ref<DXR::IndexBuffer>	m_IndexBuffer;
 	DXR::Ref<DXR::ConstantBuffer> m_UniformBuffer;
 	DXR::Ref<DXR::Texture2D> m_Texture;
-	DXR::Ref<DXR::Shader>	m_Shader;
 	DXR::Ref<DXR::Framebuffer> m_Framebuffer;
 	ConstantBuffer m_ConstantBuffer = {};
 	DXR::EditorCamera m_Camera;
 	float Phi, Theta, Scale, Tx, Ty;
+	std::vector<DXR::Ref<DXR::Mesh>> m_Meshes;
 public:
 	ExampleLayer() :Layer("ExampleLayer") {}
 	~ExampleLayer() {}
 	void OnAttach() override
 	{
+		m_Meshes.push_back(DXR::MeshFactory::CreateBox({ 1.0f,1.0f,1.0f }));
 		m_Pipeline = DXR::Pipeline::Create();
-		m_VertexBuffer = DXR::VertexBuffer::Create(60 * sizeof(Vertex));
-		m_VertexBuffer->SetLayout({
-				{ DXR::ShaderDataType::Float3, "Position" },
-				{ DXR::ShaderDataType::Int, "Id" },
-				/*			{ DXR::ShaderDataType::Float4, "Color"    },*/
-							/*{ DXR::ShaderDataType::Float2, "TexCoord" },*/
-			});
-		m_Shader = DXR::Shader::Create("TestShader");
-		m_Pipeline->AddVertexBuffer(m_VertexBuffer, m_Shader);
-		m_IndexBuffer = DXR::IndexBuffer::Create(indices, (uint32_t)std::size(indices));
-		m_Pipeline->SetIndexBuffer(m_IndexBuffer);
 
-		m_VertexBuffer->SetData(vertices, sizeof(vertices));
+		m_Pipeline->AddVertexBuffer(m_Meshes[0]->GetVertexBuffer(), m_Meshes[0]->GetShader());
+		m_Pipeline->SetIndexBuffer(m_Meshes[0]->GetIndexBuffer());
+
 		m_UniformBuffer = DXR::ConstantBuffer::Create(sizeof(ConstantBuffer), 0);
 
 		m_Texture = DXR::Texture2D::Create("assets/textures/Checkerboard.png");
@@ -92,7 +48,7 @@ public:
 		m_ConstantBuffer.World = DirectX::XMMatrixIdentity();
 		Tx = Ty = Phi = Theta = 0.0f;
 		Scale = 1.0f;
-		m_ConstantBuffer.Color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		m_ConstantBuffer.Color = DirectX::XMFLOAT4(0.5f, 0.7f, 0.8f, 0.9f);
 
 		DXR::FramebufferSpecification fbSpec;
 		fbSpec.Attachments = { DXR::FramebufferTextureFormat::RGBA8, DXR::FramebufferTextureFormat::RED_INTEGER ,DXR::FramebufferTextureFormat::Depth };
@@ -120,8 +76,8 @@ public:
 		m_Framebuffer->Bind();
 		DXR::RenderCommand::SetClearColor({ 0.3f,0.3f,0.3f,1.0f });
 		DXR::RenderCommand::Clear();
-		m_Framebuffer->ClearAttachment(1, -1);		
-		
+		m_Framebuffer->ClearAttachment(1, -1);
+
 		m_Camera.OnUpdate(ts);
 
 		m_ConstantBuffer.World = DirectX::XMMatrixTranspose(
@@ -134,7 +90,7 @@ public:
 
 		//m_Texture->Bind(1);
 
-		DXR::Renderer::Submit(m_Shader, m_Pipeline, DirectX::XMMatrixIdentity());
+		DXR::Renderer::Submit(m_Pipeline, m_Meshes[0]->GetShader());
 
 		m_Framebuffer->Unbind();
 

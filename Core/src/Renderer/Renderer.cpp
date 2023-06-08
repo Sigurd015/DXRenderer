@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "Renderer/Mesh.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/RenderCommand.h"
 #include "Renderer/Pipeline.h"
@@ -28,11 +29,9 @@ namespace DXR
 	void Renderer::EndScene()
 	{}
 
-	void Renderer::Submit(const Ref<Shader>& shader, const Ref<Pipeline>& pipeline, const DirectX::XMMATRIX& transform)
+	void Renderer::Submit(const Ref<Pipeline>& pipeline,const Ref<Shader>& shader)
 	{
 		shader->Bind();
-		//shader->SetUniform("u_ViewProjection", s_SceneData->ViewProjectionMatrix);
-		//shader->SetUniform("u_Transform", transform);
 
 		RenderCommand::DrawIndexed(pipeline);
 	}

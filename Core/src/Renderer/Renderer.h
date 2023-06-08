@@ -16,7 +16,7 @@ namespace DXR
 		static void OnWindowResize(uint32_t width, uint32_t height);
 		static void BeginScene(const Camera& camera, const DirectX::XMMATRIX& transform);
 		static void EndScene();
-		static void Submit(const Ref<Shader>& shader, const Ref<Pipeline>& pipeline, const DirectX::XMMATRIX& transform);
+		static void Submit(const Ref<Pipeline>& pipeline, const Ref<Shader>& shader);
 	private:
 		struct SceneData
 		{

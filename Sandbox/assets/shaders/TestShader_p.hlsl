@@ -1,20 +1,19 @@
 struct PSin
 {
-	float4 pos : SV_Position;
-	float4 color : Color;
-	int id : ID;
+    float4 pos : SV_Position;
+    float3 nor : Normal;
+    float2 tex : Texcoord;
+    float4 col : Color;
 };
 
 struct PSOut
 {
     float4 color : SV_Target0;
-	int id : SV_Target1;
 };
 
 PSOut main(PSin pin)
 {
-	PSOut pso;	
-	pso.color = pin.color;
-	pso.id = pin.id;
+    PSOut pso;
+    pso.color = pin.col;
     return pso;
 }

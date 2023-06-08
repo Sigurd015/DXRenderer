@@ -28,14 +28,14 @@ namespace DXR
 			s_RendererAPI->Clear();
 		}
 
-		static void DrawIndexed(const Ref<Pipeline>& vertexArray, uint32_t indexCount = 0)
+		static void DrawIndexed(const Ref<Pipeline>& pipeline, uint32_t indexCount = 0)
 		{
-			s_RendererAPI->DrawIndexed(vertexArray, indexCount);
+			s_RendererAPI->DrawIndexed(pipeline, indexCount);
 		}
 
-		static void DrawLines(const Ref<Pipeline>& vertexArray, uint32_t vertexCount)
+		static void DrawLines(const Ref<Pipeline>& pipeline, uint32_t vertexCount)
 		{
-			s_RendererAPI->DrawLines(vertexArray, vertexCount);
+			s_RendererAPI->DrawLines(pipeline, vertexCount);
 		}
 	private:
 		static Scope<RendererAPI> s_RendererAPI;

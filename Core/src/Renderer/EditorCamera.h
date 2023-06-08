@@ -9,6 +9,11 @@
 
 namespace DXR
 {
+	enum class CameraMode
+	{
+		NONE, FLYCAM, ARCBALL
+	};
+
 	class EditorCamera : public Camera
 	{
 	public:
@@ -20,7 +25,7 @@ namespace DXR
 
 		inline float GetDistance() const { return m_Distance; }
 		inline void SetDistance(float distance) { m_Distance = distance; }
-
+		CameraMode GetCurrentMode() const { return m_CameraMode; }
 		inline void SetViewportSize(float width, float height) { m_ViewportWidth = width; m_ViewportHeight = height; UpdateProjection(); }
 
 		const DirectX::XMMATRIX& GetViewMatrix() const { return m_ViewMatrix; }
@@ -54,12 +59,15 @@ namespace DXR
 		DirectX::XMMATRIX m_ViewMatrix;
 		DirectX::XMVECTOR m_Position = { 0.0f, 0.0f, 0.0f }; //Vec3
 		DirectX::XMVECTOR m_FocalPoint = { 0.0f, 0.0f, 0.0f }; //Vec3
-
+		DirectX::XMVECTOR m_PositionDelta = { 0.0f, 0.0f, 0.0f }; //Vec3
 		DirectX::XMVECTOR m_InitialMousePosition = { 0.0f, 0.0f }; //Vec2
 
+		CameraMode m_CameraMode{ CameraMode::ARCBALL };
 		float m_RotationSpeed = 0.8f;
+		float m_TranslationSpeed = 3.5f;
 		float m_Distance = 10.0f;
 		float m_Pitch = 0.0f, m_Yaw = 0.0f;
+
 
 		float m_ViewportWidth = 1920.0f, m_ViewportHeight = 1080.0f;
 	};
