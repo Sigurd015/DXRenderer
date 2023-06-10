@@ -19,36 +19,38 @@ class ExampleLayer :public DXR::Layer
 private:
 	DirectX::XMFLOAT2 m_ViewportSize = { 0.0f, 0.0f };
 	DirectX::XMFLOAT2 m_ViewportBounds[2];
-	DXR::Ref<DXR::Pipeline> m_Pipeline;
-	DXR::Ref<DXR::ConstantBuffer> m_UniformBuffer;
-	DXR::Ref<DXR::Texture2D> m_Texture;
-	DXR::Ref<DXR::Framebuffer> m_Framebuffer;
-	ConstantBuffer m_ConstantBuffer = {};
+
 	DXR::EditorCamera m_Camera;
 	float Phi, Theta, Scale, Tx, Ty;
-	std::vector<DXR::Ref<DXR::Mesh>> m_Meshes;
+
+	DXR::Ref<DXR::ConstantBuffer> m_ConstantBuffer;
+	DXR::Ref<DXR::Texture2D> m_Texture;
+	DXR::Ref<DXR::Framebuffer> m_Framebuffer;
+	ConstantBuffer m_ConstantBufferData = {};
+
+	DXR::Ref<DXR::Mesh> m_Meshes;
+	DXR::Ref<DXR::RenderPass> m_RenderPass;
+	DXR::Ref<DXR::Pipeline> m_Pipeline;
 public:
 	ExampleLayer() :Layer("ExampleLayer") {}
 	~ExampleLayer() {}
 	void OnAttach() override
 	{
-		m_Meshes.push_back(DXR::MeshFactory::CreateBox({ 1.0f,1.0f,1.0f }));
-		m_Pipeline = DXR::Pipeline::Create();
+		m_Meshes = DXR::MeshFactory::CreateBox({ 1.0f,1.0f,1.0f });
+		//m_Meshes = DXR::MeshFactory::CreateSphere(1.0f);
+		//m_Meshes = DXR::MeshFactory::CreateCapsule(1.0f, 5.0f);
 
-		m_Pipeline->AddVertexBuffer(m_Meshes[0]->GetVertexBuffer(), m_Meshes[0]->GetShader());
-		m_Pipeline->SetIndexBuffer(m_Meshes[0]->GetIndexBuffer());
-
-		m_UniformBuffer = DXR::ConstantBuffer::Create(sizeof(ConstantBuffer), 0);
+		m_ConstantBuffer = DXR::ConstantBuffer::Create(sizeof(ConstantBuffer), 0);
 
 		m_Texture = DXR::Texture2D::Create("assets/textures/Checkerboard.png");
 		/*	m_WhiteTexture = DXR::Texture2D::Create(1,1);
 			uint32_t whiteTextureData = 0xffffffff;
 			m_WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));*/
 
-		m_ConstantBuffer.World = DirectX::XMMatrixIdentity();
+		m_ConstantBufferData.World = DirectX::XMMatrixIdentity();
 		Tx = Ty = Phi = Theta = 0.0f;
 		Scale = 1.0f;
-		m_ConstantBuffer.Color = DirectX::XMFLOAT4(0.5f, 0.7f, 0.8f, 0.9f);
+		m_ConstantBufferData.Color = DirectX::XMFLOAT4(0.5f, 0.7f, 0.8f, 0.9f);
 
 		DXR::FramebufferSpecification fbSpec;
 		fbSpec.Attachments = { DXR::FramebufferTextureFormat::RGBA8, DXR::FramebufferTextureFormat::RED_INTEGER ,DXR::FramebufferTextureFormat::Depth };
@@ -57,6 +59,22 @@ public:
 		m_Framebuffer = DXR::Framebuffer::Create(fbSpec);
 
 		m_Camera = DXR::EditorCamera(30.0f, 1920.0f / 1080.0f, 0.1f, 1000.0f);
+
+		m_RenderPass = DXR::RenderPass::Create({ m_Framebuffer });
+
+		DXR::VertexBufferLayout layout = {
+			  { DXR::ShaderDataType::Float3, "Position" },
+			  { DXR::ShaderDataType::Float3, "Normal" },
+			  { DXR::ShaderDataType::Float2, "TexCoord" },
+		};
+		DXR::Ref<DXR::Shader> shader = DXR::Shader::Create("TestShader");
+		DXR::PipelineSpecification spec;
+		spec.Layout = layout;
+		spec.RenderPass = m_RenderPass;
+		spec.Shader = shader;
+		m_Pipeline = DXR::Pipeline::Create(spec);
+		m_Meshes->SetMaterial(DXR::Material::Create(shader));
+		m_Pipeline->SetConstantBuffer(m_ConstantBuffer);
 	}
 
 	void OnDetach() override
@@ -72,29 +90,22 @@ public:
 			m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 			m_Camera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
 		}
-
-		m_Framebuffer->Bind();
-		DXR::RenderCommand::SetClearColor({ 0.3f,0.3f,0.3f,1.0f });
-		DXR::RenderCommand::Clear();
-		m_Framebuffer->ClearAttachment(1, -1);
-
 		m_Camera.OnUpdate(ts);
 
-		m_ConstantBuffer.World = DirectX::XMMatrixTranspose(
+		m_ConstantBufferData.World = DirectX::XMMatrixTranspose(
 			DirectX::XMMatrixScalingFromVector(DirectX::XMVectorReplicate(Scale)) *
 			DirectX::XMMatrixRotationX(Phi) * DirectX::XMMatrixRotationY(Theta) *
 			DirectX::XMMatrixTranslation(Tx, Ty, 0.0f));
-		m_ConstantBuffer.ViewProj = DirectX::XMMatrixTranspose(m_Camera.GetViewProjection());
+		m_ConstantBufferData.ViewProj = DirectX::XMMatrixTranspose(m_Camera.GetViewProjection());
 
-		m_UniformBuffer->SetData(&m_ConstantBuffer, sizeof(ConstantBuffer));
+		m_ConstantBuffer->SetData(&m_ConstantBufferData, sizeof(ConstantBuffer));
 
-		//m_Texture->Bind(1);
+		DXR::Renderer::SetClearColor();
+		DXR::Renderer::BeginRender(m_Pipeline);
 
-		DXR::Renderer::Submit(m_Pipeline, m_Meshes[0]->GetShader());
+		DXR::Renderer::SubmitStaticMesh(m_Meshes, m_Pipeline);
 
-		m_Framebuffer->Unbind();
-
-		//DXR_INFO("Timestep:",ts);
+		DXR::Renderer::EndRender();
 
 		ImVec2 mousePos = ImGui::GetMousePos();
 		mousePos.x -= m_ViewportBounds[0].x;
@@ -202,7 +213,7 @@ public:
 			ImGui::SliderFloat("##1", &Phi, -DirectX::XM_PI, DirectX::XM_PI, "");
 			ImGui::Text("Theta: %.2f degrees", DirectX::XMConvertToDegrees(Theta));
 			ImGui::SliderFloat("##2", &Theta, -DirectX::XM_PI, DirectX::XM_PI, "");
-			ImGui::ColorEdit4("Color:", &m_ConstantBuffer.Color.x);
+			ImGui::ColorEdit4("Color:", &m_ConstantBufferData.Color.x);
 		}
 		ImGui::End();
 

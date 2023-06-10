@@ -1,38 +1,58 @@
 #include "pch.h"
-#include "Renderer/Mesh.h"
-#include "Renderer/Renderer.h"
-#include "Renderer/RenderCommand.h"
-#include "Renderer/Pipeline.h"
+#include "Mesh.h"
+#include "Renderer.h"
+#include "RendererAPI.h"
+#include "RenderCommandQueue.h"
+#include "Pipeline.h"
 
 namespace DXR
 {
-	Scope<Renderer::SceneData> Renderer::s_SceneData = CreateScope<Renderer::SceneData>();
+	static RenderCommandQueue* s_CommandQueue = nullptr;
+	static Scope<RendererAPI> s_RendererAPI = RendererAPI::Create();
 
 	void Renderer::Init()
 	{
-		RenderCommand::Init();
+		s_CommandQueue = new RenderCommandQueue();
+		s_RendererAPI->Init();
 	}
 
 	void Renderer::Shutdown()
-	{}
+	{
+		delete s_CommandQueue;
+	}
+
+	void Renderer::SetClearColor(const DirectX::XMFLOAT4& color)
+	{
+		s_RendererAPI->SetClearColor(color);
+	}
 
 	void Renderer::OnWindowResize(uint32_t width, uint32_t height)
 	{
-		RenderCommand::SetViewport(0, 0, width, height);
+		s_RendererAPI->SetViewport(0, 0, width, height);
 	}
 
-	void Renderer::BeginScene(const Camera& camera, const DirectX::XMMATRIX& transform)
+	void Renderer::BeginRender(Ref<Pipeline> pipeline)
 	{
-		s_SceneData->ViewProjectionMatrix = camera.GetProjection() * DirectX::XMMatrixInverse(nullptr, transform);
+		s_RendererAPI->BeginRender(pipeline);
 	}
 
-	void Renderer::EndScene()
-	{}
-
-	void Renderer::Submit(const Ref<Pipeline>& pipeline,const Ref<Shader>& shader)
+	void Renderer::EndRender()
 	{
-		shader->Bind();
+		s_RendererAPI->EndRender();
+	}
 
-		RenderCommand::DrawIndexed(pipeline);
+	void Renderer::SubmitStaticMesh(Ref<Mesh>& mesh, Ref<Pipeline>& pipeLine, const DirectX::XMMATRIX& transform)
+	{
+		s_RendererAPI->SubmitStaticMesh(mesh, pipeLine, transform);
+	}
+
+	void Renderer::WaitAndRender()
+	{
+		s_CommandQueue->Execute();
+	}
+
+	RenderCommandQueue& Renderer::GetRenderCommandQueue()
+	{
+		return *s_CommandQueue;
 	}
 }

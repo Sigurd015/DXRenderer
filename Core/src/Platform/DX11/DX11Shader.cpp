@@ -1,6 +1,7 @@
 #include "pch.h"
-#include "Renderer/DX11/DX11Shader.h"
-#include "Renderer/DX11/DX11Context.h"
+#include "DX11Shader.h"
+#include "DX11Context.h"
+#include "Platform/DXCommon.h"
 
 #include <fstream>
 #include <d3dcompiler.h>
@@ -13,13 +14,13 @@ namespace DXR
 		std::string ps = "assets/shaders/cache/" + name + "_p.cso";
 		std::wstring vertexShader(vs.begin(), vs.end());
 		std::wstring pixelShader(ps.begin(), ps.end());
-		DXR_DX_ASSERT(D3DReadFileToBlob(vertexShader.c_str(), m_VertexShaderBlob.GetAddressOf()));
-		DXR_DX_ASSERT(DX11Context::GetDevice()->CreateVertexShader(m_VertexShaderBlob->GetBufferPointer(),
+		DX_CHECK_RESULT(D3DReadFileToBlob(vertexShader.c_str(), m_VertexShaderBlob.GetAddressOf()));
+		DX_CHECK_RESULT(DX11Context::GetDevice()->CreateVertexShader(m_VertexShaderBlob->GetBufferPointer(),
 			m_VertexShaderBlob->GetBufferSize(), nullptr, m_VertexShader.GetAddressOf()));
 
 		Microsoft::WRL::ComPtr<ID3DBlob> blob;
-		DXR_DX_ASSERT(D3DReadFileToBlob(pixelShader.c_str(), blob.GetAddressOf()));
-		DXR_DX_ASSERT(DX11Context::GetDevice()->CreatePixelShader(blob->GetBufferPointer(),
+		DX_CHECK_RESULT(D3DReadFileToBlob(pixelShader.c_str(), blob.GetAddressOf()));
+		DX_CHECK_RESULT(DX11Context::GetDevice()->CreatePixelShader(blob->GetBufferPointer(),
 			blob->GetBufferSize(), nullptr, m_PixelShader.GetAddressOf()));
 	}
 

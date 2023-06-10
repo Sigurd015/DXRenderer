@@ -16,16 +16,13 @@ namespace DXR
 		void Init() override;
 		void SetClearColor(const DirectX::XMFLOAT4& color) override;
 		void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
+		void BeginRender() override;
+		void BeginRender(Ref<Pipeline>& pipeLine) override;
+		void EndRender() override;
 		void Clear() override;
-		void DrawIndexed(const Ref<Pipeline>& pipeline, uint32_t indexCount = 0) override;
-		void DrawLines(const Ref<Pipeline>& pipeline, uint32_t vertexCount) override;
-		static void DX11RendererAPI::SetAttachments(bool renderToBackbuffer = false) { s_Instance->m_RenderToBackbuffer = renderToBackbuffer; }
-		static void ReSetAttachments() { s_Instance->m_RenderToBackbuffer = true; s_Instance->Clear(); }
-		static const DirectX::XMFLOAT4& GetClearColor() { return s_Instance->m_ClearColor; }
+		void SubmitStaticMesh(Ref<Mesh>& mesh, Ref<Pipeline>& pipeLine, const DirectX::XMMATRIX& transform) override;
 	private:
 		void SetBuffer(uint32_t width, uint32_t height, uint32_t x = 0, uint32_t y = 0);
-		static DX11RendererAPI* s_Instance;
-		bool m_RenderToBackbuffer = true;
 		Microsoft::WRL::ComPtr<IDXGISwapChain> m_SwapChain;
 		Microsoft::WRL::ComPtr<ID3D11Device> m_Device;
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_DeviceContext;

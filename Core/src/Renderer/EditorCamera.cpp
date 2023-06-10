@@ -95,7 +95,7 @@ namespace DXR
 
 		if (m_CameraMode == CameraMode::ARCBALL)
 			m_Position = CalculatePosition();
-
+ 
 		UpdateView();
 	}
 

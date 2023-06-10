@@ -1,6 +1,9 @@
 #pragma once
-#include "Renderer/Buffer.h"
+#include "Renderer/VertexBuffer.h"
+#include "Renderer/IndexBuffer.h"
 #include "Renderer/Shader.h"
+#include "Material.h"
+#include "Pipeline.h"
 
 #include <DirectXMath.h>
 #include <vector>
@@ -22,22 +25,22 @@ namespace DXR
 	class Mesh
 	{
 	public:
+		Mesh(const std::string& filename);
 		Mesh(std::vector<Vertex>& vertices, std::vector<Index>& indices);
-		~Mesh() {}
+		~Mesh() = default;
 
+		void SetMaterial(Ref<Material> material) { m_Material = material; }
 		const std::vector<Vertex>& GetVertices() const { return m_Vertices; }
 		const std::vector<Index>& GetIndices() const { return m_Indices; }
-
 		Ref<VertexBuffer> GetVertexBuffer() { return m_VertexBuffer; }
 		Ref<IndexBuffer> GetIndexBuffer() { return m_IndexBuffer; }
-		Ref<Shader> GetShader() { return m_Shader; }
+		Ref<Material> GetMaterial() { return m_Material; }
 	private:
-		void Init();
+		Ref<Material> m_Material;
 		std::vector<Vertex> m_Vertices;
 		std::vector<Index> m_Indices;
 
 		Ref<VertexBuffer> m_VertexBuffer;
 		Ref<IndexBuffer> m_IndexBuffer;
-		Ref<Shader> m_Shader;
 	};
 }

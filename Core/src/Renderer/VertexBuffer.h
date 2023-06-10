@@ -1,6 +1,9 @@
 #pragma once
+#include "Engine/Base.h"
+
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace DXR
 {
@@ -57,11 +60,11 @@ namespace DXR
 		}
 	};
 
-	class BufferLayout
+	class VertexBufferLayout
 	{
 	public:
-		BufferLayout() {}
-		BufferLayout(std::initializer_list<BufferElement> elements) : m_Elements(elements)
+		VertexBufferLayout() {}
+		VertexBufferLayout(std::initializer_list<BufferElement> elements) : m_Elements(elements)
 		{
 			CalculateOffsetsAndStride();
 		}
@@ -96,18 +99,6 @@ namespace DXR
 		virtual void Unbind() const = 0;
 		virtual void SetData(const void* data, uint32_t size) = 0;
 		static Ref<VertexBuffer> Create(uint32_t size);
-		static Ref<VertexBuffer> Create(float* vertices, uint32_t size);
-		virtual const BufferLayout& GetLayout() const = 0;
-		virtual void SetLayout(const BufferLayout& layout) = 0;
-	};
-
-	class IndexBuffer
-	{
-	public:
-		virtual ~IndexBuffer() = default;
-		virtual void Bind() const = 0;
-		virtual void Unbind() const = 0;
-		virtual uint32_t GetCount() const = 0;
-		static Ref<IndexBuffer> Create(uint32_t* indices, uint32_t count);
+		static Ref<VertexBuffer> Create(const void* vertices, uint32_t size);
 	};
 }

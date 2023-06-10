@@ -14,14 +14,16 @@
 
 // ---Renderer---------------------
 #include "Renderer/Renderer.h"
-#include "Renderer/RenderCommand.h"
+#include "Renderer/RenderPass.h"
 #include "Renderer/Texture.h"
 #include "Renderer/Shader.h"
-#include "Renderer/Buffer.h"
+#include "Renderer/IndexBuffer.h"
+#include "Renderer/VertexBuffer.h"
 #include "Renderer/Pipeline.h"
 #include "Renderer/ConstantBuffer.h"
 #include "Renderer/Camera.h"
 #include "Renderer/EditorCamera.h"
 #include "Renderer/Framebuffer.h"
+#include "Renderer/Material.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/MeshFactory.h"

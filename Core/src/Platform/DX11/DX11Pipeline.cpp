@@ -1,7 +1,8 @@
 #include "pch.h"
-#include "Renderer/DX11/DX11Pipeline.h"
-#include "Renderer/DX11/DX11Shader.h"
-#include "Renderer/DX11/DX11Context.h"
+#include "DX11Pipeline.h"
+#include "DX11Shader.h"
+#include "DX11Context.h"
+#include "Platform/DXCommon.h"
 
 #include <vector>
 
@@ -25,49 +26,47 @@ namespace DXR
 		return DXGI_FORMAT_UNKNOWN;
 	}
 
-	void DX11Pipeline::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
+	DX11Pipeline::DX11Pipeline(const PipelineSpecification& spec) :m_Specification(spec)
 	{
-		m_IndexBuffer = indexBuffer;
+		Invalidate();
 	}
 
-	void DX11Pipeline::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, const Ref<Shader>& shader)
+	void DX11Pipeline::Invalidate()
 	{
-		DX11Shader* vertexShader = (DX11Shader*)shader.get();
-		const auto& layout = vertexBuffer->GetLayout();
+		DX11Shader* vertexShader = (DX11Shader*)m_Specification.Shader.get();
+		const auto& layout = m_Specification.Layout;
 		std::vector<D3D11_INPUT_ELEMENT_DESC> temp;
 		for (const auto& element : layout)
 		{
 			temp.push_back(D3D11_INPUT_ELEMENT_DESC{
 				element.Name.c_str(),0,ShaderDataTypeToDX11BaseType(element.Type),
 				0,(UINT)element.Offset ,D3D11_INPUT_PER_VERTEX_DATA ,0 });
-			m_VertexBufferIndex++;
 		}
 
-		DXR_DX_ASSERT(DX11Context::GetDevice()->CreateInputLayout(
+		DX_CHECK_RESULT(DX11Context::GetDevice()->CreateInputLayout(
 			&temp[0], (UINT)temp.size(), vertexShader->GetVertextBufferPointer(),
 			vertexShader->GetVertextBufferSize(), m_InputLayout.GetAddressOf()));
-		m_VertexBuffers.push_back(vertexBuffer);
 	}
 
-	void DX11Pipeline::Bind() const
+	void DX11Pipeline::Bind()
 	{
-		for (auto vertexBuffer : m_VertexBuffers)
-		{
-			vertexBuffer->Bind();
-		}
-		if (m_IndexBuffer != nullptr)
-			m_IndexBuffer->Bind();
 		DX11Context::GetDeviceContext()->IASetInputLayout(m_InputLayout.Get());
+		if (m_ConstantBuffer != nullptr)
+			m_ConstantBuffer->Bind();
 	}
 
-	void DX11Pipeline::Unbind() const
+	void DX11Pipeline::SetConstantBuffer(Ref<ConstantBuffer> constantBuffer)
 	{
-		for (auto vertexBuffer : m_VertexBuffers)
-		{
-			vertexBuffer->Unbind();
-		}
-		if (m_IndexBuffer != nullptr)
-			m_IndexBuffer->Unbind();
-		DX11Context::GetDeviceContext()->IASetInputLayout(nullptr);
+		m_ConstantBuffer = constantBuffer;
+	}
+
+	PipelineSpecification& DX11Pipeline::GetSpecification()
+	{
+		return m_Specification;
+	}
+
+	const PipelineSpecification& DX11Pipeline::GetSpecification() const
+	{
+		return m_Specification;
 	}
 }

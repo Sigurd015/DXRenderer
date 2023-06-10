@@ -1,23 +1,43 @@
 #pragma once
 #include "Engine/Base.h"
-#include "Renderer/Buffer.h"
-#include "Renderer/Shader.h"
+#include "VertexBuffer.h"
+#include "Shader.h"
+#include "ConstantBuffer.h"
+#include "RenderPass.h"
 
 #include <memory>
 #include <vector>
 
 namespace DXR
 {
+	enum class PrimitiveTopology
+	{
+		None = 0,
+		Points,
+		Lines,
+		Triangles,
+	};
+
+	struct PipelineSpecification
+	{
+		Ref<Shader> Shader;
+		VertexBufferLayout Layout;
+		Ref<RenderPass> RenderPass;
+		PrimitiveTopology Topology = PrimitiveTopology::Triangles;
+	};
+
 	class Pipeline
 	{
 	public:
 		virtual ~Pipeline() = default;
-		virtual void Bind() const = 0;
-		virtual void Unbind() const = 0;
-		virtual void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, const Ref<Shader>& shader) = 0;
-		virtual void SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer) = 0;
-		virtual const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const = 0;
-		virtual const Ref<IndexBuffer>& GetIndexBuffer() const = 0;
-		static Ref<Pipeline> Create();
+		virtual void Invalidate() = 0;
+		virtual void Bind() = 0;
+
+		virtual PipelineSpecification& GetSpecification() = 0;
+		virtual const PipelineSpecification& GetSpecification() const = 0;
+
+		virtual void SetConstantBuffer(Ref<ConstantBuffer> constantBuffer) = 0;
+
+		static Ref<Pipeline> Create(const PipelineSpecification& spec);
 	};
 }

@@ -1,6 +1,7 @@
 #include "pch.h"
-#include "Renderer/DX11/DX11Texture.h"
-#include "Renderer/DX11/DX11Context.h"
+#include "DX11Texture.h"
+#include "DX11Context.h"
+#include "Platform/DXCommon.h"
 
 #include <stb_image.h>
 
@@ -21,7 +22,7 @@ namespace DXR
 		textureDesc.CPUAccessFlags = cpuAccess;
 		textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		textureDesc.MiscFlags = 0;
-		DXR_DX_ASSERT(DX11Context::GetDevice()->CreateTexture2D(&textureDesc, pInitialData, ppTexture2D));
+		DX_CHECK_RESULT(DX11Context::GetDevice()->CreateTexture2D(&textureDesc, pInitialData, ppTexture2D));
 	}
 
 	void CreateShaderView(DXGI_FORMAT format, ID3D11Resource* pResource, ID3D11ShaderResourceView** ppSRView)
@@ -31,7 +32,7 @@ namespace DXR
 		resourceView.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		resourceView.Texture2D.MostDetailedMip = 0;
 		resourceView.Texture2D.MipLevels = 1;
-		DXR_DX_ASSERT(DX11Context::GetDevice()->CreateShaderResourceView(pResource, &resourceView, ppSRView));
+		DX_CHECK_RESULT(DX11Context::GetDevice()->CreateShaderResourceView(pResource, &resourceView, ppSRView));
 	}
 
 	void CreateSamplerState(ID3D11SamplerState** ppSamplerState)
@@ -41,7 +42,7 @@ namespace DXR
 		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-		DXR_DX_ASSERT(DX11Context::GetDevice()->CreateSamplerState(&samplerDesc, ppSamplerState));
+		DX_CHECK_RESULT(DX11Context::GetDevice()->CreateSamplerState(&samplerDesc, ppSamplerState));
 	}
 
 	DX11Texture2D::DX11Texture2D(const std::string& path) : m_Path(path)

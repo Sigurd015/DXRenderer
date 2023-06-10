@@ -1,26 +1,26 @@
 #include "pch.h"
-#include "Renderer/Pipeline.h"
-#include "Renderer/Texture.h"
-#include "Renderer/Buffer.h"
-#include "Renderer/ConstantBuffer.h"
-#include "Renderer/Shader.h"
-#include "Renderer/RenderingContext.h"
-#include "Renderer/RendererAPI.h"
-#include "Renderer/RenderCommand.h"
-#include "Renderer/Framebuffer.h"
-#include "Renderer/DX11/DX11Context.h"
-#include "Renderer/DX11/DX11API.h"
-#include "Renderer/DX11/DX11Pipeline.h"
-#include "Renderer/DX11/DX11Buffer.h"
-#include "Renderer/DX11/DX11Shader.h"
-#include "Renderer/DX11/DX11ConstantBuffer.h"
-#include "Renderer/DX11/DX11Texture.h"
-#include "Renderer/DX11/DX11Framebuffer.h"
+#include "Pipeline.h"
+#include "Texture.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
+#include "ConstantBuffer.h"
+#include "Shader.h"
+#include "RenderingContext.h"
+#include "RendererAPI.h"
+#include "Framebuffer.h"
+#include "RenderPass.h"
+#include "Platform/DX11/DX11Context.h"
+#include "Platform/DX11/DX11API.h"
+#include "Platform/DX11/DX11Pipeline.h"
+#include "Platform/DX11/DX11VertexBuffer.h"
+#include "Platform/DX11/DX11IndexBuffer.h"
+#include "Platform/DX11/DX11Shader.h"
+#include "Platform/DX11/DX11ConstantBuffer.h"
+#include "Platform/DX11/DX11Texture.h"
+#include "Platform/DX11/DX11Framebuffer.h"
 
 namespace DXR
 {
-	Scope<RendererAPI> RenderCommand::s_RendererAPI = RendererAPI::Create();
-
 	RendererAPI::API RendererAPI::s_API = RendererAPI::API::DX11;
 
 	Scope<RendererAPI> RendererAPI::Create()
@@ -31,6 +31,23 @@ namespace DXR
 		case RendererAPI::API::DX11:  return CreateScope<DX11RendererAPI>();
 		}
 
+		return nullptr;
+	}
+
+	Ref<RenderPass> RenderPass::Create(const RenderPassSpecification& spec)
+	{
+		return CreateRef<RenderPass>(spec);
+	}
+
+	Ref<Pipeline> Pipeline::Create(const PipelineSpecification& spec)
+	{
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::None:
+			return nullptr;
+		case RendererAPI::API::DX11:
+			return CreateRef<DX11Pipeline>(spec);
+		}
 		return nullptr;
 	}
 
@@ -59,18 +76,6 @@ namespace DXR
 		return nullptr;
 	}
 
-	Ref<Pipeline> Pipeline::Create()
-	{
-		switch (RendererAPI::GetAPI())
-		{
-		case RendererAPI::API::None:
-			return nullptr;
-		case RendererAPI::API::DX11:
-			return CreateRef<DX11Pipeline>();
-		}
-		return nullptr;
-	}
-
 	Ref<VertexBuffer> VertexBuffer::Create(uint32_t size)
 	{
 		switch (RendererAPI::GetAPI())
@@ -82,7 +87,8 @@ namespace DXR
 		}
 		return nullptr;
 	}
-	Ref<VertexBuffer> VertexBuffer::Create(float* vertices, uint32_t size)
+
+	Ref<VertexBuffer> VertexBuffer::Create(const void* vertices, uint32_t size)
 	{
 		switch (RendererAPI::GetAPI())
 		{
