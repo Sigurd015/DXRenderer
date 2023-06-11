@@ -156,19 +156,13 @@ namespace DXR
 		}
 	}
 
-	void DX11Framebuffer::Bind()
+	void DX11Framebuffer::ClearAndBind()
 	{
 		for (size_t i = 0; i < m_RenderTargetAttachments.size(); i++)
 		{
-			if (m_ColorAttachmentSpecifications[i].TextureFormat == FramebufferTextureFormat::RED_INTEGER)
-			{
-				const float temp[] = { -1,0,0,0 };
-				DX11Context::GetDeviceContext()->ClearRenderTargetView(m_RenderTargetAttachments[i].Get(), temp);
-				continue;
-			}
-			DX11Context::GetDeviceContext()->ClearRenderTargetView(m_RenderTargetAttachments[i].Get(), &m_Specification.ClearColor.x);
+			DX11Context::GetDeviceContext()->ClearRenderTargetView(m_RenderTargetAttachments[i].Get(), &m_ColorAttachmentSpecifications[i].ClearColor.x);
 		}
-		DX11Context::GetDeviceContext()->ClearDepthStencilView(m_DepthStencilAttachment.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
+		DX11Context::GetDeviceContext()->ClearDepthStencilView(m_DepthStencilAttachment.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, m_Specification.DepthClearValue, 0);
 		DX11Context::GetDeviceContext()->OMSetRenderTargets(m_RenderTargetAttachments.size(), m_RenderTargetAttachments.data()->GetAddressOf(), m_DepthStencilAttachment.Get());
 	}
 

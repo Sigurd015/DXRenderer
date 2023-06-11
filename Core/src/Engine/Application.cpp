@@ -62,15 +62,18 @@ namespace DXR
 
 			if (!m_Minimized)
 			{
+
 				for (Layer* layer : m_LayerStack)
 					layer->OnUpdate(timestep);
+
+				Renderer::WaitAndRender();
 
 				m_ImGuiLayer->Begin();
 				for (Layer* layer : m_LayerStack)
 					layer->OnImGuiRender();
 				m_ImGuiLayer->End();
 			}
-
+		
 			m_Window->OnUpdate();
 		}
 	}

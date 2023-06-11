@@ -39,8 +39,7 @@ namespace DXR
 	void DX11VertexBuffer::Bind() const
 	{
 		const UINT offset = 0;
-		const UINT stride = 0;
-		DX11Context::GetDeviceContext()->IASetVertexBuffers(0, 1, m_VertexBuffer.GetAddressOf(), &stride, &offset);
+		DX11Context::GetDeviceContext()->IASetVertexBuffers(0, 1, m_VertexBuffer.GetAddressOf(), &m_Stride, &offset);
 	}
 
 	void DX11VertexBuffer::Unbind() const

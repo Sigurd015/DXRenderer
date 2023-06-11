@@ -12,6 +12,10 @@
 #include "Input/KeyCodes.h"
 #include "Input/MouseCodes.h"
 
+// ---Events---------------------
+#include "Events/KeyEvent.h"
+#include "Events/MouseEvent.h"
+
 // ---Renderer---------------------
 #include "Renderer/Renderer.h"
 #include "Renderer/RenderPass.h"

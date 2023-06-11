@@ -41,7 +41,7 @@ namespace DXR
 			new (storageBuffer) FuncT(std::forward<FuncT>(func));
 		}
 
-		static void SubmitStaticMesh(Ref<Mesh>& mesh, Ref<Pipeline>& pipeLine, const DirectX::XMMATRIX& transform = DirectX::XMMatrixIdentity());
+		static void SubmitStaticMesh(Ref<Mesh> mesh, Ref<Pipeline> pipeLine);
 
 		static void WaitAndRender();
 

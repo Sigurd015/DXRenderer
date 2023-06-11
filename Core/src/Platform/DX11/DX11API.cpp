@@ -7,6 +7,21 @@
 
 namespace DXR
 {
+	static D3D11_PRIMITIVE_TOPOLOGY PrimitiveTopologyTypeToD3D(PrimitiveTopology type)
+	{
+		switch (type)
+		{
+		case DXR::PrimitiveTopology::Points:
+			return D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
+		case DXR::PrimitiveTopology::Lines:
+			return D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
+		case DXR::PrimitiveTopology::Triangles:
+			return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		}
+
+		DXR_ASSERT(false, "Unknown Primitive Topology!");
+	}
+
 	void DX11RendererAPI::Init()
 	{
 		m_DeviceContext = DX11Context::GetDeviceContext();
@@ -21,7 +36,7 @@ namespace DXR
 		m_ClearColor = color;
 	}
 
-	void DX11RendererAPI::Clear()
+	void DX11RendererAPI::ClearAndBind()
 	{
 		m_DeviceContext->ClearRenderTargetView(m_RenderTargetView.Get(), &m_ClearColor.x);
 		m_DeviceContext->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
@@ -71,50 +86,28 @@ namespace DXR
 
 	void DX11RendererAPI::BeginRender()
 	{
-		Ref<DX11RendererAPI> instance = CreateRef<DX11RendererAPI>(*this);
-		Renderer::Submit([instance]()
-			{
-				instance->Clear();
-			});
+		ClearAndBind();
 	}
 
-	void DX11RendererAPI::BeginRender(Ref<Pipeline>& pipeLine)
+	void DX11RendererAPI::BeginRender(Ref<Pipeline> pipeline)
 	{
-		Renderer::Submit([pipeLine]()
-			{
-				pipeLine->GetSpecification().RenderPass->GetSpecification().TargetFramebuffer->Bind();
-			});
+		pipeline->GetSpecification().RenderPass->GetSpecification().TargetFramebuffer->ClearAndBind();
 	}
 
 	void DX11RendererAPI::EndRender()
 	{
-		Renderer::WaitAndRender();
-		Clear();
+		ClearAndBind();
 	}
 
-	void DX11RendererAPI::SubmitStaticMesh(Ref<Mesh>& mesh, Ref<Pipeline>& pipeLine, const DirectX::XMMATRIX& transform)
+	void DX11RendererAPI::SubmitStaticMesh(Ref<Mesh> mesh, Ref<Pipeline> pipeline)
 	{
-		Ref<DX11RendererAPI> instance = CreateRef<DX11RendererAPI>(*this);
-		Renderer::Submit([mesh, pipeLine, instance]()
-			{
-				mesh->GetVertexBuffer()->Bind();
-				mesh->GetIndexBuffer()->Bind();
-				pipeLine->Bind();	
-				mesh->GetMaterial()->Bind();
+		mesh->GetVertexBuffer()->Bind();
+		mesh->GetIndexBuffer()->Bind();
+		pipeline->Bind();
+		mesh->GetMaterial()->Bind();
 
-				//TODO: Set topology based on pipeLine
-				//pipeLine->GetSpecification().Topology
-
-				instance->m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-				uint32_t count = mesh->GetIndexBuffer()->GetCount();
-				instance->m_DeviceContext->DrawIndexed(count, 0, 0);
-			});
+		m_DeviceContext->IASetPrimitiveTopology(PrimitiveTopologyTypeToD3D(pipeline->GetSpecification().Topology));
+		uint32_t count = mesh->GetIndexBuffer()->GetCount();
+		m_DeviceContext->DrawIndexed(count, 0, 0);
 	}
-
-	//void DX11RendererAPI::DrawLines(const Ref<Pipeline>& pipeline, uint32_t vertexCount)
-	//{
-	//	pipeline->Bind();
-	//	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-	//	m_DeviceContext->DrawIndexed(vertexCount, 0, 0);
-	//}
 }

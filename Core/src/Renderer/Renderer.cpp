@@ -33,17 +33,26 @@ namespace DXR
 
 	void Renderer::BeginRender(Ref<Pipeline> pipeline)
 	{
-		s_RendererAPI->BeginRender(pipeline);
+		Renderer::Submit([pipeline]()
+			{
+				s_RendererAPI->BeginRender(pipeline);
+			});
 	}
 
 	void Renderer::EndRender()
 	{
-		s_RendererAPI->EndRender();
+		Renderer::Submit([]()
+			{
+				s_RendererAPI->EndRender();
+			});
 	}
 
-	void Renderer::SubmitStaticMesh(Ref<Mesh>& mesh, Ref<Pipeline>& pipeLine, const DirectX::XMMATRIX& transform)
+	void Renderer::SubmitStaticMesh(Ref<Mesh> mesh, Ref<Pipeline> pipeline)
 	{
-		s_RendererAPI->SubmitStaticMesh(mesh, pipeLine, transform);
+		Renderer::Submit([mesh, pipeline]()
+			{
+				s_RendererAPI->SubmitStaticMesh(mesh, pipeline);
+			});
 	}
 
 	void Renderer::WaitAndRender()

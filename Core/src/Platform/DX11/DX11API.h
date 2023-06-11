@@ -17,10 +17,10 @@ namespace DXR
 		void SetClearColor(const DirectX::XMFLOAT4& color) override;
 		void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
 		void BeginRender() override;
-		void BeginRender(Ref<Pipeline>& pipeLine) override;
+		void BeginRender(Ref<Pipeline> pipeline) override;
 		void EndRender() override;
-		void Clear() override;
-		void SubmitStaticMesh(Ref<Mesh>& mesh, Ref<Pipeline>& pipeLine, const DirectX::XMMATRIX& transform) override;
+		void ClearAndBind() override;
+		void SubmitStaticMesh(Ref<Mesh> mesh, Ref<Pipeline> pipeline) override;
 	private:
 		void SetBuffer(uint32_t width, uint32_t height, uint32_t x = 0, uint32_t y = 0);
 		Microsoft::WRL::ComPtr<IDXGISwapChain> m_SwapChain;
