@@ -55,7 +55,7 @@ namespace DXR
 			m_ConstantBuffer->Bind();
 	}
 
-	void DX11Pipeline::SetConstantBuffer(Ref<ConstantBuffer> constantBuffer)
+	void DX11Pipeline::SetConstantBuffer(const Ref<ConstantBuffer>& constantBuffer)
 	{
 		m_ConstantBuffer = constantBuffer;
 	}

@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "DX11Context.h"
-#include "Engine/Application.h"
+#include "Core/Application.h"
 #include "Platform/DXCommon.h"
 
 namespace DXR

@@ -1,9 +1,8 @@
 #pragma once
-#include "Engine/Base.h"
+#include "Core/Base.h"
 #include "Shader.h"
 #include "Texture.h"
 
-#include <unordered_set>
 #include <iostream>
 #include <string>
 
@@ -15,17 +14,11 @@ namespace DXR
 		Material(const Ref<Shader>& shader);
 		virtual ~Material();
 		void Bind() const;
-		void SetTexture(const Ref<Texture>& texture)
-		{
-			if (m_Textures.size() <= m_TextureSlotIndex)
-				m_Textures.resize((size_t)m_TextureSlotIndex + 1);
-			m_Textures[m_TextureSlotIndex] = texture;
-			m_TextureSlotIndex++;
-		}
+		void SetTexture(const Ref<Texture>& texture, uint32_t index);
 
-		void SetTexture(const Ref<Texture2D>& texture)
+		void SetTexture(const Ref<Texture2D>& texture, uint32_t index)
 		{
-			SetTexture((const Ref<Texture>&)texture);
+			SetTexture((const Ref<Texture>&)texture, index);
 		}
 
 		static Ref<Material> Create(const Ref<Shader>& shader);
@@ -33,8 +26,6 @@ namespace DXR
 		void BindTextures() const;
 
 		Ref<Shader> m_Shader;
-		std::vector<Ref<Texture>> m_Textures;
-
-		uint32_t m_TextureSlotIndex = 0;
+		std::unordered_map<uint32_t, Ref<Texture>> m_Textures;
 	};
 }

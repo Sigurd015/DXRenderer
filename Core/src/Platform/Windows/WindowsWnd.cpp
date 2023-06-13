@@ -39,20 +39,26 @@ namespace DXR
 			WndProc, 0, 0, GetModuleHandle(nullptr), nullptr,
 			nullptr, nullptr, nullptr, L"DXR", nullptr };
 
-		DXR_ASSERT(RegisterClassEx(&wndClass));
+		DXR_ASSERT(RegisterClassEx(&wndClass), "[RegisterWndClass]Failed");
 
 		RECT rect = { 0, 0, m_Data.Width, m_Data.Height };
 		AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
+
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::DX11:
+			m_Data.Title += "<DX11>";
+		}
 
 		m_WndHandle = CreateWindowEx(0, wndClass.lpszClassName, CA2T(m_Data.Title.c_str()),
 			WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
 			rect.right - rect.left, rect.bottom - rect.top, nullptr, nullptr, wndClass.hInstance, this);
 
-		DXR_ASSERT(m_WndHandle);
+		DXR_ASSERT(m_WndHandle, "[CerateWindow]Failed");
 
 		ShowWindow(m_WndHandle, SW_SHOW);
 
-		m_Context = RenderingContext::Create(&m_WndHandle);
+		m_Context = RendererContext::Create(&m_WndHandle);
 	}
 
 	void WindowsWnd::OnUpdate()

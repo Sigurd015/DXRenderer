@@ -1,6 +1,7 @@
 #pragma once
 #include "Events/Event.h"
-#include "Renderer/RenderingContext.h"
+#include "Renderer/RendererContext.h"
+#include "Renderer/RendererAPI.h"
 
 #include <Windows.h>
 #include <string>
@@ -35,14 +36,14 @@ namespace DXR
 		uint32_t GetHeight() const { return m_Data.Height; }
 		void WindowsWnd::SetWindowTitle(const std::string& title);
 		void* GetNativeWindow() const { return m_WndHandle; }
-		RenderingContext& GetRenderingContext() const { return *m_Context; };
+		RendererContext& GetRenderingContext() const { return *m_Context; };
 	private:
 		static LRESULT WndProc(HWND, UINT, WPARAM, LPARAM);
 		void DispatchMsg();
 		void Init();
 		void Shutdown();
 		HWND m_WndHandle;
-		Scope<RenderingContext> m_Context;
+		Scope<RendererContext> m_Context;
 		WindowProps m_Data;
 	};
 

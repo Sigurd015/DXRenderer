@@ -1,8 +1,8 @@
 #pragma once
 // ---Core---------------------
-#include "Engine/Base.h"
-#include "Engine/Application.h"
-#include "Engine/Timestep.h"
+#include "Core/Base.h"
+#include "Core/Application.h"
+#include "Core/Timestep.h"
 
 // ---Layer---------------------
 #include "Layer/Layer.h"

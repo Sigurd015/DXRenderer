@@ -4,7 +4,7 @@
 #include <iostream>
 #include <DirectXMath.h>
 
-ExampleLayer::ExampleLayer() :Layer("ExampleLayer") 
+ExampleLayer::ExampleLayer() :Layer("ExampleLayer")
 {}
 
 void ExampleLayer::OnAttach()
@@ -27,10 +27,11 @@ void ExampleLayer::OnAttach()
 
 	DXR::FramebufferSpecification fbSpec;
 	fbSpec.Attachments = {
-		{DXR::FramebufferTextureFormat::RGBA8},
-		{DXR::FramebufferTextureFormat::Depth} };
+		DXR::FramebufferTextureFormat::RGBA8F,
+		DXR::FramebufferTextureFormat::Depth };
 	fbSpec.Width = 1920;
 	fbSpec.Height = 1080;
+	fbSpec.ClearColor = { 0.3f, 0.3f, 0.3f, 1.0f };
 	m_Framebuffer = DXR::Framebuffer::Create(fbSpec);
 
 	m_Camera = DXR::EditorCamera(30.0f, 1920.0f / 1080.0f, 0.1f, 1000.0f);
@@ -76,15 +77,12 @@ void ExampleLayer::OnUpdate(DXR::Timestep ts)
 
 	m_ConstantBuffer->SetData(&m_ConstantBufferData, sizeof(ConstantBuffer));
 
-	DXR::Renderer::SetClearColor();
-	DXR::Renderer::BeginRender(m_Pipeline);
-
+	DXR::Renderer::BeginRenderPass(m_RenderPass);
 	DXR::Renderer::SubmitStaticMesh(m_Meshes, m_Pipeline);
-
-	DXR::Renderer::EndRender();
+	DXR::Renderer::EndRenderPass(m_RenderPass);
 }
 
-void ExampleLayer::OnEvent(DXR::Event& evnet) 
+void ExampleLayer::OnEvent(DXR::Event& evnet)
 {
 	m_Camera.OnEvent(evnet);
 	DXR::EventDispatcher dispatcher(evnet);

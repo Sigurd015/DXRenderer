@@ -5,7 +5,7 @@
 #include "IndexBuffer.h"
 #include "ConstantBuffer.h"
 #include "Shader.h"
-#include "RenderingContext.h"
+#include "RendererContext.h"
 #include "RendererAPI.h"
 #include "Framebuffer.h"
 #include "RenderPass.h"
@@ -51,7 +51,7 @@ namespace DXR
 		return nullptr;
 	}
 
-	Scope<RenderingContext> RenderingContext::Create(void* window)
+	Scope<RendererContext> RendererContext::Create(void* window)
 	{
 		switch (RendererAPI::GetAPI())
 		{

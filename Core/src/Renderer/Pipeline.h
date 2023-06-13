@@ -1,5 +1,5 @@
 #pragma once
-#include "Engine/Base.h"
+#include "Core/Base.h"
 #include "VertexBuffer.h"
 #include "Shader.h"
 #include "ConstantBuffer.h"
@@ -36,7 +36,7 @@ namespace DXR
 		virtual PipelineSpecification& GetSpecification() = 0;
 		virtual const PipelineSpecification& GetSpecification() const = 0;
 
-		virtual void SetConstantBuffer(Ref<ConstantBuffer> constantBuffer) = 0;
+		virtual void SetConstantBuffer(const Ref<ConstantBuffer>& constantBuffer) = 0;
 
 		static Ref<Pipeline> Create(const PipelineSpecification& spec);
 	};

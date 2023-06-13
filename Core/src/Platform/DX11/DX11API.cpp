@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "DX11API.h"
 #include "DX11Context.h"
-#include "Engine/Application.h"
+#include "Core/Application.h"
 #include "Platform/DXCommon.h"
 #include "Renderer/Renderer.h"
 
@@ -36,7 +36,7 @@ namespace DXR
 		m_ClearColor = color;
 	}
 
-	void DX11RendererAPI::ClearAndBind()
+	void DX11RendererAPI::ResetToBackBuffer()
 	{
 		m_DeviceContext->ClearRenderTargetView(m_RenderTargetView.Get(), &m_ClearColor.x);
 		m_DeviceContext->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
@@ -86,20 +86,26 @@ namespace DXR
 
 	void DX11RendererAPI::BeginRender()
 	{
-		ClearAndBind();
+		ResetToBackBuffer();
 	}
 
-	void DX11RendererAPI::BeginRender(Ref<Pipeline> pipeline)
+	void DX11RendererAPI::BeginPipeline(const Ref<RenderPass>& renderPass)
 	{
-		pipeline->GetSpecification().RenderPass->GetSpecification().TargetFramebuffer->ClearAndBind();
+		renderPass->GetSpecification().TargetFramebuffer->ClearAttachment();
+		renderPass->GetSpecification().TargetFramebuffer->Bind();
+	}
+
+	void DX11RendererAPI::EndPipeline(const Ref<RenderPass>& renderPass)
+	{
+		renderPass->GetSpecification().TargetFramebuffer->Unbind();
 	}
 
 	void DX11RendererAPI::EndRender()
 	{
-		ClearAndBind();
+		ResetToBackBuffer();
 	}
 
-	void DX11RendererAPI::SubmitStaticMesh(Ref<Mesh> mesh, Ref<Pipeline> pipeline)
+	void DX11RendererAPI::SubmitStaticMesh(const Ref<Mesh>& mesh, const Ref<Pipeline>& pipeline)
 	{
 		mesh->GetVertexBuffer()->Bind();
 		mesh->GetIndexBuffer()->Bind();

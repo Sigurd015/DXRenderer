@@ -15,7 +15,7 @@ namespace DXR
 		~DX11Pipeline() = default;
 		void Invalidate() override;
 		void Bind() override;
-		void SetConstantBuffer(Ref<ConstantBuffer> constantBuffer) override;
+		void SetConstantBuffer(const Ref<ConstantBuffer>& constantBuffer) override;
 		PipelineSpecification& GetSpecification() override;
 		const PipelineSpecification& GetSpecification() const override;
 	private:

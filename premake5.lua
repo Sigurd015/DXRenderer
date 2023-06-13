@@ -26,6 +26,6 @@ group "Dependencies"
 
 group ""
 
-include "Core/"
-include "Sandbox/"
+include "Core"
+include "Sandbox"
 

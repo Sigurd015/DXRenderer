@@ -33,7 +33,7 @@ namespace DXR
 
 	void RenderCommandQueue::Execute()
 	{
-		byte* buffer = m_CommandBuffer;
+		uint8_t* buffer = m_CommandBuffer;
 
 		for (uint32_t i = 0; i < m_CommandCount; i++)
 		{

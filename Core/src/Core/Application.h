@@ -35,6 +35,7 @@ namespace DXR
 	public:
 		Application(const ApplicationSpecification& specification);
 		virtual ~Application();
+		void Run();
 		void OnEvent(Event& e);
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);
@@ -44,7 +45,7 @@ namespace DXR
 		static Application& Get() { return *s_Instance; }
 		const ApplicationSpecification& GetSpecification() const { return m_Specification; }
 	private:
-		void Run();
+
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
 		ApplicationSpecification m_Specification;
@@ -55,7 +56,6 @@ namespace DXR
 		LayerStack m_LayerStack;
 		static Application* s_Instance;
 		std::chrono::steady_clock::time_point m_LastFrameTime = std::chrono::steady_clock::now();
-		friend int ::main(int argc, char** argv);
 	};
 
 	Application* CreateApplication(ApplicationCommandLineArgs args);

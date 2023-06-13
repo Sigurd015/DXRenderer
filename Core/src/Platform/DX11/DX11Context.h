@@ -1,5 +1,5 @@
 #pragma once
-#include "Renderer/RenderingContext.h"
+#include "Renderer/RendererContext.h"
 
 #include <d3d11.h>
 #include <Windows.h>
@@ -7,7 +7,7 @@
 
 namespace DXR
 {
-	class DX11Context :public RenderingContext
+	class DX11Context :public RendererContext
 	{
 	public:
 		DX11Context(HWND* windowHandle);

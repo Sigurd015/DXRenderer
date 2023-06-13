@@ -1,7 +1,7 @@
 #pragma once
-#include "Engine/Base.h"
+#include "Core/Base.h"
 #include "Events/Event.h"
-#include "Engine/Timestep.h"
+#include "Core/Timestep.h"
 
 namespace DXR
 {

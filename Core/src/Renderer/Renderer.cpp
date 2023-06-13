@@ -31,11 +31,27 @@ namespace DXR
 		s_RendererAPI->SetViewport(0, 0, width, height);
 	}
 
-	void Renderer::BeginRender(Ref<Pipeline> pipeline)
+	void Renderer::BeginRenderPass(const Ref<RenderPass>& renderPass)
 	{
-		Renderer::Submit([pipeline]()
+		Renderer::Submit([renderPass]()
 			{
-				s_RendererAPI->BeginRender(pipeline);
+				s_RendererAPI->BeginPipeline(renderPass);
+			});
+	}
+
+	void Renderer::EndRenderPass(const Ref<RenderPass>& renderPass)
+	{
+		Renderer::Submit([renderPass]()
+			{
+				s_RendererAPI->EndPipeline(renderPass);
+			});
+	}
+
+	void Renderer::BeginRender()
+	{
+		Renderer::Submit([]()
+			{
+				s_RendererAPI->BeginRender();
 			});
 	}
 
@@ -47,7 +63,7 @@ namespace DXR
 			});
 	}
 
-	void Renderer::SubmitStaticMesh(Ref<Mesh> mesh, Ref<Pipeline> pipeline)
+	void Renderer::SubmitStaticMesh(const Ref<Mesh>& mesh, const  Ref<Pipeline>& pipeline)
 	{
 		Renderer::Submit([mesh, pipeline]()
 			{

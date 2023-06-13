@@ -5,6 +5,7 @@
 #include "RenderCommandQueue.h"
 #include "RenderPass.h"
 #include "Mesh.h"
+#include "Material.h"
 
 #include <cstdint>
 #include <DirectXMath.h>
@@ -18,11 +19,12 @@ namespace DXR
 
 		static void Init();
 		static void Shutdown();
-		static void SetClearColor(const DirectX::XMFLOAT4& color = { 0.3f,0.3f,0.3f,1.0f });
+		static void SetClearColor(const DirectX::XMFLOAT4& color);
 		static void OnWindowResize(uint32_t width, uint32_t height);
-
-		static void BeginRender(Ref<Pipeline> pipeline);
+		static void BeginRender();
 		static void EndRender();
+		static void BeginRenderPass(const Ref<RenderPass>& renderPass);
+		static void EndRenderPass(const Ref<RenderPass>& renderPass);
 
 		template<typename FuncT>
 		static void Submit(FuncT&& func)
@@ -41,7 +43,7 @@ namespace DXR
 			new (storageBuffer) FuncT(std::forward<FuncT>(func));
 		}
 
-		static void SubmitStaticMesh(Ref<Mesh> mesh, Ref<Pipeline> pipeLine);
+		static void SubmitStaticMesh(const Ref<Mesh>& mesh, const  Ref<Pipeline>& pipeline);
 
 		static void WaitAndRender();
 

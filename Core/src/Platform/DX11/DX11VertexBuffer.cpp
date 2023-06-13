@@ -25,7 +25,7 @@ namespace DXR
 		bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		bufferDesc.CPUAccessFlags = 0;
 		bufferDesc.MiscFlags = 0;
-		bufferDesc.StructureByteStride = 0;
+		bufferDesc.StructureByteStride = m_Stride;
 		D3D11_SUBRESOURCE_DATA resourceData = {};
 		resourceData.pSysMem = vertices;
 		DX_CHECK_RESULT(DX11Context::GetDevice()->CreateBuffer(&bufferDesc, &resourceData, m_VertexBuffer.GetAddressOf()));
@@ -44,7 +44,7 @@ namespace DXR
 
 	void DX11VertexBuffer::Unbind() const
 	{
-
+		DX11Context::GetDeviceContext()->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
 	}
 
 	void DX11VertexBuffer::SetData(const void* data, uint32_t size)

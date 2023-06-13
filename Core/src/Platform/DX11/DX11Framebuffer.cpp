@@ -2,7 +2,7 @@
 #include "DX11API.h"
 #include "DX11Framebuffer.h"
 #include "DX11Context.h"
-#include "Engine/Application.h"
+#include "Core/Application.h"
 #include "Platform/DXCommon.h"
 
 namespace DXR
@@ -31,8 +31,8 @@ namespace DXR
 		{
 			switch (format)
 			{
-			case FramebufferTextureFormat::RGBA8:       return DXGI_FORMAT_R32G32B32A32_FLOAT;
-			case FramebufferTextureFormat::RED_INTEGER: return DXGI_FORMAT_R32_SINT;
+			case FramebufferTextureFormat::RGBA8F:       return DXGI_FORMAT_R32G32B32A32_FLOAT;
+			case FramebufferTextureFormat::RED8UI: return DXGI_FORMAT_R32_SINT;
 			case FramebufferTextureFormat::DEPTH24STENCIL8: return DXGI_FORMAT_R24G8_TYPELESS;
 			}
 
@@ -44,6 +44,16 @@ namespace DXR
 			switch (format)
 			{
 			case FramebufferTextureFormat::DEPTH24STENCIL8:  return true;
+			}
+
+			return false;
+		}
+
+		static bool IsMousePickFormat(FramebufferTextureFormat format)
+		{
+			switch (format)
+			{
+			case FramebufferTextureFormat::RED8UI:  return true;
 			}
 
 			return false;
@@ -65,37 +75,37 @@ namespace DXR
 
 	DX11Framebuffer::~DX11Framebuffer()
 	{
-		if (!m_RenderTargetAttachments.empty())
+		if (!m_ColorAttachmentRTV.empty())
 		{
-			for (size_t i = 0; i < m_RenderTargetAttachments.size(); i++)
+			for (size_t i = 0; i < m_ColorAttachmentRTV.size(); i++)
 			{
-				m_RenderTargetAttachments[i].Reset();
-				m_RenderTargetAttachmentsTextures[i].Reset();
-				m_ShaderResourceViews[i].Reset();
+				m_ColorAttachmentRTV[i].Reset();
+				m_ColorAttachmentTextures[i].Reset();
+				m_ColorAttachmentSRV[i].Reset();
 			}
-			m_RenderTargetAttachmentsTextures.clear();
-			m_RenderTargetAttachments.clear();
+			m_ColorAttachmentTextures.clear();
+			m_ColorAttachmentRTV.clear();
 			m_DepthStencilAttachment.Reset();
 			m_DepthStencilAttachmentsTexture.Reset();
-			m_ShaderResourceViews.clear();
+			m_ColorAttachmentSRV.clear();
 		}
 	}
 
 	void DX11Framebuffer::Invalidate()
 	{
-		if (!m_RenderTargetAttachments.empty())
+		if (!m_ColorAttachmentRTV.empty())
 		{
-			for (size_t i = 0; i < m_RenderTargetAttachments.size(); i++)
+			for (size_t i = 0; i < m_ColorAttachmentRTV.size(); i++)
 			{
-				m_RenderTargetAttachments[i].Reset();
-				m_RenderTargetAttachmentsTextures[i].Reset();
-				m_ShaderResourceViews[i].Reset();
+				m_ColorAttachmentRTV[i].Reset();
+				m_ColorAttachmentTextures[i].Reset();
+				m_ColorAttachmentSRV[i].Reset();
 			}
-			m_RenderTargetAttachmentsTextures.clear();
-			m_RenderTargetAttachments.clear();
+			m_ColorAttachmentTextures.clear();
+			m_ColorAttachmentRTV.clear();
 			m_DepthStencilAttachment.Reset();
 			m_DepthStencilAttachmentsTexture.Reset();
-			m_ShaderResourceViews.clear();
+			m_ColorAttachmentSRV.clear();
 		}
 
 		if (m_ColorAttachmentSpecifications.size())
@@ -114,7 +124,7 @@ namespace DXR
 				textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 				textureDesc.CPUAccessFlags = 0;
 				DX_CHECK_RESULT(DX11Context::GetDevice()->CreateTexture2D(&textureDesc, nullptr, texture.GetAddressOf()));
-				m_RenderTargetAttachmentsTextures.push_back(texture);
+				m_ColorAttachmentTextures.push_back(texture);
 
 				Microsoft::WRL::ComPtr<ID3D11RenderTargetView> targetView;
 				D3D11_RENDER_TARGET_VIEW_DESC targetViewDesc = {};
@@ -122,7 +132,7 @@ namespace DXR
 				targetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 				targetViewDesc.Texture2D.MipSlice = 0;
 				DX_CHECK_RESULT(DX11Context::GetDevice()->CreateRenderTargetView(texture.Get(), &targetViewDesc, &targetView));
-				m_RenderTargetAttachments.push_back(targetView);
+				m_ColorAttachmentRTV.push_back(targetView);
 
 				Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shaderResourceView;
 				D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceDesc = {};
@@ -130,7 +140,7 @@ namespace DXR
 				shaderResourceDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 				shaderResourceDesc.Texture2D.MipLevels = 1;
 				DX11Context::GetDevice()->CreateShaderResourceView(texture.Get(), &shaderResourceDesc, shaderResourceView.GetAddressOf());
-				m_ShaderResourceViews.push_back(shaderResourceView);
+				m_ColorAttachmentSRV.push_back(shaderResourceView);
 			}
 		}
 		if (m_DepthAttachmentSpecification.TextureFormat != FramebufferTextureFormat::None)
@@ -153,17 +163,37 @@ namespace DXR
 			depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 			depthStencilViewDesc.Texture2D.MipSlice = 0;
 			DX_CHECK_RESULT(DX11Context::GetDevice()->CreateDepthStencilView(m_DepthStencilAttachmentsTexture.Get(), &depthStencilViewDesc, m_DepthStencilAttachment.GetAddressOf()));
+
+			D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceDesc = {};
+			shaderResourceDesc.Format = depthStencilDesc.Format;
+			shaderResourceDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+			shaderResourceDesc.Texture2D.MipLevels = 1;
+			DX11Context::GetDevice()->CreateShaderResourceView(m_DepthStencilAttachmentsTexture.Get(), &shaderResourceDesc, m_DepthStencilSRV.GetAddressOf());
 		}
 	}
 
-	void DX11Framebuffer::ClearAndBind()
+	void DX11Framebuffer::Bind()
 	{
-		for (size_t i = 0; i < m_RenderTargetAttachments.size(); i++)
+		DX11Context::GetDeviceContext()->OMSetRenderTargets(m_ColorAttachmentRTV.size(), m_ColorAttachmentRTV.data()->GetAddressOf(), m_DepthStencilAttachment.Get());
+	}
+
+	void DX11Framebuffer::Unbind()
+	{
+		DX11Context::GetDeviceContext()->OMSetRenderTargets(0, nullptr, nullptr);
+	}
+
+	void DX11Framebuffer::ClearAttachment()
+	{
+		for (size_t i = 0; i < m_ColorAttachmentRTV.size(); i++)
 		{
-			DX11Context::GetDeviceContext()->ClearRenderTargetView(m_RenderTargetAttachments[i].Get(), &m_ColorAttachmentSpecifications[i].ClearColor.x);
+			if (Utils::IsMousePickFormat(m_ColorAttachmentSpecifications[i].TextureFormat))
+			{
+				float temp[4] = { m_Specification.MousePickClearValue,0,0,0 };
+				DX11Context::GetDeviceContext()->ClearRenderTargetView(m_ColorAttachmentRTV[i].Get(), temp);
+			}
+			DX11Context::GetDeviceContext()->ClearRenderTargetView(m_ColorAttachmentRTV[i].Get(), &m_Specification.ClearColor.x);
 		}
 		DX11Context::GetDeviceContext()->ClearDepthStencilView(m_DepthStencilAttachment.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, m_Specification.DepthClearValue, 0);
-		DX11Context::GetDeviceContext()->OMSetRenderTargets(m_RenderTargetAttachments.size(), m_RenderTargetAttachments.data()->GetAddressOf(), m_DepthStencilAttachment.Get());
 	}
 
 	void DX11Framebuffer::Resize(uint32_t width, uint32_t height)
@@ -188,14 +218,14 @@ namespace DXR
 	int DX11Framebuffer::ReadPixel(uint32_t attachmentIndex, int x, int y)
 	{
 		D3D11_TEXTURE2D_DESC textureDesc = {};
-		m_RenderTargetAttachmentsTextures[attachmentIndex]->GetDesc(&textureDesc);
+		m_ColorAttachmentTextures[attachmentIndex]->GetDesc(&textureDesc);
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> textureCopy;
 		D3D11_TEXTURE2D_DESC textureCopyDesc = textureDesc;
 		textureCopyDesc.Usage = D3D11_USAGE_STAGING;
 		textureCopyDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
 		textureCopyDesc.BindFlags = 0;
 		DX_CHECK_RESULT(DX11Context::GetDevice()->CreateTexture2D(&textureCopyDesc, nullptr, textureCopy.GetAddressOf()));
-		DX11Context::GetDeviceContext()->CopyResource(textureCopy.Get(), m_RenderTargetAttachmentsTextures[attachmentIndex].Get());
+		DX11Context::GetDeviceContext()->CopyResource(textureCopy.Get(), m_ColorAttachmentTextures[attachmentIndex].Get());
 
 		D3D11_MAPPED_SUBRESOURCE mappedTexture;
 		DX_CHECK_RESULT(DX11Context::GetDeviceContext()->Map(textureCopy.Get(), 0, D3D11_MAP_READ, 0, &mappedTexture));
@@ -215,6 +245,11 @@ namespace DXR
 
 	void* DX11Framebuffer::GetColorAttachment(uint32_t index) const
 	{
-		return m_ShaderResourceViews[index].Get();
+		return m_ColorAttachmentSRV[index].Get();
+	}
+
+	void* DX11Framebuffer::GetDepthAttachment() const
+	{
+		return m_DepthStencilSRV.Get();
 	}
 }

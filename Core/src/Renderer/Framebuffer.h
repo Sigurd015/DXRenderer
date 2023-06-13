@@ -1,5 +1,5 @@
 #pragma once
-#include "Engine/Base.h"
+#include "Core/Base.h"
 
 #include <vector>
 #include <DirectXMath.h>
@@ -11,25 +11,24 @@ namespace DXR
 		None = 0,
 
 		// Color
-		RGBA8,
-		RED_INTEGER,
+		RGBA8F,
+
+		RED8UI,
 
 		// Depth/stencil
 		DEPTH24STENCIL8,
 
 		// Defaults
+		MousePick = RED8UI,
 		Depth = DEPTH24STENCIL8
 	};
 
 	struct FramebufferTextureSpecification
 	{
 		FramebufferTextureSpecification() = default;
-		FramebufferTextureSpecification(FramebufferTextureFormat format, DirectX::XMFLOAT4 clearColor = { 0.3f,0.3f,0.3f,1.0f })
-			: TextureFormat(format), ClearColor(clearColor)
-		{}
+		FramebufferTextureSpecification(FramebufferTextureFormat format) : TextureFormat(format) {}
 
 		FramebufferTextureFormat TextureFormat = FramebufferTextureFormat::None;
-		DirectX::XMFLOAT4 ClearColor;
 		// TODO: filtering/wrap
 	};
 
@@ -45,6 +44,8 @@ namespace DXR
 		uint32_t Width = 0, Height = 0;
 		FramebufferAttachmentSpecification Attachments;
 		uint32_t Samples = 1;
+		DirectX::XMFLOAT4 ClearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+		int MousePickClearValue = -1;
 		float DepthClearValue = 1.0f;
 		bool SwapChainTarget = false;
 	};
@@ -52,8 +53,13 @@ namespace DXR
 	class Framebuffer
 	{
 	public:
-		virtual void ClearAndBind() = 0;
-		virtual void* GetColorAttachment(uint32_t index = 0) const = 0;
+		virtual void Bind() = 0;
+		virtual void Unbind() = 0;
+
+		virtual void ClearAttachment() = 0;
+		virtual void* GetColorAttachment(uint32_t attachmentIndex = 0) const = 0;
+		virtual void* GetDepthAttachment() const = 0;
+
 		virtual void Resize(uint32_t width, uint32_t height) = 0;
 		virtual int ReadPixel(uint32_t attachmentIndex, int x, int y) = 0;
 		virtual const FramebufferSpecification& GetSpecification() const = 0;
