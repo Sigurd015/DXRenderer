@@ -10,5 +10,4 @@ namespace DXR
 		static Ref<Mesh> CreateSphere(float radius);
 		static Ref<Mesh> CreateCapsule(float radius, float height);
 	};
-
 }

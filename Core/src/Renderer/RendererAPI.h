@@ -18,9 +18,7 @@ namespace DXR
 		virtual void Init() = 0;
 		virtual void SetClearColor(const DirectX::XMFLOAT4& color) = 0;
 		virtual void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
-
-		virtual void BeginRender() = 0;
-		virtual void EndRender() = 0;
+		virtual void ResetToSwapChain() =0;
 
 		virtual void BeginPipeline(const Ref<RenderPass>& renderPass) = 0;
 		virtual void EndPipeline(const Ref<RenderPass>& renderPass) = 0;

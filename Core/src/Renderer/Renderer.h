@@ -21,8 +21,8 @@ namespace DXR
 		static void Shutdown();
 		static void SetClearColor(const DirectX::XMFLOAT4& color);
 		static void OnWindowResize(uint32_t width, uint32_t height);
-		static void BeginRender();
-		static void EndRender();
+		static void ResetToSwapChain();
+
 		static void BeginRenderPass(const Ref<RenderPass>& renderPass);
 		static void EndRenderPass(const Ref<RenderPass>& renderPass);
 

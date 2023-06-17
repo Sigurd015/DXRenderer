@@ -10,7 +10,7 @@ ExampleLayer::ExampleLayer() :Layer("ExampleLayer")
 void ExampleLayer::OnAttach()
 {
 	m_Meshes = DXR::MeshFactory::CreateBox({ 1.0f,1.0f,1.0f });
-	//m_Meshes = DXR::MeshFactory::CreateSphere(1.0f);
+    //m_Meshes = DXR::MeshFactory::CreateSphere(1.0f);
 	//m_Meshes = DXR::MeshFactory::CreateCapsule(1.0f, 5.0f);
 
 	m_ConstantBuffer = DXR::ConstantBuffer::Create(sizeof(ConstantBuffer), 0);
@@ -50,7 +50,9 @@ void ExampleLayer::OnAttach()
 	spec.RenderPass = m_RenderPass;
 	spec.Shader = shader;
 	m_Pipeline = DXR::Pipeline::Create(spec);
-	m_Meshes->SetMaterial(DXR::Material::Create(shader));
+	m_Material = DXR::Material::Create(shader);
+	m_Material->SetTexture(m_Texture, 0);
+	m_Meshes->SetMaterial(m_Material);
 	m_Pipeline->SetConstantBuffer(m_ConstantBuffer);
 }
 

@@ -5,7 +5,7 @@
 
 namespace DXR
 {
-	DX11IndexBuffer::DX11IndexBuffer(uint32_t* indices, uint32_t count) : m_Count(count)
+	DX11IndexBuffer::DX11IndexBuffer(void* indices, uint32_t count) : m_Count(count)
 	{
 		D3D11_BUFFER_DESC bufferDesc = { 0 };
 		bufferDesc.ByteWidth = count * sizeof(uint32_t);

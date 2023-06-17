@@ -41,4 +41,5 @@ private:
 	DXR::Ref<DXR::Mesh> m_Meshes;
 	DXR::Ref<DXR::RenderPass> m_RenderPass;
 	DXR::Ref<DXR::Pipeline> m_Pipeline;
+	DXR::Ref<DXR::Material> m_Material;
 };

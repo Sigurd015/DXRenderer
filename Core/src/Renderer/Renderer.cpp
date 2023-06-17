@@ -47,20 +47,9 @@ namespace DXR
 			});
 	}
 
-	void Renderer::BeginRender()
+	void Renderer::ResetToSwapChain()
 	{
-		Renderer::Submit([]()
-			{
-				s_RendererAPI->BeginRender();
-			});
-	}
-
-	void Renderer::EndRender()
-	{
-		Renderer::Submit([]()
-			{
-				s_RendererAPI->EndRender();
-			});
+		s_RendererAPI->ResetToSwapChain();
 	}
 
 	void Renderer::SubmitStaticMesh(const Ref<Mesh>& mesh, const  Ref<Pipeline>& pipeline)

@@ -62,12 +62,12 @@ namespace DXR
 
 			if (!m_Minimized)
 			{
-				Renderer::BeginRender();
 				for (Layer* layer : m_LayerStack)
 					layer->OnUpdate(timestep);
-				Renderer::EndRender();
-
+				
 				Renderer::WaitAndRender();
+
+				Renderer::ResetToSwapChain(); //For ImGui Rendering
 
 				m_ImGuiLayer->Begin();
 				for (Layer* layer : m_LayerStack)

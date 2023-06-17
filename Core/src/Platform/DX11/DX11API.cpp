@@ -36,7 +36,7 @@ namespace DXR
 		m_ClearColor = color;
 	}
 
-	void DX11RendererAPI::ResetToBackBuffer()
+	void DX11RendererAPI::ResetToSwapChain()
 	{
 		m_DeviceContext->ClearRenderTargetView(m_RenderTargetView.Get(), &m_ClearColor.x);
 		m_DeviceContext->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
@@ -84,11 +84,6 @@ namespace DXR
 		SetBuffer(width, height, x, y);
 	}
 
-	void DX11RendererAPI::BeginRender()
-	{
-		ResetToBackBuffer();
-	}
-
 	void DX11RendererAPI::BeginPipeline(const Ref<RenderPass>& renderPass)
 	{
 		renderPass->GetSpecification().TargetFramebuffer->ClearAttachment();
@@ -98,11 +93,6 @@ namespace DXR
 	void DX11RendererAPI::EndPipeline(const Ref<RenderPass>& renderPass)
 	{
 		renderPass->GetSpecification().TargetFramebuffer->Unbind();
-	}
-
-	void DX11RendererAPI::EndRender()
-	{
-		ResetToBackBuffer();
 	}
 
 	void DX11RendererAPI::SubmitStaticMesh(const Ref<Mesh>& mesh, const Ref<Pipeline>& pipeline)
