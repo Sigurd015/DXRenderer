@@ -8,7 +8,7 @@
 
 namespace DXR
 {
-	DX11Shader::DX11Shader(const std::string& name)
+	DX11Shader::DX11Shader(const std::string& name) : m_Name(name)
 	{
 		std::string vs = "assets/shaders/cache/" + name + "_v.cso";
 		std::string ps = "assets/shaders/cache/" + name + "_p.cso";

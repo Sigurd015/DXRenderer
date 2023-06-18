@@ -38,7 +38,8 @@ project "Sandbox"
 
 	postbuildcommands 
 	{
-		"{COPY} %{cfg.targetdir}/*.cso assets/shaders/cache/"
+		'{COPY} "%{cfg.targetdir}"/*.cso assets/shaders/cache/',
+		'{COPY} "%{LibraryDir.assimp}"/assimp-vc143-mt.dll "%{cfg.targetdir}"'
 	}
 
 	filter "system:windows"

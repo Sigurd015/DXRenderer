@@ -21,6 +21,7 @@ DXR::Application* DXR::CreateApplication(DXR::ApplicationCommandLineArgs args)
 	spec.Name = "Sandbox";
 	spec.WorkingDirectory = "../Sandbox";
 	spec.CommandLineArgs = args;
+	spec.EnableImGui= true;
 
 	return new Sandbox(spec);
 }

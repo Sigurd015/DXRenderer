@@ -48,16 +48,6 @@ namespace DXR
 
 			return false;
 		}
-
-		static bool IsMousePickFormat(FramebufferTextureFormat format)
-		{
-			switch (format)
-			{
-			case FramebufferTextureFormat::RED8UI:  return true;
-			}
-
-			return false;
-		}
 	}
 
 	DX11Framebuffer::DX11Framebuffer(const FramebufferSpecification& spec) : m_Specification(spec)
@@ -186,11 +176,6 @@ namespace DXR
 	{
 		for (size_t i = 0; i < m_ColorAttachmentRTV.size(); i++)
 		{
-			if (Utils::IsMousePickFormat(m_ColorAttachmentSpecifications[i].TextureFormat))
-			{
-				float temp[4] = { m_Specification.MousePickClearValue,0,0,0 };
-				DX11Context::GetDeviceContext()->ClearRenderTargetView(m_ColorAttachmentRTV[i].Get(), temp);
-			}
 			DX11Context::GetDeviceContext()->ClearRenderTargetView(m_ColorAttachmentRTV[i].Get(), &m_Specification.ClearColor.x);
 		}
 		DX11Context::GetDeviceContext()->ClearDepthStencilView(m_DepthStencilAttachment.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, m_Specification.DepthClearValue, 0);

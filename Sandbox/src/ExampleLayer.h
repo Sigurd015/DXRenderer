@@ -3,9 +3,15 @@
 
 struct ConstantBuffer
 {
-	DirectX::XMMATRIX World;
+	DirectX::XMMATRIX Model;
 	DirectX::XMMATRIX ViewProj;
-	DirectX::XMFLOAT4 Color;
+};
+
+struct DirectionalLight
+{
+	DirectX::XMFLOAT4 Ambient;
+	DirectX::XMFLOAT3 Direction;
+	float padding;
 };
 
 class ExampleLayer :public DXR::Layer
@@ -19,6 +25,7 @@ public:
 	void OnEvent(DXR::Event& evnet) override;
 	void OnImGuiRender() override;
 private:
+	void UI_Tool();
 	bool OnMouseMove(DXR::MouseMovedEvent& event);
 	bool OnMouseButtonDown(DXR::MouseButtonPressedEvent& event);
 	bool OnMouseButtonUp(DXR::MouseButtonReleasedEvent& event);
@@ -29,14 +36,17 @@ private:
 
 	DirectX::XMFLOAT2 m_ViewportSize = { 0.0f, 0.0f };
 	DirectX::XMFLOAT2 m_ViewportBounds[2];
-
 	DXR::EditorCamera m_Camera;
-	float Phi, Theta, Scale, Tx, Ty;
 
-	DXR::Ref<DXR::ConstantBuffer> m_ConstantBuffer;
-	DXR::Ref<DXR::Texture2D> m_Texture;
 	DXR::Ref<DXR::Framebuffer> m_Framebuffer;
-	ConstantBuffer m_ConstantBufferData = {};
+
+	ConstantBuffer m_CameraData = {};
+	ConstantBuffer m_DirLightData = {};
+	DXR::Ref<DXR::ConstantBuffer> m_CameraDataBuffer;
+	DXR::Ref<DXR::ConstantBuffer> m_DirLightDataBuffer;
+
+	DXR::Ref<DXR::Texture2D> m_DiffuseTexture;
+	DXR::Ref<DXR::Texture2D> m_SpecularTexture;
 
 	DXR::Ref<DXR::Mesh> m_Meshes;
 	DXR::Ref<DXR::RenderPass> m_RenderPass;

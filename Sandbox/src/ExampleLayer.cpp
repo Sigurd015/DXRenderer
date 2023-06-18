@@ -9,21 +9,15 @@ ExampleLayer::ExampleLayer() :Layer("ExampleLayer")
 
 void ExampleLayer::OnAttach()
 {
-	m_Meshes = DXR::MeshFactory::CreateBox({ 1.0f,1.0f,1.0f });
-    //m_Meshes = DXR::MeshFactory::CreateSphere(1.0f);
-	//m_Meshes = DXR::MeshFactory::CreateCapsule(1.0f, 5.0f);
+	//m_Meshes = DXR::Renderer::GetMesh("Box");
+	//m_Meshes = DXR::Renderer::GetMesh("Sphere");
+	//m_Meshes = DXR::Renderer::GetMesh("Capsule");
+	m_Meshes = DXR::CreateRef<DXR::Mesh>("Box.obj");
 
-	m_ConstantBuffer = DXR::ConstantBuffer::Create(sizeof(ConstantBuffer), 0);
+	m_CameraDataBuffer = DXR::ConstantBuffer::Create(sizeof(ConstantBuffer), 0);
 
-	m_Texture = DXR::Texture2D::Create("assets/textures/Checkerboard.png");
-	/*	m_WhiteTexture = DXR::Texture2D::Create(1,1);
-		uint32_t whiteTextureData = 0xffffffff;
-		m_WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));*/
-
-	m_ConstantBufferData.World = DirectX::XMMatrixIdentity();
-	Tx = Ty = Phi = Theta = 0.0f;
-	Scale = 1.0f;
-	m_ConstantBufferData.Color = DirectX::XMFLOAT4(0.5f, 0.7f, 0.8f, 0.9f);
+	m_DiffuseTexture = DXR::Texture2D::Create("assets/textures/Container_Diffuse.png");
+	m_SpecularTexture = DXR::Texture2D::Create("assets/textures/Container_Specular.png");
 
 	DXR::FramebufferSpecification fbSpec;
 	fbSpec.Attachments = {
@@ -38,22 +32,17 @@ void ExampleLayer::OnAttach()
 
 	m_RenderPass = DXR::RenderPass::Create({ m_Framebuffer });
 
-	DXR::VertexBufferLayout layout = {
-		  { DXR::ShaderDataType::Float3, "Position" },
-		  { DXR::ShaderDataType::Float3, "Normal" },
-		  { DXR::ShaderDataType::Float2, "TexCoord" },
-	};
-	m_Meshes->GetVertexBuffer()->SetLayout(layout);
-	DXR::Ref<DXR::Shader> shader = DXR::Shader::Create("TestShader");
 	DXR::PipelineSpecification spec;
-	spec.Layout = layout;
+	spec.Layout = m_Meshes->GetVertexBuffer()->GetLayout();
 	spec.RenderPass = m_RenderPass;
-	spec.Shader = shader;
+	spec.Shader = DXR::Renderer::GetShader("Phong");
 	m_Pipeline = DXR::Pipeline::Create(spec);
-	m_Material = DXR::Material::Create(shader);
-	m_Material->SetTexture(m_Texture, 0);
-	m_Meshes->SetMaterial(m_Material);
-	m_Pipeline->SetConstantBuffer(m_ConstantBuffer);
+
+	m_Material = DXR::Material::Create(spec.Shader);
+	m_Material->SetTexture(m_DiffuseTexture, 0); // 0 is Diffuse slot by default
+	m_Material->SetTexture(m_SpecularTexture, 1); // 1 is Specular slot by default
+
+	m_Pipeline->SetConstantBuffer(m_CameraDataBuffer);
 }
 
 void ExampleLayer::OnDetach()
@@ -71,16 +60,17 @@ void ExampleLayer::OnUpdate(DXR::Timestep ts)
 	}
 	m_Camera.OnUpdate(ts);
 
-	m_ConstantBufferData.World = DirectX::XMMatrixTranspose(
-		DirectX::XMMatrixScalingFromVector(DirectX::XMVectorReplicate(Scale)) *
-		DirectX::XMMatrixRotationX(Phi) * DirectX::XMMatrixRotationY(Theta) *
-		DirectX::XMMatrixTranslation(Tx, Ty, 0.0f));
-	m_ConstantBufferData.ViewProj = DirectX::XMMatrixTranspose(m_Camera.GetViewProjection());
-
-	m_ConstantBuffer->SetData(&m_ConstantBufferData, sizeof(ConstantBuffer));
+	m_CameraData.ViewProj = DirectX::XMMatrixTranspose(m_Camera.GetViewProjection());
 
 	DXR::Renderer::BeginRenderPass(m_RenderPass);
-	DXR::Renderer::SubmitStaticMesh(m_Meshes, m_Pipeline);
+
+	m_CameraData.Model = DirectX::XMMatrixTranspose(
+		DirectX::XMMatrixScalingFromVector(DirectX::XMVectorReplicate(1.0f)) *
+		DirectX::XMMatrixRotationX(0.25f) * DirectX::XMMatrixRotationY(0.5f) *
+		DirectX::XMMatrixTranslation(-0.5f, -0.5f, -0.5f));
+	m_CameraDataBuffer->SetData(&m_CameraData, sizeof(ConstantBuffer));
+	DXR::Renderer::SubmitStaticMesh(m_Meshes, m_Material, m_Pipeline);
+
 	DXR::Renderer::EndRenderPass(m_RenderPass);
 }
 
@@ -161,22 +151,7 @@ void ExampleLayer::OnImGuiRender()
 	}
 	style.WindowMinSize.x = minWinSizeX;
 
-	if (ImGui::Begin("Tools"))
-	{
-		if (ImGui::Button("Reset Params"))
-		{
-			Tx = Ty = Phi = Theta = 0.0f;
-			Scale = 1.0f;
-		}
-		ImGui::SliderFloat("Scale", &Scale, 0.2f, 2.0f);
-
-		ImGui::Text("Phi: %.2f degrees", DirectX::XMConvertToDegrees(Phi));
-		ImGui::SliderFloat("##1", &Phi, -DirectX::XM_PI, DirectX::XM_PI, "");
-		ImGui::Text("Theta: %.2f degrees", DirectX::XMConvertToDegrees(Theta));
-		ImGui::SliderFloat("##2", &Theta, -DirectX::XM_PI, DirectX::XM_PI, "");
-		ImGui::ColorEdit4("Color:", &m_ConstantBufferData.Color.x);
-	}
-	ImGui::End();
+	UI_Tool();
 
 	ImGui::Begin("Viewport");
 	DXR::Application::Get().GetImGuiLayer()->BlockEvents(!ImGui::IsWindowHovered());
@@ -185,6 +160,15 @@ void ExampleLayer::OnImGuiRender()
 	ImGui::Image(m_Framebuffer->GetColorAttachment(), ImVec2{ m_ViewportSize.x, m_ViewportSize.y });
 	ImGui::End();
 
+	ImGui::End();
+}
+
+void ExampleLayer::UI_Tool()
+{
+	if (ImGui::Begin("Tools"))
+	{
+
+	}
 	ImGui::End();
 }
 

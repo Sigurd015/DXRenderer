@@ -22,13 +22,15 @@ project "Core"
 	{
 		"src",
 		"%{IncludeDir.ImGui}",
-		"%{IncludeDir.stb_image}"
+		"%{IncludeDir.stb_image}",
+		"%{IncludeDir.assimp}"
 	}
 
 	links
 	{
 		"d3d11.lib",
-		"ImGui"
+		"ImGui",
+		"%{Library.assimp}"
 	}
 
 	filter "system:windows"

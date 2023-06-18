@@ -23,7 +23,7 @@ namespace DXR
 		void BeginPipeline(const Ref<RenderPass>& renderPass) override;
 		void EndPipeline(const Ref<RenderPass>& renderPass) override;
 
-		void SubmitStaticMesh(const Ref<Mesh>& mesh, const Ref<Pipeline>& pipeline) override;
+		void SubmitStaticMesh(const Ref<Mesh>& mesh, const Ref<Material>& material, const Ref<Pipeline>& pipeline) override;
 	private:		
 		void SetBuffer(uint32_t width, uint32_t height, uint32_t x = 0, uint32_t y = 0);
 		Microsoft::WRL::ComPtr<IDXGISwapChain> m_SwapChain;
@@ -32,6 +32,6 @@ namespace DXR
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_RenderTargetView;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_DepthStencilView;
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> m_DepthStencilBuffer;
-		DirectX::XMFLOAT4 m_ClearColor = { 0.3f,0.3f,0.3f,1.0f };
+		DirectX::XMFLOAT4 m_ClearColor = { 0.0f,0.0f,0.0f,1.0f };
 	};
 }

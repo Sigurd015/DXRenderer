@@ -28,6 +28,7 @@ namespace DXR
 		std::string Name = "DXR App";
 		std::string WorkingDirectory;
 		ApplicationCommandLineArgs CommandLineArgs;
+		bool EnableImGui = true;
 	};
 
 	class  Application
@@ -36,6 +37,7 @@ namespace DXR
 		Application(const ApplicationSpecification& specification);
 		virtual ~Application();
 		void Run();
+		void RenderImGui();
 		void OnEvent(Event& e);
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);

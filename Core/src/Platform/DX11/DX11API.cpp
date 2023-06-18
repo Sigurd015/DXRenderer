@@ -95,15 +95,14 @@ namespace DXR
 		renderPass->GetSpecification().TargetFramebuffer->Unbind();
 	}
 
-	void DX11RendererAPI::SubmitStaticMesh(const Ref<Mesh>& mesh, const Ref<Pipeline>& pipeline)
+	void DX11RendererAPI::SubmitStaticMesh(const Ref<Mesh>& mesh, const Ref<Material>& material, const Ref<Pipeline>& pipeline)
 	{
 		mesh->GetVertexBuffer()->Bind();
 		mesh->GetIndexBuffer()->Bind();
 		pipeline->Bind();
-		mesh->GetMaterial()->Bind();
+		material->Bind();
 
 		m_DeviceContext->IASetPrimitiveTopology(PrimitiveTopologyTypeToD3D(pipeline->GetSpecification().Topology));
-		uint32_t count = mesh->GetIndexBuffer()->GetCount();
-		m_DeviceContext->DrawIndexed(count, 0, 0);
+		m_DeviceContext->DrawIndexed(mesh->GetIndexBuffer()->GetCount(), 0, 0);
 	}
 }

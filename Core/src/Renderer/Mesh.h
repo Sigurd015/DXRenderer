@@ -26,15 +26,16 @@ namespace DXR
 	{
 	public:
 		Mesh(const std::string& filename);
-		Mesh(std::vector<Vertex>& vertices, std::vector<Index>& indices);
+		Mesh(const std::vector<Vertex>& vertices, const std::vector<Index>& indices);
 		~Mesh() = default;
 
-		void SetMaterial(Ref<Material> material) { m_Material = material; }
 		Ref<VertexBuffer> GetVertexBuffer() { return m_VertexBuffer; }
 		Ref<IndexBuffer> GetIndexBuffer() { return m_IndexBuffer; }
-		Ref<Material> GetMaterial() { return m_Material; }
 	private:
-		Ref<Material> m_Material;
+		void Load();
+		std::vector<Vertex> m_Vertices;
+		std::vector<Index> m_Indices;
+
 		Ref<VertexBuffer> m_VertexBuffer;
 		Ref<IndexBuffer> m_IndexBuffer;
 	};

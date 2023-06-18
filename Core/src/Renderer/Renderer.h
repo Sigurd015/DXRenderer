@@ -43,10 +43,13 @@ namespace DXR
 			new (storageBuffer) FuncT(std::forward<FuncT>(func));
 		}
 
-		static void SubmitStaticMesh(const Ref<Mesh>& mesh, const  Ref<Pipeline>& pipeline);
+		static void SubmitStaticMesh(const Ref<Mesh>& mesh, const Ref<Material>& material, const Ref<Pipeline>& pipeline);
 
 		static void WaitAndRender();
 
+		static Ref<Shader> GetShader(const std::string& name);
+		static Ref<Mesh> GetMesh(const std::string& name);
+		static Ref<Texture> GetTexture(const std::string& name);
 	private:
 		static RenderCommandQueue& GetRenderCommandQueue();
 	};

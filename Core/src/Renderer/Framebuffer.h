@@ -19,7 +19,6 @@ namespace DXR
 		DEPTH24STENCIL8,
 
 		// Defaults
-		MousePick = RED8UI,
 		Depth = DEPTH24STENCIL8
 	};
 
@@ -45,7 +44,6 @@ namespace DXR
 		FramebufferAttachmentSpecification Attachments;
 		uint32_t Samples = 1;
 		DirectX::XMFLOAT4 ClearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-		int MousePickClearValue = -1;
 		float DepthClearValue = 1.0f;
 		bool SwapChainTarget = false;
 	};

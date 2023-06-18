@@ -17,8 +17,12 @@ namespace DXR
 		m_Window = Create(WindowProps(DXR_BIND_EVENT_FN(Application::OnEvent), m_Specification.Name));
 
 		Renderer::Init();
-		m_ImGuiLayer = new ImGuiLayer();
-		PushOverlay(m_ImGuiLayer);
+
+		if (m_Specification.EnableImGui)
+		{
+			m_ImGuiLayer = new ImGuiLayer();
+			PushOverlay(m_ImGuiLayer);
+		}
 	}
 
 	Application::~Application()
@@ -52,6 +56,19 @@ namespace DXR
 		}
 	}
 
+	void Application::RenderImGui()
+	{
+		if (m_Specification.EnableImGui)
+		{
+			m_ImGuiLayer->Begin();
+			{
+				for (Layer* layer : m_LayerStack)
+					layer->OnImGuiRender();
+			}
+			m_ImGuiLayer->End();
+		}
+	}
+
 	void Application::Run()
 	{
 		while (m_Running)
@@ -64,17 +81,17 @@ namespace DXR
 			{
 				for (Layer* layer : m_LayerStack)
 					layer->OnUpdate(timestep);
-				
+
+				Application* app = this;
+				Renderer::Submit([app]
+					{
+						Renderer::ResetToSwapChain(); //For ImGui Rendering
+						app->RenderImGui();
+					});
+
 				Renderer::WaitAndRender();
-
-				Renderer::ResetToSwapChain(); //For ImGui Rendering
-
-				m_ImGuiLayer->Begin();
-				for (Layer* layer : m_LayerStack)
-					layer->OnImGuiRender();
-				m_ImGuiLayer->End();
 			}
-		
+
 			m_Window->OnUpdate();
 		}
 	}
