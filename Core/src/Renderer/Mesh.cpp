@@ -12,7 +12,10 @@ namespace DXR
 		Assimp::Importer importer;
 		auto pAssimpScene = importer.ReadFile("assets/models/" + filename,
 			aiProcess_Triangulate |
-			aiProcess_JoinIdenticalVertices
+			aiProcess_SortByPType |
+			aiProcess_JoinIdenticalVertices |
+			aiProcess_GenNormals |
+			aiProcess_GenUVCoords
 		);
 
 		if (pAssimpScene && !(pAssimpScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) && pAssimpScene->HasMeshes())
@@ -25,9 +28,9 @@ namespace DXR
 				aiVector3D normal = pMesh->mNormals[i];
 				aiVector3D texCoord = pMesh->mTextureCoords[0][i];
 				m_Vertices.push_back({
-					{ vertex.x, vertex.y, vertex.z },
-					{ normal.x, normal.y, normal.z },
-					{ texCoord.x, texCoord.y }
+					{vertex.x, vertex.y, vertex.z},
+					{normal.x, normal.y, normal.z},
+					{texCoord.x, texCoord.y}
 					});
 			}
 
@@ -48,12 +51,36 @@ namespace DXR
 		Load();
 	}
 
+	Mesh::Mesh(const Ref<Mesh>& other)
+	{
+		m_Vertices = other->m_Vertices;
+		m_Indices = other->m_Indices;
+		Load();
+	}
+
+	void Mesh::Update(const DirectX::XMMATRIX& transform)
+	{
+		//TODO: Why can't update vertices at CPU side? or is this function not correct?
+		/*for (auto& vertex : m_Vertices)
+		{
+			DirectX::XMVECTOR position = DirectX::XMLoadFloat3(&vertex.Position);
+			DirectX::XMVECTOR normal = DirectX::XMLoadFloat3(&vertex.Normal);
+			position = DirectX::XMVector3Transform(position, transform);
+			normal = DirectX::XMVector3TransformNormal(normal, transform);
+
+			DirectX::XMStoreFloat3(&vertex.Position, position);
+			DirectX::XMStoreFloat3(&vertex.Normal, normal);
+		}
+		m_VertexBuffer->SetData(m_Vertices.data(), m_Vertices.size() * sizeof(Vertex));*/
+	}
+
 	void Mesh::Load()
 	{
 		m_VertexBuffer = VertexBuffer::Create(m_Vertices.size() * sizeof(Vertex));
 		m_VertexBuffer->SetData(m_Vertices.data(), m_Vertices.size() * sizeof(Vertex));
 		m_IndexBuffer = IndexBuffer::Create(m_Indices.data(), m_Indices.size() * sizeof(Index));
 
+		//TODO: Make layout dynamic
 		DXR::VertexBufferLayout layout = {
 		   { DXR::ShaderDataType::Float3, "a_Position" },
 		   { DXR::ShaderDataType::Float3, "a_Normal" },

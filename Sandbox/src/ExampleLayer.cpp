@@ -9,40 +9,37 @@ ExampleLayer::ExampleLayer() :Layer("ExampleLayer")
 
 void ExampleLayer::OnAttach()
 {
-	//m_Meshes = DXR::Renderer::GetMesh("Box");
-	//m_Meshes = DXR::Renderer::GetMesh("Sphere");
-	//m_Meshes = DXR::Renderer::GetMesh("Capsule");
-	m_Meshes = DXR::CreateRef<DXR::Mesh>("Box.obj");
-
-	m_CameraDataBuffer = DXR::ConstantBuffer::Create(sizeof(ConstantBuffer), 0);
-
-	m_DiffuseTexture = DXR::Texture2D::Create("assets/textures/Container_Diffuse.png");
-	m_SpecularTexture = DXR::Texture2D::Create("assets/textures/Container_Specular.png");
-
 	DXR::FramebufferSpecification fbSpec;
 	fbSpec.Attachments = {
 		DXR::FramebufferTextureFormat::RGBA8F,
 		DXR::FramebufferTextureFormat::Depth };
 	fbSpec.Width = 1920;
 	fbSpec.Height = 1080;
-	fbSpec.ClearColor = { 0.3f, 0.3f, 0.3f, 1.0f };
 	m_Framebuffer = DXR::Framebuffer::Create(fbSpec);
+	m_RenderPass = DXR::RenderPass::Create({ m_Framebuffer });
 
 	m_Camera = DXR::EditorCamera(30.0f, 1920.0f / 1080.0f, 0.1f, 1000.0f);
 
-	m_RenderPass = DXR::RenderPass::Create({ m_Framebuffer });
+	//m_Mesh = DXR::CreateRef<DXR::Mesh>("Box.obj");
+	m_Mesh = DXR::CreateRef<DXR::Mesh>("Box.fbx");
+
+	m_DiffuseTexture = DXR::Texture2D::Create("assets/textures/Container_Diffuse.png");
+	m_SpecularTexture = DXR::Texture2D::Create("assets/textures/Container_Specular.png");
 
 	DXR::PipelineSpecification spec;
-	spec.Layout = m_Meshes->GetVertexBuffer()->GetLayout();
+	spec.Layout = m_Mesh->GetVertexBuffer()->GetLayout();
 	spec.RenderPass = m_RenderPass;
 	spec.Shader = DXR::Renderer::GetShader("Phong");
+	spec.Topology = DXR::PrimitiveTopology::Triangles;
 	m_Pipeline = DXR::Pipeline::Create(spec);
 
 	m_Material = DXR::Material::Create(spec.Shader);
 	m_Material->SetTexture(m_DiffuseTexture, 0); // 0 is Diffuse slot by default
 	m_Material->SetTexture(m_SpecularTexture, 1); // 1 is Specular slot by default
 
-	m_Pipeline->SetConstantBuffer(m_CameraDataBuffer);
+	m_SceneDataBuffer = DXR::ConstantBuffer::Create(sizeof(SceneData), 0);
+
+	m_Pipeline->SetConstantBuffer(m_SceneDataBuffer);
 }
 
 void ExampleLayer::OnDetach()
@@ -60,16 +57,27 @@ void ExampleLayer::OnUpdate(DXR::Timestep ts)
 	}
 	m_Camera.OnUpdate(ts);
 
-	m_CameraData.ViewProj = DirectX::XMMatrixTranspose(m_Camera.GetViewProjection());
-
 	DXR::Renderer::BeginRenderPass(m_RenderPass);
 
-	m_CameraData.Model = DirectX::XMMatrixTranspose(
-		DirectX::XMMatrixScalingFromVector(DirectX::XMVectorReplicate(1.0f)) *
-		DirectX::XMMatrixRotationX(0.25f) * DirectX::XMMatrixRotationY(0.5f) *
-		DirectX::XMMatrixTranslation(-0.5f, -0.5f, -0.5f));
-	m_CameraDataBuffer->SetData(&m_CameraData, sizeof(ConstantBuffer));
-	DXR::Renderer::SubmitStaticMesh(m_Meshes, m_Material, m_Pipeline);
+	float radius = 10.0f;
+	float angleIncrement = DirectX::XM_2PI / 9.0f;
+	for (size_t i = 0; i < 9; i++)
+	{
+		float angle = i * angleIncrement;
+
+		DirectX::XMVECTOR position = DirectX::XMVectorSet(
+			radius * std::cos(angle),
+			0.0f,
+			radius * std::sin(angle),
+			1.0f
+		);
+		SceneData* data = new SceneData();
+		data->Model = DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslationFromVector(position));
+		data->ViewProj = DirectX::XMMatrixTranspose(m_Camera.GetViewProjection());
+		data->AmbientColor = m_AmbientColor;
+		data->Direction = { 0.0f,0.0f, 0.0f };
+		DXR::Renderer::SubmitStaticMesh(m_Mesh, m_Material, m_Pipeline, (void*)data);
+	}
 
 	DXR::Renderer::EndRenderPass(m_RenderPass);
 }
@@ -167,7 +175,14 @@ void ExampleLayer::UI_Tool()
 {
 	if (ImGui::Begin("Tools"))
 	{
-
+		if (ImGui::Button("Reset"))
+		{
+			m_AmbientColor= { 0.1f, 0.1f, 0.1f, 1.0f };
+		}
+		ImGui::DragFloat("##X", &m_AmbientColor.x, 0.01f, 0.0f, 1.0f, "%.2f");
+		ImGui::DragFloat("##Y", &m_AmbientColor.y, 0.01f, 0.0f, 1.0f, "%.2f");
+		ImGui::DragFloat("##Z", &m_AmbientColor.z, 0.01f, 0.0f, 1.0f, "%.2f");
+		ImGui::DragFloat("##W", &m_AmbientColor.w, 0.01f, 0.0f, 1.0f, "%.2f");
 	}
 	ImGui::End();
 }

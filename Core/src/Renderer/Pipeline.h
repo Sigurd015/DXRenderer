@@ -37,6 +37,7 @@ namespace DXR
 		virtual const PipelineSpecification& GetSpecification() const = 0;
 
 		virtual void SetConstantBuffer(const Ref<ConstantBuffer>& constantBuffer) = 0;
+		virtual Ref<ConstantBuffer> GetConstantBuffer(uint32_t binding = 0) = 0;
 
 		static Ref<Pipeline> Create(const PipelineSpecification& spec);
 	};

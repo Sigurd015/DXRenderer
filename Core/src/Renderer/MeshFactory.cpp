@@ -94,7 +94,7 @@ namespace DXR
 			float z = DirectX::XMScalarSin(float(DirectX::XM_PI * 2) * s * segIncr) * radius;
 
 			Vertex& vertex = vertices.emplace_back();
-			vertex.Position = DirectX::XMFLOAT3(actualRadius * x, actualRadius * y + height * dy, actualRadius * z);
+			vertex.Position = { actualRadius * x, actualRadius * y + height * dy, actualRadius * z };
 		}
 	}
 

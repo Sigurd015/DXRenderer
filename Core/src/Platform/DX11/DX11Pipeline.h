@@ -16,11 +16,12 @@ namespace DXR
 		void Invalidate() override;
 		void Bind() override;
 		void SetConstantBuffer(const Ref<ConstantBuffer>& constantBuffer) override;
+		Ref<ConstantBuffer> GetConstantBuffer(uint32_t binding) override;
 		PipelineSpecification& GetSpecification() override;
 		const PipelineSpecification& GetSpecification() const override;
 	private:
 		PipelineSpecification m_Specification;
 		Microsoft::WRL::ComPtr<ID3D11InputLayout> m_InputLayout;
-		Ref<ConstantBuffer> m_ConstantBuffer;
+		std::vector<Ref<ConstantBuffer>> m_ConstantBuffers;
 	};
 }

@@ -23,7 +23,7 @@ namespace DXR
 		virtual void BeginPipeline(const Ref<RenderPass>& renderPass) = 0;
 		virtual void EndPipeline(const Ref<RenderPass>& renderPass) = 0;
 
-		virtual void SubmitStaticMesh(const Ref<Mesh>& mesh, const Ref<Material>& material, const Ref<Pipeline>& pipeline) = 0;
+		virtual void SubmitStaticMesh(const Ref<Mesh>& mesh, const Ref<Material>& material, const Ref<Pipeline>& pipeline, void* constantData) = 0;
 
 		static API GetAPI() { return s_API; }
 		static Scope<RendererAPI> Create();

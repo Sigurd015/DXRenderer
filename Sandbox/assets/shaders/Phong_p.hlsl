@@ -3,7 +3,7 @@ struct PixelInput
     float4 Position : SV_Position;
     float3 Normal : Nor;
     float2 TexCoord : Tex;
-    float Ambient : Amb;
+    float4 Ambient : Amb;
 };
 
 struct PixelOutput
@@ -22,6 +22,6 @@ PixelOutput main(PixelInput Input)
     PixelOutput Output;
     float4 diffuseColor = u_Diffuse.Sample(u_DiffuseSamplerState, Input.TexCoord);
     float4 specularColor = u_Diffuse.Sample(u_DiffuseSamplerState, Input.TexCoord);
-    Output.Color = Input.Ambient * (diffuseColor + specularColor);
+    Output.Color = Input.Ambient + diffuseColor + specularColor;
     return Output;
 }

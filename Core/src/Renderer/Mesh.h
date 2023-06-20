@@ -12,9 +12,9 @@ namespace DXR
 {
 	struct Vertex
 	{
-		DirectX::XMFLOAT3 Position;
-		DirectX::XMFLOAT3 Normal;
-		DirectX::XMFLOAT2 Texcoord;
+		DirectX::XMFLOAT3 Position;   //Vec3
+		DirectX::XMFLOAT3 Normal;     //Vec3
+		DirectX::XMFLOAT2 Texcoord;   //Vec2
 	};
 
 	struct Index
@@ -27,8 +27,10 @@ namespace DXR
 	public:
 		Mesh(const std::string& filename);
 		Mesh(const std::vector<Vertex>& vertices, const std::vector<Index>& indices);
+		Mesh(const Ref<Mesh>& other);
 		~Mesh() = default;
 
+		void Update(const DirectX::XMMATRIX& transform);
 		Ref<VertexBuffer> GetVertexBuffer() { return m_VertexBuffer; }
 		Ref<IndexBuffer> GetIndexBuffer() { return m_IndexBuffer; }
 	private:

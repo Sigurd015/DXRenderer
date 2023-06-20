@@ -32,7 +32,7 @@ namespace DXR
 		s_Data->ShaderLibrary->Load("Phong");
 
 		// Load default meshes
-		s_Data->Meshes["Box"] = MeshFactory::CreateBox({ 1.0f,1.0f,1.0f });
+		//s_Data->Meshes["Box"] = MeshFactory::CreateBox({ 1.0f,1.0f,1.0f });
 
 		// Load default textures
 		Ref<Texture2D> whiteTexture = Texture2D::Create(1, 1);
@@ -77,11 +77,11 @@ namespace DXR
 		s_RendererAPI->ResetToSwapChain();
 	}
 
-	void Renderer::SubmitStaticMesh(const Ref<Mesh>& mesh, const Ref<Material>& material, const Ref<Pipeline>& pipeline)
+	void Renderer::SubmitStaticMesh(const Ref<Mesh>& mesh, const Ref<Material>& material, const Ref<Pipeline>& pipeline, void* constantData)
 	{
-		Renderer::Submit([mesh, material, pipeline]()
+		Renderer::Submit([mesh, material, pipeline, constantData]()
 			{
-				s_RendererAPI->SubmitStaticMesh(mesh, material, pipeline);
+				s_RendererAPI->SubmitStaticMesh(mesh, material, pipeline, constantData);
 			});
 	}
 

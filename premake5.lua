@@ -23,10 +23,12 @@ IncludeDir["stb_image"] = "%{wks.location}/Core/vendor/stb_image"
 IncludeDir["assimp"] = "%{wks.location}/Core/vendor/assimp/include"
 
 LibraryDir = {}
-LibraryDir["assimp"] = "%{wks.location}/Core/vendor/assimp/bin/%{cfg.buildcfg}"
+LibraryDir["assimp_Debug"] = "%{wks.location}/Core/vendor/assimp/bin/Debug"
+LibraryDir["assimp_Release"] = "%{wks.location}/Core/vendor/assimp/bin/Release"
 
 Library = {}
-Library["assimp"] = "%{LibraryDir.assimp}/assimp-vc143-mt.lib"
+Library["assimp_Debug"] = "%{LibraryDir.assimp_Debug}/assimp-vc143-mtd.lib"
+Library["assimp_Release"] = "%{LibraryDir.assimp_Release}/assimp-vc143-mt.lib"
 
 group "Dependencies"
 	include "Core/vendor/imgui"

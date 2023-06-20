@@ -10,13 +10,17 @@ struct VertexOutput
     float4 Position : SV_Position;
     float3 Normal : Nor;
     float2 TexCoord : Tex;
-    float Ambient : Amb;
+    float4 Ambient : Amb;
 };
 
 cbuffer Camera : register(b0)
 {
     float4x4 u_Model;
     float4x4 u_ViewProjection;
+    
+    // DirectionalLight
+    float4 u_Ambient;
+    float3 u_Direction;
 };
 
 VertexOutput main(VertexInput Input)
@@ -26,6 +30,6 @@ VertexOutput main(VertexInput Input)
     Output.Position = mul(Output.Position, u_ViewProjection);
     Output.Normal = Input.a_Normal;
     Output.TexCoord = Input.a_TexCoord;
-    Output.Ambient = float4(0.3f, 0.3f, 0.3f, 1.0f);
+    Output.Ambient = u_Ambient;
     return Output;
 }

@@ -29,9 +29,11 @@ project "Core"
 	links
 	{
 		"d3d11.lib",
-		"ImGui",
-		"%{Library.assimp}"
+		"ImGui"
 	}
+
+	filter "files:vendor/stb_image/**.cpp"
+	flags { "NoPCH" }
 
 	filter "system:windows"
 		systemversion "latest"
@@ -41,12 +43,27 @@ project "Core"
 		runtime "Debug"
 		symbols "on"
 
+		links
+		{
+			"%{Library.assimp_Debug}"
+		}
+
 	filter "configurations:Release"
-		defines "DXR_RELEASE"
+		defines "DXR_RELEASE"	
 		runtime "Release"
 		optimize "on"
+	
+		links
+		{
+			"%{Library.assimp_Release}"
+		}
 
 	filter "configurations:Dist"
 		defines "DXR_DIST"
 		runtime "Release"
 		optimize "on"
+
+		links
+		{
+			"%{Library.assimp_Release}"
+		}

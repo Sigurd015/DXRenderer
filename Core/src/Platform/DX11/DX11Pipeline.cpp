@@ -51,13 +51,23 @@ namespace DXR
 	void DX11Pipeline::Bind()
 	{
 		DX11Context::GetDeviceContext()->IASetInputLayout(m_InputLayout.Get());
-		if (m_ConstantBuffer != nullptr)
-			m_ConstantBuffer->Bind();
+		if (m_ConstantBuffers.size())
+		{
+			for (auto& constantBuffer : m_ConstantBuffers)
+			{
+				constantBuffer->Bind();
+			}
+		}
 	}
 
 	void DX11Pipeline::SetConstantBuffer(const Ref<ConstantBuffer>& constantBuffer)
 	{
-		m_ConstantBuffer = constantBuffer;
+		m_ConstantBuffers.push_back(constantBuffer);
+	}
+
+	Ref<ConstantBuffer> DX11Pipeline::GetConstantBuffer(uint32_t binding)
+	{
+		return m_ConstantBuffers[binding];
 	}
 
 	PipelineSpecification& DX11Pipeline::GetSpecification()

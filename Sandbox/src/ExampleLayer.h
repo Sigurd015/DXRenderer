@@ -1,17 +1,15 @@
 #pragma once
 #include "DXR.h"
 
-struct ConstantBuffer
+struct SceneData
 {
 	DirectX::XMMATRIX Model;
 	DirectX::XMMATRIX ViewProj;
-};
 
-struct DirectionalLight
-{
-	DirectX::XMFLOAT4 Ambient;
+	// DirectionalLight
+	DirectX::XMFLOAT4 AmbientColor;
 	DirectX::XMFLOAT3 Direction;
-	float padding;
+	float Padding;
 };
 
 class ExampleLayer :public DXR::Layer
@@ -39,17 +37,15 @@ private:
 	DXR::EditorCamera m_Camera;
 
 	DXR::Ref<DXR::Framebuffer> m_Framebuffer;
-
-	ConstantBuffer m_CameraData = {};
-	ConstantBuffer m_DirLightData = {};
-	DXR::Ref<DXR::ConstantBuffer> m_CameraDataBuffer;
-	DXR::Ref<DXR::ConstantBuffer> m_DirLightDataBuffer;
+	DXR::Ref<DXR::ConstantBuffer> m_SceneDataBuffer;
 
 	DXR::Ref<DXR::Texture2D> m_DiffuseTexture;
 	DXR::Ref<DXR::Texture2D> m_SpecularTexture;
 
-	DXR::Ref<DXR::Mesh> m_Meshes;
+	DXR::Ref<DXR::Mesh> m_Mesh;
 	DXR::Ref<DXR::RenderPass> m_RenderPass;
 	DXR::Ref<DXR::Pipeline> m_Pipeline;
 	DXR::Ref<DXR::Material> m_Material;
+
+	DirectX::XMFLOAT4 m_AmbientColor= { 0.1f, 0.1f, 0.1f, 1.0f };
 };
