@@ -6,3 +6,4 @@ build/
 *.sln
 Sandbox/imgui.ini
 Sandbox/assets/shaders/cache
+Sandbox/assets/shaders/temp
