@@ -6,7 +6,7 @@
 
 #include <vector>
 
-namespace DXR
+namespace DXC
 {
 	static DXGI_FORMAT ShaderDataTypeToDX11BaseType(ShaderDataType type)
 	{

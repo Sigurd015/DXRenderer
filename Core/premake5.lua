@@ -39,7 +39,7 @@ project "Core"
 		systemversion "latest"
 		
 	filter "configurations:Debug"
-		defines "DXR_DEBUG"
+		defines "DXC_DEBUG"
 		runtime "Debug"
 		symbols "on"
 
@@ -49,7 +49,7 @@ project "Core"
 		}
 
 	filter "configurations:Release"
-		defines "DXR_RELEASE"	
+		defines "DXC_RELEASE"	
 		runtime "Release"
 		optimize "on"
 	
@@ -59,7 +59,7 @@ project "Core"
 		}
 
 	filter "configurations:Dist"
-		defines "DXR_DIST"
+		defines "DXC_DIST"
 		runtime "Release"
 		optimize "on"
 

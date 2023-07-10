@@ -5,21 +5,21 @@
 #include "Platform/DXCommon.h"
 #include "Renderer/Renderer.h"
 
-namespace DXR
+namespace DXC
 {
 	static D3D11_PRIMITIVE_TOPOLOGY PrimitiveTopologyTypeToD3D(PrimitiveTopology type)
 	{
 		switch (type)
 		{
-		case DXR::PrimitiveTopology::Points:
+		case DXC::PrimitiveTopology::Points:
 			return D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
-		case DXR::PrimitiveTopology::Lines:
+		case DXC::PrimitiveTopology::Lines:
 			return D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
-		case DXR::PrimitiveTopology::Triangles:
+		case DXC::PrimitiveTopology::Triangles:
 			return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		}
 
-		DXR_ASSERT(false, "Unknown Primitive Topology!");
+		DXC_ASSERT(false, "Unknown Primitive Topology!");
 	}
 
 	void DX11RendererAPI::Init()

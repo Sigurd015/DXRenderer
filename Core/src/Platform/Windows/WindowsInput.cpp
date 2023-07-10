@@ -2,7 +2,7 @@
 #include "Input/Input.h"
 #include "Core/Application.h"
 
-namespace DXR
+namespace DXC
 {
 	bool Input::IsKeyPressed(const KeyCode key)
 	{

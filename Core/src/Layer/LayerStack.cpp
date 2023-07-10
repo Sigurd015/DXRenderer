@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "LayerStack.h"
 
-namespace DXR
+namespace DXC
 {
 	LayerStack::~LayerStack()
 	{

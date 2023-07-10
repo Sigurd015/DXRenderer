@@ -7,7 +7,7 @@
 #include <string>
 #include <functional>
 
-namespace DXR
+namespace DXC
 {
 	using EventCallBackFn = std::function<void(Event&)>;
 

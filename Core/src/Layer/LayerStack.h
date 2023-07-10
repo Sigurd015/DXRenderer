@@ -4,7 +4,7 @@
 
 #include <vector>
 
-namespace DXR
+namespace DXC
 {
 	class LayerStack
 	{

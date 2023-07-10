@@ -2,7 +2,7 @@
 #include <ostream>
 #include <WinUser.h>
 
-namespace DXR
+namespace DXC
 {
 	using KeyCode = uint16_t;
 

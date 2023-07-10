@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Renderer/MeshFactory.h"
 
-namespace DXR
+namespace DXC
 {
 	Ref<Mesh> MeshFactory::CreateBox(const DirectX::XMFLOAT3& size)
 	{

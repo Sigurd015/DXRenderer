@@ -6,7 +6,7 @@
 #include <fstream>
 #include <d3dcompiler.h>
 
-namespace DXR
+namespace DXC
 {
 	DX11Shader::DX11Shader(const std::string& name) : m_Name(name)
 	{

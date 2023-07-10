@@ -4,7 +4,7 @@
 
 #include <sstream>
 
-namespace DXR
+namespace DXC
 {
 	class MouseMovedEvent : public Event
 	{

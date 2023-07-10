@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Material.h"
 
-namespace DXR
+namespace DXC
 {
 	Ref<Material> Material::Create(const Ref<Shader>& shader)
 	{

@@ -5,7 +5,7 @@
 
 #include <stb_image.h>
 
-namespace DXR
+namespace DXC
 {
 	void CreateTexDesc(D3D11_USAGE usage, int cpuAccess, uint32_t width, uint32_t height,
 		DXGI_FORMAT format, const D3D11_SUBRESOURCE_DATA* pInitialData, ID3D11Texture2D** ppTexture2D)

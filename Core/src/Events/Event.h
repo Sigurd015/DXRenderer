@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace DXR
+namespace DXC
 {
 	enum class EventType
 	{

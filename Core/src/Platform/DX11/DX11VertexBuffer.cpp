@@ -3,7 +3,7 @@
 #include "DX11Context.h"
 #include "Platform/DXCommon.h"
 
-namespace DXR
+namespace DXC
 {
 	DX11VertexBuffer::DX11VertexBuffer(uint32_t size)
 	{

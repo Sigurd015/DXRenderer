@@ -7,7 +7,7 @@
 #include <utility>
 #include <DirectXMath.h>
 
-namespace DXR
+namespace DXC
 {
 	enum class CameraMode
 	{

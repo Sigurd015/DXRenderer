@@ -5,7 +5,7 @@
 #include "Core/Application.h"
 #include "Platform/DXCommon.h"
 
-namespace DXR
+namespace DXC
 {
 	static const uint32_t s_MaxFramebufferSize = 8192;
 	namespace Utils
@@ -183,7 +183,7 @@ namespace DXR
 
 	void DX11Framebuffer::Resize(uint32_t width, uint32_t height)
 	{
-		DXR_ASSERT(!(width == 0 || height == 0 || width > s_MaxFramebufferSize || height > s_MaxFramebufferSize));
+		DXC_ASSERT(!(width == 0 || height == 0 || width > s_MaxFramebufferSize || height > s_MaxFramebufferSize));
 
 		m_Specification.Width = width;
 		m_Specification.Height = height;

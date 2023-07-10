@@ -10,7 +10,7 @@
 #include <wrl.h>
 #include <DirectXMath.h>
 
-namespace DXR
+namespace DXC
 {
 	class DX11RendererAPI : public RendererAPI
 	{

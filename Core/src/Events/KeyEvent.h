@@ -5,7 +5,7 @@
 
 #include <sstream>
 
-namespace DXR
+namespace DXC
 {
 	class KeyEvent :public Event
 	{

@@ -3,7 +3,7 @@
 #include "Events/Event.h"
 #include "Core/Timestep.h"
 
-namespace DXR
+namespace DXC
 {
 	class Layer
 	{

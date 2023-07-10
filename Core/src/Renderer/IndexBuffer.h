@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string>
 
-namespace DXR
+namespace DXC
 {
 	class IndexBuffer
 	{

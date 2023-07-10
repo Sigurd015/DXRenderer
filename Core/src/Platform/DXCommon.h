@@ -4,7 +4,7 @@
 #include <d3d11.h>
 #include <d3dcompiler.h>
 
-namespace DXR
+namespace DXC
 {
 	void CheckD3DError(HRESULT result);
 }

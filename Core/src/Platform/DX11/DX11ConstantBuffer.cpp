@@ -3,7 +3,7 @@
 #include "DX11Context.h"
 #include "Platform/DXCommon.h"
 
-namespace DXR
+namespace DXC
 {
 	DX11ConstantBuffer::DX11ConstantBuffer(uint32_t size, uint32_t binding) :m_BindingID(binding), m_DataSize(size)
 	{

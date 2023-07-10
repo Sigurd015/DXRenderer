@@ -4,6 +4,6 @@ build/
 *.filters
 *.vcxproj
 *.sln
-Sandbox/imgui.ini
-Sandbox/assets/shaders/cache
-Sandbox/assets/shaders/temp
+Game/imgui.ini
+Game/assets/shaders/cache
+Game/assets/shaders/temp

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Renderer/Shader.h"
 
-namespace DXR
+namespace DXC
 {
 	void ShaderLibrary::Add(const std::string& name, const Ref<Shader>& shader)
 	{

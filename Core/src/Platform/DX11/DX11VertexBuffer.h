@@ -4,7 +4,7 @@
 #include <d3d11.h>
 #include <wrl.h>
 
-namespace DXR
+namespace DXC
 {
 	class DX11VertexBuffer : public VertexBuffer
 	{

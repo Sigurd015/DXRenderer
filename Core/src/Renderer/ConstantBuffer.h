@@ -1,7 +1,7 @@
 #pragma once
 #include "Core/Base.h"
 
-namespace DXR
+namespace DXC
 {
 	class ConstantBuffer
 	{

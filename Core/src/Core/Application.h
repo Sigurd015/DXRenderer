@@ -10,7 +10,7 @@
 
 int main(int argc, char** argv);
 
-namespace DXR
+namespace DXC
 {
 	struct ApplicationCommandLineArgs
 	{

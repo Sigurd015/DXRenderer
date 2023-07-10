@@ -3,7 +3,7 @@
 #include "Platform/DXCommon.h"
 #include "DX11Context.h"
 
-namespace DXR
+namespace DXC
 {
 	DX11IndexBuffer::DX11IndexBuffer(void* indices, uint32_t count) : m_Count(count)
 	{

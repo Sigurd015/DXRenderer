@@ -7,7 +7,7 @@
 #include "MeshFactory.h"
 #include "Texture.h"
 
-namespace DXR
+namespace DXC
 {
 	static Scope<RendererAPI> s_RendererAPI = RendererAPI::Create();
 	struct RendererData

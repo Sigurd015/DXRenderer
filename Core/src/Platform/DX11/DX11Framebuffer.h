@@ -5,7 +5,7 @@
 #include <Windows.h>
 #include <wrl.h>
 
-namespace DXR
+namespace DXC
 {
 	class DX11Framebuffer : public Framebuffer
 	{

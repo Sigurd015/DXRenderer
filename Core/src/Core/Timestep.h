@@ -1,6 +1,6 @@
 #pragma once
 
-namespace DXR
+namespace DXC
 {
 	class Timestep
 	{

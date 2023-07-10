@@ -1,6 +1,6 @@
-workspace "DXRenderer"
+workspace "DxCraft"
 	architecture "x86_64"
-	startproject "Sandbox"
+	startproject "Game"
 
 	configurations
 	{
@@ -36,5 +36,5 @@ group "Dependencies"
 group ""
 
 include "Core"
-include "Sandbox"
+include "Game"
 

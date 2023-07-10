@@ -5,7 +5,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
-namespace DXR
+namespace DXC
 {
 	Mesh::Mesh(const std::string& filename)
 	{
@@ -81,10 +81,10 @@ namespace DXR
 		m_IndexBuffer = IndexBuffer::Create(m_Indices.data(), m_Indices.size() * sizeof(Index));
 
 		//TODO: Make layout dynamic
-		DXR::VertexBufferLayout layout = {
-		   { DXR::ShaderDataType::Float3, "a_Position" },
-		   { DXR::ShaderDataType::Float3, "a_Normal" },
-		   { DXR::ShaderDataType::Float2, "a_TexCoord" },
+		DXC::VertexBufferLayout layout = {
+		   { DXC::ShaderDataType::Float3, "a_Position" },
+		   { DXC::ShaderDataType::Float3, "a_Normal" },
+		   { DXC::ShaderDataType::Float2, "a_TexCoord" },
 		};
 		m_VertexBuffer->SetLayout(layout);
 	}

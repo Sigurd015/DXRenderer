@@ -2,7 +2,7 @@
 
 #include <functional>
 
-namespace DXR
+namespace DXC
 {
 	class RenderCommandQueue
 	{

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Renderer/RenderCommandQueue.h"
 
-namespace DXR
+namespace DXC
 {
 	RenderCommandQueue::RenderCommandQueue()
 	{

@@ -8,7 +8,7 @@
 #include <DirectXMath.h>
 #include <vector>
 
-namespace DXR
+namespace DXC
 {
 	struct Vertex
 	{

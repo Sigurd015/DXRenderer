@@ -11,7 +11,7 @@
 // Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-namespace DXR
+namespace DXC
 {
 	Scope<WindowsWnd> Create(const WindowProps& props)
 	{
@@ -35,11 +35,11 @@ namespace DXR
 
 	void WindowsWnd::Init()
 	{
-		WNDCLASSEX wndClass = { sizeof(wndClass), CS_OWNDC,
+		WNDCLASSEX wndClass = { sizeof(WNDCLASSEX), CS_OWNDC,
 			WndProc, 0, 0, GetModuleHandle(nullptr), nullptr,
 			nullptr, nullptr, nullptr, L"DXR", nullptr };
 
-		DXR_ASSERT(RegisterClassEx(&wndClass), "[RegisterWndClass]Failed");
+		DXC_ASSERT(RegisterClassEx(&wndClass), "[RegisterWndClass]Failed");
 
 		RECT rect = { 0, 0, m_Data.Width, m_Data.Height };
 		AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
@@ -54,7 +54,7 @@ namespace DXR
 			WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
 			rect.right - rect.left, rect.bottom - rect.top, nullptr, nullptr, wndClass.hInstance, this);
 
-		DXR_ASSERT(m_WndHandle, "[CerateWindow]Failed");
+		DXC_ASSERT(m_WndHandle, "[CerateWindow]Failed");
 
 		ShowWindow(m_WndHandle, SW_SHOW);
 

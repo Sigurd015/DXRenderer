@@ -2,7 +2,7 @@
 #include "Layer/Layer.h"
 #include "Events/Event.h"
 
-namespace DXR
+namespace DXC
 {
 	class ImGuiLayer : public Layer
 	{

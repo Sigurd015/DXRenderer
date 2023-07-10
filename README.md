@@ -1,6 +1,6 @@
-# DXRenderer
+# DxCraft
 
- A very simple DirectX 11 Renderer
+A Minecraft clone made with DirectX 11
 
 ## Getting Started
 

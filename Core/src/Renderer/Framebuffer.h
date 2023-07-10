@@ -4,7 +4,7 @@
 #include <vector>
 #include <DirectXMath.h>
 
-namespace DXR
+namespace DXC
 {
 	enum class FramebufferTextureFormat
 	{

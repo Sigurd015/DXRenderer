@@ -2,7 +2,7 @@
 #include "Application.h"
 #include "Renderer/Renderer.h"
 
-namespace DXR
+namespace DXC
 {
 	Application* Application::s_Instance = nullptr;
 
@@ -14,7 +14,7 @@ namespace DXR
 		if (!m_Specification.WorkingDirectory.empty())
 			std::filesystem::current_path(m_Specification.WorkingDirectory);
 
-		m_Window = Create(WindowProps(DXR_BIND_EVENT_FN(Application::OnEvent), m_Specification.Name));
+		m_Window = Create(WindowProps(DXC_BIND_EVENT_FN(Application::OnEvent), m_Specification.Name));
 
 		Renderer::Init();
 
@@ -45,8 +45,8 @@ namespace DXR
 	void Application::OnEvent(Event& e)
 	{
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowCloseEvent>(DXR_BIND_EVENT_FN(Application::OnWindowClose));
-		dispatcher.Dispatch<WindowResizeEvent>(DXR_BIND_EVENT_FN(Application::OnWindowResize));
+		dispatcher.Dispatch<WindowCloseEvent>(DXC_BIND_EVENT_FN(Application::OnWindowClose));
+		dispatcher.Dispatch<WindowResizeEvent>(DXC_BIND_EVENT_FN(Application::OnWindowResize));
 
 		for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
 		{

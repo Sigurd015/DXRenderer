@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace DXR
+namespace DXC
 {
 	enum class ShaderDataType
 	{

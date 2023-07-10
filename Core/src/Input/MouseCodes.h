@@ -1,7 +1,7 @@
 #pragma once
 #include <ostream>
 
-namespace DXR
+namespace DXC
 {
 	using MouseCode = uint16_t;
 

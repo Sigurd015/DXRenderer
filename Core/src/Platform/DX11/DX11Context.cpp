@@ -3,7 +3,7 @@
 #include "Core/Application.h"
 #include "Platform/DXCommon.h"
 
-namespace DXR
+namespace DXC
 {
 	DX11Context* DX11Context::s_Instance = nullptr;
 

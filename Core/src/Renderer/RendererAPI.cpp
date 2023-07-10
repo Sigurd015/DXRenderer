@@ -19,7 +19,7 @@
 #include "Platform/DX11/DX11Texture.h"
 #include "Platform/DX11/DX11Framebuffer.h"
 
-namespace DXR
+namespace DXC
 {
 	RendererAPI::API RendererAPI::s_API = RendererAPI::API::DX11;
 

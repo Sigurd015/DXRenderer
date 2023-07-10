@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <DirectXMath.h>
 
-namespace DXR
+namespace DXC
 {
 	class Renderer
 	{

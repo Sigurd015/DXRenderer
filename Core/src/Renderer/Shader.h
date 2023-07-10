@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <string>
 
-namespace DXR
+namespace DXC
 {
 	class Shader
 	{

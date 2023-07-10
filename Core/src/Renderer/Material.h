@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 
-namespace DXR
+namespace DXC
 {
 	class Material
 	{

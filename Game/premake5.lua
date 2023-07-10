@@ -1,4 +1,4 @@
-project "Sandbox"
+project "Game"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
@@ -46,7 +46,7 @@ project "Sandbox"
 
 	filter "configurations:Debug"
 		kind "ConsoleApp"
-		defines "DXR_DEBUG"
+		defines "DXC_DEBUG"
 		runtime "Debug"
 		symbols "on"
 
@@ -57,7 +57,7 @@ project "Sandbox"
 
 	filter "configurations:Release"
 		kind "ConsoleApp"
-		defines "DXR_RELEASE"
+		defines "DXC_RELEASE"
 		runtime "Release"
 		optimize "on"
 
@@ -68,7 +68,7 @@ project "Sandbox"
 
 	filter "configurations:Dist"
 		kind "WindowedApp"
-		defines "DXR_DIST"
+		defines "DXC_DIST"
 		runtime "Release"
 		optimize "on"
 

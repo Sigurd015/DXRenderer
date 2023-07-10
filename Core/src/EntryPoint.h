@@ -1,30 +1,30 @@
 #pragma once
 
-extern DXR::Application* DXR::CreateApplication(DXR::ApplicationCommandLineArgs args);
+extern DXC::Application* DXC::CreateApplication(DXC::ApplicationCommandLineArgs args);
 
-namespace DXR
+namespace DXC
 {
 	int Main(int argc, char** argv)
 	{
-		auto app = DXR::CreateApplication({ argc, argv });
+		auto app = DXC::CreateApplication({ argc, argv });
 		app->Run();
 		delete app;
 		return 0;
 	}
 }
 
-#ifdef DXR_DIST
+#ifdef DXC_DIST
 
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow)
 {
-	return DXR::Main(__argc, __argv);
+	return DXC::Main(__argc, __argv);
 }
 
 #else
 
 int main(int argc, char** argv)
 {
-	return DXR::Main(argc, argv);
+	return DXC::Main(argc, argv);
 }
 
 #endif

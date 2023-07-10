@@ -4,7 +4,7 @@
 #include <string>
 #include <sstream>
 
-namespace DXR
+namespace DXC
 {
 	class WindowResizeEvent : public Event
 	{
